@@ -1,0 +1,20 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+
+<table class="table table-striped">
+    <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th></th>
+    </tr>
+    {% for object in object_list %}
+        <tr>
+            <td>{{ object.username }}</td>
+            <td>{{ object.is_staff }}</td>
+            <td><a href="{% url user-edit pk=object.pk %}" class="btn">Edit</a></td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

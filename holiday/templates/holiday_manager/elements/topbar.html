@@ -1,0 +1,45 @@
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a href="#" class="brand">Project name</a>
+        <div class="nav-collapse collapse">
+        {% if user.is_authenticated %}
+          <p class="navbar-text pull-right">
+              Logged in as <a class="navbar-link" href="#">{{ user.username }}</a>
+              {% if user.is_staff %}
+                  (staff)
+              {% endif %}
+               - <a class="navbar-link" href="{% url logout %}">logout</a>
+          </p>
+        {% endif %}
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            {% if user.is_staff %}
+                <li><a href="{% url user-list %}">Users</a></li>
+                <li><a href="{% url request-list kind='pending' %}">Requests</a></li>
+                <li><a href="{% url group-list %}">Groups</a></li>
+            {% endif %}
+            <li><a href="{% url add-request %}">Submit request</a></li>
+            <li><a href="{% url user-request-list kind='all' %}">Your requests</a></li>
+            <li class="dropdown">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="nav-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>

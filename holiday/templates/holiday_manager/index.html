@@ -1,0 +1,5 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+    <a rel="nofollow" href="{% url socialauth_begin 'google-oauth2' %}">Login with Google</a>
+{% endblock %}

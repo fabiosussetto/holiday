@@ -1,0 +1,28 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+
+<p>
+    <a class="btn btn-success" href="{% url group-add %}">Add +</a>
+</p>
+
+<table class="table table-striped">
+    <tr>
+        <th>Name</th>
+        <th>Approvers</th>
+        <th></th>
+    </tr>
+    {% for object in object_list %}
+        <tr>
+            <td>{{ object.name }}</td>
+            <td>
+                {% for approver in object.approvers.all %}
+                    <span class="label label-info">{{ approver }}</span>
+                {% endfor %}
+            </td>
+            <td><a href="{% url group-edit pk=object.pk %}" class="btn">Edit</a></td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
