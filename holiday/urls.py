@@ -14,12 +14,15 @@ urlpatterns = patterns('',
     url(r'^done/$', views.done, name='done'),
     url(r'^users/list$', views.UserList.as_view(), name='user-list'),
     url(r'^users/edit/(?P<pk>\d+)$', views.EditUser.as_view(), name='user-edit'),
+    url(r'^users/invite$', views.InviteUser.as_view(), name='user-invite'),
+    
     url(r'^requests/edit/(?P<pk>\d+)$', views.EditHolidayRequest.as_view(), name='request-edit'),
     url(r'^requests/list/(?P<kind>pending|approved|rejected|archived)$', views.HolidayRequestList.as_view(), name='request-list'),
     
     url(r'^groups$', views.ListApprovalGroup.as_view(), name='group-list'),
     url(r'^groups/add$', views.CreateApprovalGroup.as_view(), name='group-add'),
     url(r'^groups/edit/(?P<pk>\d+)$', views.UpdateApprovalGroup.as_view(), name='group-edit'),
+    url(r'^groups/delete/(?P<pk>\d+)$', views.DeleteApprovalGroup.as_view(), name='group-delete'),
     
     url(r'', include('social_auth.urls')),
     # Examples:

@@ -6,6 +6,7 @@ from django.contrib.messages.api import get_messages
 from django.contrib.auth import logout
 import datetime
 from holiday_manager.utils import redirect_to_referer
+from django.db import transaction
 
 from social_auth import __version__ as version
 from social_auth.utils import setting
@@ -15,7 +16,8 @@ from holiday_manager import models, forms
 
 from django.utils.decorators import method_decorator
 from django.forms.formsets import formset_factory
-from django.core.urlresolvers import reverse
+from django.forms.models import inlineformset_factory
+from django.core.urlresolvers import reverse, reverse_lazy
 
 def home(request):
     """Home view, displays login mechanism"""
@@ -103,7 +105,11 @@ class UserList(LoginRequiredViewMixin, generic.ListView):
     
 class EditUser(generic.UpdateView):
     model = models.User
+    form_class = forms.UserForm
     template_name = 'holiday_manager/user_form.html'
+    
+    def get_success_url(self):
+        return reverse('user-edit', kwargs={'pk': self.object.pk})
     
     
 class EditHolidayRequest(LoginRequiredViewMixin, generic.UpdateView):
@@ -161,43 +167,72 @@ class CreateApprovalGroup(generic.CreateView):
     
     def get_context_data(self, **kwargs):
         context = super(CreateApprovalGroup, self).get_context_data(**kwargs)
-        context.update({
-            'formset': formset_factory(forms.ApprovalRuleForm, extra=3, can_order=True, can_delete=True)
-        })
+        context.update({'formset': self.get_formset()})
         return context
-        
-    def form_invalid(self, **kwargs):
-        return self.render_to_response(self.get_context_data(**kwargs))
     
     def get(self, request, *args, **kwargs):
         form_class = forms.ApprovalGroupForm
         form = self.get_form(form_class)
         return self.render_to_response(self.get_context_data(form=form))
-
+        
+    def get_formset(self):
+        RuleFormSet = inlineformset_factory(models.ApprovalGroup, models.ApprovalRule)
+        form_data = self.request.POST if self.request.method == 'POST' else None
+        formset = RuleFormSet(data=form_data, instance=self.object)
+        return formset
+    
+    @transaction.commit_on_success
     def post(self, request, *args, **kwargs):
         form_class = forms.ApprovalGroupForm
         form = self.get_form(form_class)
-        formset = formset_factory(forms.ApprovalRuleForm, extra=3, can_order=True, can_delete=True)(request.POST)
+        formset = self.get_formset()
         if form.is_valid() and formset.is_valid():
-            group = form.save()
-            for rule_form in formset:
-                if 'approver' not in rule_form.cleaned_data:
-                    continue
-                new_rule = rule_form.save(commit=False)
-                new_rule.group = group
-                new_rule.order = rule_form.cleaned_data['ORDER']
-                new_rule.save()
-                group.approvalrule_set.add(new_rule)
-                
-            group.save()
-            return redirect(reverse('group-edit', kwargs={'pk': group.pk}))
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return redirect(reverse('group-edit', kwargs={'pk': self.object.pk}))
         else:
             return self.form_invalid(form=form, formset=formset)
     
+    def form_invalid(self, **kwargs):
+        return self.render_to_response(self.get_context_data(**kwargs))
     
-class UpdateApprovalGroup(generic.UpdateView):
-    model = models.ApprovalGroup
     
+class UpdateApprovalGroup(CreateApprovalGroup):
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(UpdateApprovalGroup, self).get(request, *args, **kwargs)
+        
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(UpdateApprovalGroup, self).post(request, *args, **kwargs)
     
 class ListApprovalGroup(generic.ListView):
     model = models.ApprovalGroup
+    
+    
+class DeleteApprovalGroup(generic.DeleteView):
+    model = models.ApprovalGroup
+    
+    def get_success_url(self):
+        return reverse('group-list')
+        
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return HttpResponseRedirect(self.get_success_url())
+
+        
+class InviteUser(generic.CreateView):
+    model = models.User
+    object = None
+    form_class = forms.InviteUserForm
+    
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.form_class)
+        if form.is_valid():
+            self.object = form.save()
+            return redirect(reverse('user-edit', kwargs={'pk': self.object.pk}))
+        else:
+            return self.form_invalid(form=form)

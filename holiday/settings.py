@@ -162,6 +162,8 @@ LOGIN_REDIRECT_URL = '/'
 SOCIAL_AUTH_COMPLETE_URL_NAME  = 'socialauth_complete'
 SOCIAL_AUTH_ASSOCIATE_URL_NAME = 'socialauth_associate_complete'
 
+SOCIAL_AUTH_USER_MODEL = 'holiday_manager.User'
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -190,3 +192,6 @@ LOGGING = {
         },
     }
 }
+
+ACCOUNT_ACTIVATION_DAYS = 5
+DEFAULT_FROM_EMAIL = 'test@test.com'

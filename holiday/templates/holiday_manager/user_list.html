@@ -1,17 +1,23 @@
 {% extends 'holiday_manager/base.html' %}
 
 {% block content %}
+    
+<p>
+    <a class="btn btn-success" href="{% url user-invite %}">Add +</a>
+</p>
 
 <table class="table table-striped">
     <tr>
         <th>Username</th>
         <th>Role</th>
+        <th>Approval group</th>
         <th></th>
     </tr>
     {% for object in object_list %}
         <tr>
             <td>{{ object.username }}</td>
             <td>{{ object.is_staff }}</td>
+            <td>{{ object.approval_group.name }}</td>
             <td><a href="{% url user-edit pk=object.pk %}" class="btn">Edit</a></td>
         </tr>
     {% endfor %}
