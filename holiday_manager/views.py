@@ -1,12 +1,14 @@
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, render
 from django.contrib.messages.api import get_messages
 from django.contrib.auth import logout
 import datetime
 from holiday_manager.utils import redirect_to_referer
 from django.db import transaction
+
+from django.contrib.auth import authenticate, login as auth_login
 
 from social_auth import __version__ as version
 from social_auth.utils import setting
@@ -27,6 +29,18 @@ def home(request):
     return render_to_response('holiday_manager/index.html', {'version': version},
                               RequestContext(request))
 
+    
+def no_user_association(request):
+    return render(request, 'holiday_manager/no_user_association.html')
+
+def confirm_invitation(request, key=None):
+    user = models.User.registration.activate_user(key)
+    if not user:
+        return redirect('/wrong_key')
+    
+    user = authenticate(email=user.email, skip_password=True)    
+    auth_login(request, user)
+    return render(request, 'holiday_manager/user_welcome.html')
 
 @login_required
 def done(request):
@@ -45,10 +59,61 @@ def error(request):
                                              'messages': messages},
                               RequestContext(request))
 
+    
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+import urlparse
+from django.conf import settings
+    
+@sensitive_post_parameters()
+@csrf_protect
+@never_cache
+def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
+    """
+    Displays the login form and handles the login action.
+    """
+    redirect_to = request.REQUEST.get(redirect_field_name, '')
+    template_name = 'holiday_manager/login.html'
+    authentication_form = forms.AuthenticationForm
+
+    if request.method == "POST":
+        form = authentication_form(data=request.POST)
+        if form.is_valid():
+            netloc = urlparse.urlparse(redirect_to)[1]
+
+            # Use default setting if redirect_to is empty
+            if not redirect_to:
+                redirect_to = settings.LOGIN_REDIRECT_URL
+
+            # Heavier security check -- don't allow redirection to a different
+            # host.
+            elif netloc and netloc != request.get_host():
+                redirect_to = settings.LOGIN_REDIRECT_URL
+
+            # Okay, security checks complete. Log the user in.
+            auth_login(request, form.get_user())
+
+            if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+
+            return HttpResponseRedirect(redirect_to)
+    else:
+        form = authentication_form(request)
+
+    request.session.set_test_cookie()
+
+    context = {
+        'form': form,
+        redirect_field_name: redirect_to,
+    }
+    return render(request, template_name, context)
+
+    
 def logout_view(request):
     logout(request)
     return redirect('home')
-    
 
 class LoginRequiredViewMixin(object):
     
@@ -232,7 +297,9 @@ class InviteUser(generic.CreateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
         if form.is_valid():
-            self.object = form.save()
+            password = models.User.objects.make_random_password()
+            self.object = models.User.registration.create_inactive_user(form.cleaned_data['email'], password, send_email=False)
+            self.object.send_activation_email(temp_password=password)
             return redirect(reverse('user-edit', kwargs={'pk': self.object.pk}))
         else:
             return self.form_invalid(form=form)

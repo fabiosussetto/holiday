@@ -8,17 +8,19 @@
         </a>
         <a href="#" class="brand">Project name</a>
         <div class="nav-collapse collapse">
-        {% if user.is_authenticated %}
-          <p class="navbar-text pull-right">
-              Logged in as <a class="navbar-link" href="#">{{ user.username }}</a>
-              {% if user.is_staff %}
-                  (staff)
-              {% endif %}
-               - <a class="navbar-link" href="{% url logout %}">logout</a>
-          </p>
-        {% endif %}
+        <p class="navbar-text pull-right">
+            {% if user.is_authenticated %}
+                Logged in as <a class="navbar-link" href="#">{{ user }}</a>
+                {% if user.is_staff %}
+                    (staff)
+                {% endif %}
+                 - <a class="navbar-link" href="{% url logout %}">logout</a>
+            {% else %}  
+                <a class="btn" href="{% url login %}">Login</a>
+            {% endif %}
+            </p>
           <ul class="nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="{% url home %}">Home</a></li>
             {% if user.is_staff %}
                 <li><a href="{% url user-list %}">Users</a></li>
                 <li><a href="{% url request-list kind='pending' %}">Requests</a></li>

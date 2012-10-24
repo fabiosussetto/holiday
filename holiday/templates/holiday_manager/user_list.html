@@ -8,14 +8,14 @@
 
 <table class="table table-striped">
     <tr>
-        <th>Username</th>
-        <th>Role</th>
+        <th>Email</th>
+        <th>Is staff</th>
         <th>Approval group</th>
         <th></th>
     </tr>
     {% for object in object_list %}
         <tr>
-            <td>{{ object.username }}</td>
+            <td>{{ object.email }}</td>
             <td>{{ object.is_staff }}</td>
             <td>{{ object.approval_group.name }}</td>
             <td><a href="{% url user-edit pk=object.pk %}" class="btn">Edit</a></td>

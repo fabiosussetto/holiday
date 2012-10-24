@@ -149,7 +149,8 @@ AUTHENTICATION_BACKENDS = (
     'social_auth.backends.google.GoogleOAuth2Backend',
     'social_auth.backends.google.GoogleBackend',
     'social_auth.backends.OpenIDBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    #'django.contrib.auth.backends.ModelBackend',
+    'holiday.auth_backends.CustomUserModelBackend',
 )
 
 GOOGLE_CONSUMER_KEY          = ''
@@ -159,10 +160,22 @@ GOOGLE_OAUTH2_CLIENT_SECRET  = '_phgoyxbjGXFxzdLIGhWM2yw'
 
 LOGIN_REDIRECT_URL = '/'
 
+CUSTOM_USER_MODEL = 'holiday_manager.User'
+
 SOCIAL_AUTH_COMPLETE_URL_NAME  = 'socialauth_complete'
 SOCIAL_AUTH_ASSOCIATE_URL_NAME = 'socialauth_associate_complete'
 
 SOCIAL_AUTH_USER_MODEL = 'holiday_manager.User'
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_auth.backends.pipeline.social.social_auth_user',
+    'social_auth.backends.pipeline.associate.associate_by_email',
+    'holiday_manager.social_auth_pipeline.user_association_not_found',
+    'social_auth.backends.pipeline.social.associate_user',
+    'social_auth.backends.pipeline.social.load_extra_data',
+    'social_auth.backends.pipeline.user.update_user_details'
+)
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -195,3 +208,6 @@ LOGGING = {
 
 ACCOUNT_ACTIVATION_DAYS = 5
 DEFAULT_FROM_EMAIL = 'test@test.com'
+
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025

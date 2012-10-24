@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import UserManager
+from django.contrib.auth.models import UserManager as DjangoUserManager
 from holiday_manager.utils import Choices
 from social_auth.signals import socialauth_registered
 from django.utils import timezone
@@ -44,6 +44,47 @@ except ImportError:
     
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
+
+class UserManager(DjangoUserManager):
+
+    def create_user(self, email=None, password=None):
+        """
+        Creates and saves a User with the given username, email and password.
+        """
+        now = timezone.now()
+        email = UserManager.normalize_email(email)
+        user = self.model(email=email,
+                          is_staff=False, is_active=True, is_superuser=False,
+                          last_login=now, date_joined=now)
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        u = self.create_user(email, password)
+        u.is_staff = True
+        u.is_active = True
+        u.is_superuser = True
+        u.save(using=self._db)
+        return u
+
+    def make_random_password(self, length=10,
+                             allowed_chars='abcdefghjkmnpqrstuvwxyz'
+                                           'ABCDEFGHJKLMNPQRSTUVWXYZ'
+                                           '23456789'):
+        """
+        Generates a random password with the given length and given
+        allowed_chars. Note that the default value of allowed_chars does not
+        have "I" or "O" or letters and digits that look similar -- just to
+        avoid confusion.
+        """
+        return get_random_string(length, allowed_chars)
+
+    def get_by_natural_key(self, email):
+        return self.get(email=email)
+
+        
 class RegistrationManager(models.Manager):
     """
     Custom manager for the ``RegistrationProfile`` model.
@@ -89,7 +130,7 @@ class RegistrationManager(models.Manager):
                 return user
         return False
     
-    def create_inactive_user(self, username, email, password, send_email=True):
+    def create_inactive_user(self, email, password, send_email=True):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -99,19 +140,16 @@ class RegistrationManager(models.Manager):
         user. To disable this, pass ``send_email=False``.
         
         """
-        new_user = User.objects.create_user(username, email, password)
+        new_user = User.objects.create_user(email, password)
         new_user.is_active = False
         
         salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-        username = new_user.username
-        if isinstance(username, unicode):
-            username = username.encode('utf-8')
-        new_user.activation_key = hashlib.sha1(salt+username).hexdigest()
+        new_user.activation_key = hashlib.sha1(salt + email).hexdigest()
         
         new_user.save()
 
         if send_email:
-            registration_profile.send_activation_email()
+            new_user.send_activation_email()
 
         return new_user
     create_inactive_user = transaction.commit_on_success(create_inactive_user)
@@ -139,9 +177,10 @@ class User(models.Model):
 
     Username and password are required. Other fields are optional.
     """
-    username = models.CharField(_('username'), max_length=30, unique=True,
-        help_text=_('Required. 30 characters or fewer. Letters, numbers and '
-                    '@/./+/-/_ characters'))
+    #username = models.CharField(_('username'), max_length=30, unique=True,
+    #    help_text=_('Required. 30 characters or fewer. Letters, numbers and '
+    #                '@/./+/-/_ characters'))
+    
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     email = models.EmailField(_('e-mail address'), blank=True)
@@ -163,16 +202,19 @@ class User(models.Model):
     activation_key = models.CharField(max_length=40)
     
     objects = UserManager()
+    
+    registration = RegistrationManager()
 
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
     def __unicode__(self):
-        return self.username
+        #return self.username
+        return self.email
 
     def natural_key(self):
-        return (self.username,)
+        return (self.email,)
 
     #def get_absolute_url(self):
     #    return "/users/%s/" % urllib.quote(smart_str(self.username))
@@ -218,100 +260,12 @@ class User(models.Model):
     def has_usable_password(self):
         return is_password_usable(self.password)
 
-    #def get_group_permissions(self, obj=None):
-    #    """
-    #    Returns a list of permission strings that this user has through his/her
-    #    groups. This method queries all available auth backends. If an object
-    #    is passed in, only permissions matching this object are returned.
-    #    """
-    #    permissions = set()
-    #    for backend in auth.get_backends():
-    #        if hasattr(backend, "get_group_permissions"):
-    #            if obj is not None:
-    #                permissions.update(backend.get_group_permissions(self,
-    #                                                                 obj))
-    #            else:
-    #                permissions.update(backend.get_group_permissions(self))
-    #    return permissions
-    #
-    #def get_all_permissions(self, obj=None):
-    #    return _user_get_all_permissions(self, obj)
-    #
-    #def has_perm(self, perm, obj=None):
-    #    """
-    #    Returns True if the user has the specified permission. This method
-    #    queries all available auth backends, but returns immediately if any
-    #    backend returns True. Thus, a user who has permission from a single
-    #    auth backend is assumed to have permission in general. If an object is
-    #    provided, permissions for this specific object are checked.
-    #    """
-    #
-    #    # Active superusers have all permissions.
-    #    if self.is_active and self.is_superuser:
-    #        return True
-    #
-    #    # Otherwise we need to check the backends.
-    #    return _user_has_perm(self, perm, obj)
-    #
-    #def has_perms(self, perm_list, obj=None):
-    #    """
-    #    Returns True if the user has each of the specified permissions. If
-    #    object is passed, it checks if the user has all required perms for this
-    #    object.
-    #    """
-    #    for perm in perm_list:
-    #        if not self.has_perm(perm, obj):
-    #            return False
-    #    return True
-    #
-    #def has_module_perms(self, app_label):
-    #    """
-    #    Returns True if the user has any permissions in the given app label.
-    #    Uses pretty much the same logic as has_perm, above.
-    #    """
-    #    # Active superusers have all permissions.
-    #    if self.is_active and self.is_superuser:
-    #        return True
-    #
-    #    return _user_has_module_perms(self, app_label)
-
     def email_user(self, subject, message, from_email=None):
         """
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email])
 
-    #def get_profile(self):
-    #    """
-    #    Returns site-specific profile for this user. Raises
-    #    SiteProfileNotAvailable if this site does not allow profiles.
-    #    """
-    #    if not hasattr(self, '_profile_cache'):
-    #        from django.conf import settings
-    #        if not getattr(settings, 'AUTH_PROFILE_MODULE', False):
-    #            raise SiteProfileNotAvailable(
-    #                'You need to set AUTH_PROFILE_MODULE in your project '
-    #                'settings')
-    #        try:
-    #            app_label, model_name = settings.AUTH_PROFILE_MODULE.split('.')
-    #        except ValueError:
-    #            raise SiteProfileNotAvailable(
-    #                'app_label and model_name should be separated by a dot in '
-    #                'the AUTH_PROFILE_MODULE setting')
-    #        try:
-    #            model = models.get_model(app_label, model_name)
-    #            if model is None:
-    #                raise SiteProfileNotAvailable(
-    #                    'Unable to load the profile model, check '
-    #                    'AUTH_PROFILE_MODULE in your project settings')
-    #            self._profile_cache = model._default_manager.using(
-    #                               self._state.db).get(user__id__exact=self.id)
-    #            self._profile_cache.user = self
-    #        except (ImportError, ImproperlyConfigured):
-    #            raise SiteProfileNotAvailable
-    #    return self._profile_cache
-        
-    
     def activation_key_expired(self):
         """
         Determine whether this ``RegistrationProfile``'s activation
@@ -335,11 +289,11 @@ class User(models.Model):
         
         """
         expiration_date = datetime.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS)
-        return self.activation_key == self.ACTIVATED or \
-               (self.user.date_joined + expiration_date <= datetime_now())
+        return self.activation_key == RegistrationManager.ACTIVATED or \
+               (self.date_joined + expiration_date <= datetime_now())
     activation_key_expired.boolean = True
 
-    def send_activation_email(self, site):
+    def send_activation_email(self, temp_password=None):
         """
         Send an activation email to the user associated with this
         ``RegistrationProfile``.
@@ -377,25 +331,22 @@ class User(models.Model):
             framework for details regarding these objects' interfaces.
 
         """
-        ctx_dict = {'activation_key': self.activation_key,
-                    'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
-                    'site': site}
-        subject = render_to_string('registration/activation_email_subject.txt',
-                                   ctx_dict)
-        # Email subject *must not* contain newlines
-        subject = ''.join(subject.splitlines())
+        ctx_dict = {
+            'activation_key': self.activation_key,
+            'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
+            'temp_password': temp_password
+        }
+        #subject = render_to_string('registration/activation_email_subject.txt',
+        #                           ctx_dict)
+        ## Email subject *must not* contain newlines
+        #subject = ''.join(subject.splitlines())
+        subject = 'Holiday - invitation'
         
         message = render_to_string('registration/activation_email.txt',
                                    ctx_dict)
         
         self.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
 
-
-
-#class CustomUser(User):
-#    approval_group = models.ForeignKey('ApprovalGroup', blank=True, null=True, on_delete=models.SET_NULL)
-#    
-#    objects = UserManager()
 
 class HolidayRequest(models.Model):
     
@@ -472,11 +423,3 @@ class ApprovalRule(models.Model):
     
     class Meta:
         ordering = ('order',)
-    
-    
-#def new_users_handler(sender, user, response, details, **kwargs):
-#    print 'XXX Response: %s' % response["picture"]
-#
-#        
-#socialauth_registered.connect(new_users_handler, sender=None)
-

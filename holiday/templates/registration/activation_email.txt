@@ -1,0 +1,10 @@
+Hi,
+you've been invite to use Holidays.
+
+{% if temp_password %}
+Your temporary password is: {{ temp_password }}
+{% endif %}
+
+Please confirm your invitation by visiting the following link:
+
+{% url user-confirm-invitation key=activation_key %}
