@@ -78,3 +78,4 @@ class ApprovalRule(models.Model):
     
     class Meta:
         ordering = ('order',)
+        

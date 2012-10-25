@@ -1,3 +1,4 @@
+{% load misc %}
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -8,17 +9,17 @@
         </a>
         <a href="#" class="brand">Project name</a>
         <div class="nav-collapse collapse">
-        <p class="navbar-text pull-right">
+        <div class="navbar-text pull-right">
             {% if user.is_authenticated %}
-                Logged in as <a class="navbar-link" href="#">{{ user }}</a>
-                {% if user.is_staff %}
-                    (staff)
-                {% endif %}
+                <div class="user-badge">
+                    {% profile_pic user %}
+                    {{ user }}
+                </div>
                  - <a class="navbar-link" href="{% url invites:logout %}">logout</a>
             {% else %}  
                 <a class="btn" href="{% url invites:login %}">Login</a>
             {% endif %}
-            </p>
+        </div>
           <ul class="nav">
             <li class="active"><a href="{% url home %}">Home</a></li>
             {% if user.is_staff %}

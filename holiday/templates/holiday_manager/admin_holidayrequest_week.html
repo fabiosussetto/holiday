@@ -14,7 +14,7 @@
     </tr>
         {% for obj in object_list %}
             <tr>
-                <td style="width: 15%">{{ obj.author }}</td>
+                <td style="width: 15%">{% profile_pic obj.author %} {{ obj.author }}</td>
                 {% in_date_range obj week_days %}
             </tr>
         {% endfor %}

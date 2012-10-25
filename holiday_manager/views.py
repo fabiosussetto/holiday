@@ -20,6 +20,7 @@ from invites.models import User
 
 from holiday_manager.cal import days_of_week
 
+
 def home(request):
     """Home view, displays login mechanism"""
     #if request.user.is_authenticated():
@@ -158,7 +159,10 @@ class HolidayRequestWeek(LoginRequiredViewMixin, generic.ListView):
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        return queryset.filter(Q(start_date__gte=self.week_days[0])|Q(end_date__lte=self.week_days[-1]))
+        return queryset.filter(
+            Q(start_date__range=(self.week_days[0], self.week_days[-1]))
+            | Q(end_date__range=(self.week_days[0], self.week_days[-1]))
+        )
 
         
 class ChangeRequestStatus(LoginRequiredViewMixin, generic.CreateView):

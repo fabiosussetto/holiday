@@ -27,3 +27,17 @@ urlpatterns = patterns('',
     
     url(r'', include('social_auth.urls')),
 )
+
+
+from social_auth.backends import google
+from social_auth.signals import pre_update
+        
+def social_extra_values(sender, user, response, details, **kwargs):
+    if 'id' in response and sender == google.GoogleOAuth2Backend:
+        try:
+            user.google_pic_url = response['picture']
+            return True
+        except KeyError:
+            pass
+
+pre_update.connect(social_extra_values, sender=None)

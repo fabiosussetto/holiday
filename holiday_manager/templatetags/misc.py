@@ -1,6 +1,16 @@
 from django.template import Library, Node, TemplateSyntaxError
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 register = Library()
+
+@register.simple_tag
+def profile_pic(user):
+    output = ''
+    if user.google_pic_url:
+        output = '<img src="%s" class="user-pic">' % user.google_pic_url
+    else:
+        output = '<img src="%s" class="user-pic missing">' % staticfiles_storage.url('img/missing_pic.gif')
+    return output
 
 @register.simple_tag
 def in_date_range(obj, week_days):

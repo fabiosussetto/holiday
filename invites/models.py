@@ -24,6 +24,7 @@ from holiday_manager.models import ApprovalGroup
     
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
+
 class UserManager(DjangoUserManager):
 
     def create_user(self, email=None, password=None):
@@ -183,6 +184,9 @@ class User(models.Model):
     
     activation_key = models.CharField(max_length=40)
     
+    google_pic_url = models.CharField(max_length=200, null=True, blank=True)
+    
+    
     objects = UserManager()
     
     registration = RegistrationManager()
@@ -192,7 +196,8 @@ class User(models.Model):
         verbose_name_plural = _('users')
 
     def __unicode__(self):
-        #return self.username
+        if self.first_name and self.last_name:
+            return '%s %s' % (self.first_name, self.last_name)
         return self.email
 
     def natural_key(self):
@@ -328,3 +333,4 @@ class User(models.Model):
                                    ctx_dict)
         
         self.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
+        
