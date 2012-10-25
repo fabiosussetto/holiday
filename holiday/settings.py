@@ -132,16 +132,13 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    #'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'south',
     'social_auth',
+    'invites',
     'holiday_manager'
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -160,12 +157,12 @@ GOOGLE_OAUTH2_CLIENT_SECRET  = '_phgoyxbjGXFxzdLIGhWM2yw'
 
 LOGIN_REDIRECT_URL = '/'
 
-CUSTOM_USER_MODEL = 'holiday_manager.User'
+CUSTOM_USER_MODEL = 'invites.User'
 
 SOCIAL_AUTH_COMPLETE_URL_NAME  = 'socialauth_complete'
 SOCIAL_AUTH_ASSOCIATE_URL_NAME = 'socialauth_associate_complete'
 
-SOCIAL_AUTH_USER_MODEL = 'holiday_manager.User'
+SOCIAL_AUTH_USER_MODEL = 'invites.User'
 
 SOCIAL_AUTH_PIPELINE = (
     'social_auth.backends.pipeline.social.social_auth_user',

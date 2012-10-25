@@ -3,5 +3,5 @@ from django.http import HttpResponseRedirect
 
 def user_association_not_found(**kwargs):
     if kwargs.get('user') is None:
-        return HttpResponseRedirect(reverse('no-user-association'))
+        return HttpResponseRedirect(reverse('invites:no-user-association'))
     return kwargs

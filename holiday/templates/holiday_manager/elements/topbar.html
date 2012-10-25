@@ -14,32 +14,32 @@
                 {% if user.is_staff %}
                     (staff)
                 {% endif %}
-                 - <a class="navbar-link" href="{% url logout %}">logout</a>
+                 - <a class="navbar-link" href="{% url invites:logout %}">logout</a>
             {% else %}  
-                <a class="btn" href="{% url login %}">Login</a>
+                <a class="btn" href="{% url invites:login %}">Login</a>
             {% endif %}
             </p>
           <ul class="nav">
             <li class="active"><a href="{% url home %}">Home</a></li>
             {% if user.is_staff %}
-                <li><a href="{% url user-list %}">Users</a></li>
-                <li><a href="{% url request-list kind='pending' %}">Requests</a></li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Users <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="{% url user-list %}">User list</a></li>
+                      <li><a href="{% url invites:invite %}">Invite user</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Requests <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="{% url request-list kind='pending' %}">List</a></li>
+                      <li><a href="{% url weekly-requests %}">By week</a></li>
+                    </ul>
+                </li>
                 <li><a href="{% url group-list %}">Groups</a></li>
             {% endif %}
             <li><a href="{% url add-request %}">Submit request</a></li>
             <li><a href="{% url user-request-list kind='all' %}">Your requests</a></li>
-            <li class="dropdown">
-              <a data-toggle="dropdown" class="dropdown-toggle" href="#">Dropdown <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="nav-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-              </ul>
-            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

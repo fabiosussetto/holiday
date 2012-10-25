@@ -1,0 +1,32 @@
+{% extends 'holiday_manager/base.html' %}
+{% load misc %}
+
+{% block content %}
+
+<h4>Holiday requests by week</h4>
+
+<table class="table table-striped holiday_week">
+    <tr>
+        <th></th>
+        {% for day in week_days %}
+            <th>{{ day|date:"D j" }}</th>
+        {% endfor %}
+    </tr>
+        {% for obj in object_list %}
+            <tr>
+                <td style="width: 15%">{{ obj.author }}</td>
+                {% in_date_range obj week_days %}
+            </tr>
+        {% endfor %}
+</table>
+
+<ul class="pager">
+    <li class="previous">
+        <a href="{% url weekly-requests %}?week={{ prev_week }}">&larr; Prev week</a>
+    </li>
+    <li class="next">
+        <a href="{% url weekly-requests %}?week={{ next_week }}">Next week &rarr;</a>
+    </li>
+</ul>
+
+{% endblock %}

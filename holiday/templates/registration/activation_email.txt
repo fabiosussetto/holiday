@@ -7,4 +7,4 @@ Your temporary password is: {{ temp_password }}
 
 Please confirm your invitation by visiting the following link:
 
-{% url user-confirm-invitation key=activation_key %}
+{% url invites:confirm key=activation_key %}

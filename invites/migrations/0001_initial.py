@@ -8,23 +8,27 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'HolidayRequestStatus'
-        db.create_table('holiday_manager_holidayrequeststatus', (
+        # Adding model 'User'
+        db.create_table('invites_user', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('request', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['holiday_manager.HolidayRequest'])),
-            ('changed_on', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('prev_status', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('new_status', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('comment', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('send_notification', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=30, blank=True)),
+            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=30, blank=True)),
+            ('email', self.gf('django.db.models.fields.EmailField')(max_length=75, blank=True)),
+            ('password', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('is_staff', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('is_active', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('is_superuser', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('last_login', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('date_joined', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('approval_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['holiday_manager.ApprovalGroup'], null=True, on_delete=models.SET_NULL, blank=True)),
+            ('activation_key', self.gf('django.db.models.fields.CharField')(max_length=40)),
         ))
-        db.send_create_signal('holiday_manager', ['HolidayRequestStatus'])
+        db.send_create_signal('invites', ['User'])
 
 
     def backwards(self, orm):
-        # Deleting model 'HolidayRequestStatus'
-        db.delete_table('holiday_manager_holidayrequeststatus')
+        # Deleting model 'User'
+        db.delete_table('invites_user')
 
 
     models = {
@@ -64,28 +68,34 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'holiday_manager.holidayrequest': {
-            'Meta': {'object_name': 'HolidayRequest'},
-            'approved_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'end_date': ('django.db.models.fields.DateField', [], {}),
+        'holiday_manager.approvalgroup': {
+            'Meta': {'object_name': 'ApprovalGroup'},
+            'approvers': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.User']", 'through': "orm['holiday_manager.ApprovalRule']", 'symmetrical': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'requested_on': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'start_date': ('django.db.models.fields.DateField', [], {}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'pending'", 'max_length': '50', 'blank': 'True'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'holiday_manager.holidayrequeststatus': {
-            'Meta': {'object_name': 'HolidayRequestStatus'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'changed_on': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'comment': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+        'holiday_manager.approvalrule': {
+            'Meta': {'ordering': "('order',)", 'object_name': 'ApprovalRule'},
+            'approver': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'group': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['holiday_manager.ApprovalGroup']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'new_status': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'prev_status': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'request': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['holiday_manager.HolidayRequest']"}),
-            'send_notification': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
+            'order': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0'})
+        },
+        'invites.user': {
+            'Meta': {'object_name': 'User'},
+            'activation_key': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
+            'approval_group': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['holiday_manager.ApprovalGroup']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         }
     }
 
-    complete_apps = ['holiday_manager']
+    complete_apps = ['invites']
