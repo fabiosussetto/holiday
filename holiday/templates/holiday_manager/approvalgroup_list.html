@@ -16,7 +16,7 @@
         <tr>
             <td>{{ object.name }}</td>
             <td>
-                {% for approver in object.approvers.all %}
+                {% for approver in object.ordered_approvers %}
                     <span class="label label-info">{{ approver }}</span>
                 {% endfor %}
             </td>

@@ -1,17 +1,14 @@
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.contrib.messages.api import get_messages
 import datetime
 from holiday_manager.utils import redirect_to_referer
 from django.db import transaction
-from django.db.models import Q
 
 from django.views import generic
 from holiday_manager import models, forms
 
-from django.utils.decorators import method_decorator
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
 
@@ -19,6 +16,8 @@ from invites import forms as invite_forms
 from invites.models import User
 
 from holiday_manager.cal import days_of_week
+
+from holiday_manager.views import LoginRequiredViewMixin, FilteredListView
 
 
 def home(request):
@@ -37,22 +36,30 @@ def error(request):
                               RequestContext(request))
 
     
-class LoginRequiredViewMixin(object):
-    
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredViewMixin, self).dispatch(*args, **kwargs)
-
     
 class AddHolidayRequest(LoginRequiredViewMixin, generic.CreateView):
     model = models.HolidayRequest
     form_class = forms.AddHolidayRequestForm
     success_url = '/'
+    initial = {
+        'start_date': datetime.datetime.now().date(),
+        'end_date': datetime.datetime.now().date()
+    }
+    
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        form.instance.author = self.request.user
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.author = self.request.user
-        self.object.save()
+        request, approvals = self.object.submit()
+        self.object = request
         return super(AddHolidayRequest, self).form_valid(form)
     
     
@@ -108,36 +115,20 @@ class EditHolidayRequest(LoginRequiredViewMixin, generic.UpdateView):
         return redirect_to_referer(self.request)
         
         
-class HolidayRequestList(LoginRequiredViewMixin, generic.ListView):
+class HolidayRequestList(LoginRequiredViewMixin, FilteredListView):
     model = models.HolidayRequest
     template_name = 'holiday_manager/admin_holidayrequest_list.html'
-    kind = 'pending'
-
-    def get(self, request, *args, **kwargs):
-        self.kind = kwargs['kind']
-        return super(HolidayRequestList, self).get(request, *args, **kwargs)
-        
-    def get_context_data(self, **kwargs):
-        context = super(HolidayRequestList, self).get_context_data(**kwargs)
-        context.update({'kind': self.kind})
-        return context
     
-    def get_queryset(self):
-        queryset = super(HolidayRequestList, self).get_queryset()
-        if self.kind == 'pending':
-            queryset = queryset.filter(status=models.HolidayRequest.STATUS.pending)
-        if self.kind == 'approved':
-            queryset = queryset.filter(status=models.HolidayRequest.STATUS.approved)
-        elif self.kind == 'rejected':
-            queryset = queryset.filter(status=models.HolidayRequest.STATUS.rejected)
-        elif self.kind == 'archived':
-            queryset = queryset.filter(start_date__gt=datetime.datetime.now())
-        return queryset.filter(author=self.request.user)
+    kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
+    model_kind_field = 'status'
+    
         
-        
-class HolidayRequestWeek(LoginRequiredViewMixin, generic.ListView):
+class HolidayRequestWeek(LoginRequiredViewMixin, FilteredListView):
     model = models.HolidayRequest
     template_name = 'holiday_manager/admin_holidayrequest_week.html'
+    
+    kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
+    model_kind_field = 'status'
 
     def get(self, request, *args, **kwargs):
         curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
@@ -153,16 +144,13 @@ class HolidayRequestWeek(LoginRequiredViewMixin, generic.ListView):
             'week_days': self.week_days,
             'week_num': self.week_num,
             'prev_week': self.prev_week,
-            'next_week': self.next_week
+            'next_week': self.next_week,
         })
         return context
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        return queryset.filter(
-            Q(start_date__range=(self.week_days[0], self.week_days[-1]))
-            | Q(end_date__range=(self.week_days[0], self.week_days[-1]))
-        )
+        return queryset.date_range(self.week_days[0], self.week_days[-1])
 
         
 class ChangeRequestStatus(LoginRequiredViewMixin, generic.CreateView):
@@ -238,3 +226,42 @@ class DeleteApprovalGroup(generic.DeleteView):
         self.object = self.get_object()
         self.object.delete()
         return HttpResponseRedirect(self.get_success_url())
+        
+        
+class HolidayApprovalList(generic.ListView):
+    model = models.HolidayApproval
+    
+    def get_queryset(self):
+        queryset = super(HolidayApprovalList, self).get_queryset()
+        return queryset.filter(
+            approver=self.request.user,
+            status__in=(models.HolidayApproval.STATUS.pending, models.HolidayApproval.STATUS.waiting),
+        ).order_by('order')
+    
+    
+class ApproveRequest(generic.UpdateView):
+    model = models.HolidayApproval
+    form_class = forms.ApproveRequestForm
+    
+    def get_success_url(self):
+        return reverse('approvalrequest-list')
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.approve()
+        return super(ApproveRequest, self).form_valid(form)
+        
+        
+class CancelRequest(generic.UpdateView):
+    model = models.HolidayRequest
+    #form_class = forms.ApproveRequestForm
+    
+    def get_success_url(self):
+        return reverse('user-request-list', kwargs={'kind': 'all'})
+        
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.author_cancel()
+        return HttpResponseRedirect(self.get_success_url())
+        
+    

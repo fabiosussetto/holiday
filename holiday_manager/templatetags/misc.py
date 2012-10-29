@@ -7,7 +7,7 @@ register = Library()
 def profile_pic(user):
     output = ''
     if user.google_pic_url:
-        output = '<img src="%s" class="user-pic">' % user.google_pic_url
+        output = '<img src="%s" class="user-pic">' % user.google_pic
     else:
         output = '<img src="%s" class="user-pic missing">' % staticfiles_storage.url('img/missing_pic.gif')
     return output
@@ -22,9 +22,9 @@ def in_date_range(obj, week_days):
                 css_class = 'first'
             elif day == obj.end_date:
                 css_class = 'last'
-            output.append('<td class="day %s"><span></span></td>' % css_class)
+            output.append('<td class="day %s %s"><span></span></td>' % (css_class, obj.status))
         else:
-            output.append('<td class="day"></td>')
+            output.append('<td class="day %s"></td>' % obj.status)
             
     return ''.join(output)
 

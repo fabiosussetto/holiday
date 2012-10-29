@@ -57,7 +57,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
 
 def logout(request):
     auth_logout(request)
-    return redirect('home')
+    return redirect('invites:login')
     
 def no_user_association(request):
     return render(request, 'no_user_association.html')

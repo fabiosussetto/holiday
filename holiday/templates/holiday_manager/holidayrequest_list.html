@@ -1,6 +1,8 @@
 {% extends 'holiday_manager/base.html' %}
 
 {% block content %}
+    
+<h4>You holiday requests</h4>
 
 <ul class="nav nav-tabs">
     <li class="{% if kind == 'all' %}active{% endif %}">
@@ -20,6 +22,7 @@
         <th>From</th>
         <th>To</th>
         <th>Status</th>
+        <th></th>
     </tr>
     {% for object in object_list %}
         <tr>
@@ -27,6 +30,13 @@
             <td>{{ object.start_date }}</td>
             <td>{{ object.end_date }}</td>
             <td>{{ object.status }}</td>
+            <td>
+                {% if object.is_cancellable %}
+                <form action="{% url user-cancel-request pk=object.pk %}" method="post">{% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Cancel</button>
+                </form>
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
 </table>

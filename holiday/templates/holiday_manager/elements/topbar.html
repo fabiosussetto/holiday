@@ -1,4 +1,6 @@
 {% load misc %}
+{% load thumbnail %}
+
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -12,7 +14,7 @@
         <div class="navbar-text pull-right">
             {% if user.is_authenticated %}
                 <div class="user-badge">
-                    {% profile_pic user %}
+                    <img src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
                     {{ user }}
                 </div>
                  - <a class="navbar-link" href="{% url invites:logout %}">logout</a>
@@ -30,11 +32,14 @@
                       <li><a href="{% url invites:invite %}">Invite user</a></li>
                     </ul>
                 </li>
+            {% endif %}
+            {% if user.is_approver %}
                 <li class="dropdown">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">Requests <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                       <li><a href="{% url request-list kind='pending' %}">List</a></li>
                       <li><a href="{% url weekly-requests %}">By week</a></li>
+                      <li><a href="{% url approvalrequest-list %}">To be approved</a></li>
                     </ul>
                 </li>
                 <li><a href="{% url group-list %}">Groups</a></li>

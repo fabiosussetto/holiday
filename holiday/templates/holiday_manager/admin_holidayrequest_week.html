@@ -1,9 +1,30 @@
 {% extends 'holiday_manager/base.html' %}
 {% load misc %}
+{% load thumbnail %}
 
 {% block content %}
 
 <h4>Holiday requests by week</h4>
+
+<ul class="nav nav-tabs">
+    <li class="{% if list_kind == 'all' %}active{% endif %}">
+        <a href="{% url weekly-requests %}">All</a>
+    </li>
+    <li class="{% if list_kind == 'pending' %}active{% endif %}">
+        <a href="{% url weekly-requests kind='pending' %}">Pending</a>
+    </li>
+    <li class="{% if list_kind == 'approved' %}active{% endif %}">
+        <a href="{% url weekly-requests kind='approved' %}">Approved</a>
+    </li>
+    <li class="{% if list_kind == 'rejected' %}active{% endif %}">
+        <a href="{% url weekly-requests kind='rejected' %}">Rejected</a>
+    </li>
+    <li class="{% if list_kind == 'expired' %}active{% endif %}">
+        <a href="{% url weekly-requests kind='expired' %}">Expired</a>
+    </li>
+</ul>
+
+<h5>{{ week_days.0|date:"F" }}</h5>
 
 <table class="table table-striped holiday_week">
     <tr>
@@ -14,7 +35,10 @@
     </tr>
         {% for obj in object_list %}
             <tr>
-                <td style="width: 15%">{% profile_pic obj.author %} {{ obj.author }}</td>
+                <td style="width: 15%">
+                    <img src="{% thumbnail obj.author.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
+                    {{ obj.author }}
+                </td>
                 {% in_date_range obj week_days %}
             </tr>
         {% endfor %}
@@ -22,10 +46,10 @@
 
 <ul class="pager">
     <li class="previous">
-        <a href="{% url weekly-requests %}?week={{ prev_week }}">&larr; Prev week</a>
+        <a href="{% url weekly-requests kind=list_kind %}?week={{ prev_week }}">&larr; Prev week</a>
     </li>
     <li class="next">
-        <a href="{% url weekly-requests %}?week={{ next_week }}">Next week &rarr;</a>
+        <a href="{% url weekly-requests kind=list_kind %}?week={{ next_week }}">Next week &rarr;</a>
     </li>
 </ul>
 

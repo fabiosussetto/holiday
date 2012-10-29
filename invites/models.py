@@ -15,6 +15,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 
+from easy_thumbnails.fields import ThumbnailerImageField
+
 try:
     from django.utils.timezone import now as datetime_now
 except ImportError:
@@ -186,6 +188,9 @@ class User(models.Model):
     
     google_pic_url = models.CharField(max_length=200, null=True, blank=True)
     
+    google_pic = ThumbnailerImageField(upload_to='profiles', blank=True, null=True)
+    
+    is_approver = models.BooleanField(default=False)
     
     objects = UserManager()
     

@@ -5,16 +5,16 @@
 <h3>Manage requests</h3>
 
 <ul class="nav nav-tabs">
-    <li class="{% if kind == 'pending' %}active{% endif %}">
+    <li class="{% if list_kind == 'pending' %}active{% endif %}">
         <a href="{% url request-list kind='pending' %}">Pending</a>
     </li>
-    <li class="{% if kind == 'approved' %}active{% endif %}">
+    <li class="{% if list_kind == 'approved' %}active{% endif %}">
         <a href="{% url request-list kind='approved' %}">Approved</a>
     </li>
-    <li class="{% if kind == 'rejected' %}active{% endif %}">
+    <li class="{% if list_kind == 'rejected' %}active{% endif %}">
         <a href="{% url request-list kind='rejected' %}">Rejected</a>
     </li>
-    <li class="{% if kind == 'archived' %}active{% endif %}">
+    <li class="{% if list_kind == 'archived' %}active{% endif %}">
         <a href="{% url request-list kind='archived' %}">Archived</a>
     </li>
 </ul>

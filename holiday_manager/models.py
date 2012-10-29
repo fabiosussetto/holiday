@@ -1,11 +1,36 @@
-#from invites.models import User
 from django.db import models
 from holiday_manager.utils import Choices
-from holiday_manager.cal import date_range
+from django.db.models import Q
+from django.db import transaction
+
+class HolidayRequestQuerySet(models.query.QuerySet):
+
+    def date_range(self, start_date, end_date):
+        return self.filter(
+                Q(start_date__range=(start_date, end_date))
+                | Q(end_date__range=(start_date, end_date))
+            )
+
+        
+class HolidayRequestManager(models.Manager):
+
+    def get_query_set(self): 
+        model = models.get_model('holiday_manager', 'HolidayRequest')
+        return HolidayRequestQuerySet(model)
+
+    def __getattr__(self, attr, *args):
+        try:
+            return getattr(self.__class__, attr, *args)
+        except AttributeError:
+            return getattr(self.get_query_set(), attr, *args)
+            
 
 class HolidayRequest(models.Model):
     
-    STATUS = Choices(('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'))
+    STATUS = Choices(
+        ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'),
+        ('cancelled', 'Cancelled')
+    )
     
     author = models.ForeignKey('invites.User')
     requested_on = models.DateTimeField(auto_now_add=True)
@@ -14,6 +39,49 @@ class HolidayRequest(models.Model):
     end_date = models.DateField()
     notes = models.TextField(null=True, blank=True)
     status = models.CharField(choices=STATUS, default=STATUS.pending, max_length=50, blank=True, editable=False)
+    
+    objects = HolidayRequestManager()
+    
+    class Meta:
+        ordering = ('requested_on',)
+    
+    @transaction.commit_on_success
+    def submit(self):
+        self.save()
+        approval_requests = []
+        group = self.author.approval_group
+        if not group:
+            return self, []
+        for index, approver in enumerate(group.ordered_approvers()):
+            status = HolidayApproval.STATUS.waiting if index else HolidayApproval.STATUS.pending
+            req = HolidayApproval.objects.create(approver=approver, request=self, order=index, status=status)
+            approval_requests.append(req)
+        return self, approval_requests
+        
+    def approve(self):
+        self.status = HolidayRequest.STATUS.approved
+        self.save()
+    
+    @transaction.commit_on_success    
+    def author_cancel(self):
+        self.status = HolidayRequest.STATUS.cancelled
+        self.save()
+        for approval_req in self.holidayapproval_set.all():
+            approval_req.author_cancel()
+    
+    @property        
+    def is_cancellable(self):
+        return self.status == HolidayRequest.STATUS.pending
+        
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        same_period_requests = HolidayRequest.objects.filter(
+            author=self.author,
+            status__in=(HolidayRequest.STATUS.pending, HolidayRequest.STATUS.approved)
+            ).date_range(self.start_date, self.end_date).count()
+        if same_period_requests:
+            raise ValidationError("You have already an approved or \
+                pending request for the specified period.")
     
     
 class HolidayRequestStatus(models.Model):
@@ -62,15 +130,51 @@ class HolidayRequestStatus(models.Model):
         #
         #email_params['html_body'] = loader.get_template('emails/story_status_notification.html').render(Context(context))
         #send_email(to_address=self.story.email, **email_params)
-
         
+        
+class HolidayApproval(models.Model):
+    STATUS = Choices(
+        ('waiting', 'Waiting'), ('pending', 'Pending'), ('approved', 'Approved'),
+        ('rejected', 'Rejected'), ('cancelled', 'Cancelled')
+    )
+    
+    approver = models.ForeignKey('invites.User')
+    request = models.ForeignKey('HolidayRequest')
+    status = models.CharField(choices=STATUS, default=STATUS.pending, max_length=100)
+    notes = models.TextField(blank=True, null=True)
+    changed_on = models.DateTimeField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(default=0)
+    
+    @transaction.commit_on_success
+    def approve(self):
+        self.status = HolidayApproval.STATUS.approved
+        self.save()
+        try:
+            next_approval = HolidayApproval.objects.filter(
+                request=self.request, status=HolidayApproval.STATUS.waiting).order_by('order').get()
+            next_approval.status = HolidayApproval.STATUS.pending
+            next_approval.save()
+        except HolidayApproval.DoesNotExist:
+            self.request.approve()
+    
+    def author_cancel(self):
+        self.status = HolidayApproval.STATUS.cancelled
+        self.save()
+
 class ApprovalGroup(models.Model):
     name = models.CharField(max_length=100)
     approvers = models.ManyToManyField('invites.User', through='ApprovalRule')
     
     def __unicode__(self):
         return self.name
-    
+        
+    def ordered_approvers(self):
+        approvers = []
+        for rule in self.approvalrule_set.order_by('order'):
+            approvers.append(rule.approver)
+        return approvers
+
+            
 class ApprovalRule(models.Model):
     group = models.ForeignKey('ApprovalGroup')
     approver = models.ForeignKey('invites.User')
@@ -78,4 +182,21 @@ class ApprovalRule(models.Model):
     
     class Meta:
         ordering = ('order',)
+        
+    @transaction.commit_on_success
+    def save(self, *args, **kwargs):
+        super(ApprovalRule, self).save(*args, **kwargs)
+        self.update_approver_status()
+        return self
+        
+    @transaction.commit_on_success
+    def delete(self, *args, **kwargs):
+        super(ApprovalRule, self).delete(*args, **kwargs)
+        self.update_approver_status()
+        
+    def update_approver_status(self):
+        #TODO: do this only when approver changes or on create
+        count = ApprovalRule.objects.filter(approver=self.approver).count()
+        self.approver.is_approver = bool(count)
+        self.approver.save()
         

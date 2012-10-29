@@ -1,0 +1,30 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+
+<h4>You pending request approvals</h4>
+
+<table class="table table-striped">
+    <tr>
+        <th>Requested by</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    {% for approval in object_list %}
+        <tr>
+            <td>{{ approval.request.author }}</td>
+            <td>{{ approval.request.start_date }}</td>
+            <td>{{ approval.request.end_date }}</td>
+            <td>{{ approval.status }}</td>
+            <td>
+                {% if approval.status == 'pending' %}
+                    <a class="btn btn-success" href="{% url approve-request pk=approval.pk %}">Approve</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

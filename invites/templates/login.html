@@ -5,12 +5,13 @@
         <form action="" method="post" class="span6">{% csrf_token %}
             <h3>Login</h3>
             {{ form.as_p }}
+            <input type="hidden" name="next" value="{{ next }}" />
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Login</button>
             </div>
         </form>
         <div class="span6">
-            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}">Login with Google</a>
+            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ next }}">Login with Google</a>
         </div>
     </div>
 {% endblock %}

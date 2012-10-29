@@ -98,6 +98,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -137,8 +138,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'south',
     'social_auth',
+    'debug_toolbar',
+    'easy_thumbnails',
     'invites',
-    'holiday_manager'
+    'holiday_manager',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -173,6 +176,27 @@ SOCIAL_AUTH_PIPELINE = (
     'social_auth.backends.pipeline.user.update_user_details'
 )
 
+THUMBNAIL_ALIASES = {
+    '': {
+        'profile_pic': {'size': (150, 150), 'crop': 'smart'},
+        'avatar': {'size': (30, 30), 'crop': 'smart'},
+        'home': {'size': (50, 50), 'crop': 'smart'},
+    },
+}
+
+AWS_ACCESS_KEY_ID = "AKIAI3PEKEUGM7S6RIWQ"
+AWS_SECRET_ACCESS_KEY = "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"
+
+AWS_STORAGE_BUCKET_NAME = "holiday-test"
+
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_AUTH = False
+
+THUMBNAIL_DEFAULT_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
+THUMBNAIL_DEBUG = True
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -208,3 +232,9 @@ DEFAULT_FROM_EMAIL = 'test@test.com'
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
+
+INTERNAL_IPS = ('127.0.0.1',)
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
