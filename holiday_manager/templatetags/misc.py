@@ -27,8 +27,8 @@ def in_date_range(obj, week_days):
             output.append('<td class="day %s"></td>' % obj.status)
             
     return ''.join(output)
-
-
+    
+    
 class RangeNode(Node):
     def __init__(self, range_args, context_name):
         self.range_args = range_args

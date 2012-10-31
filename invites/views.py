@@ -11,31 +11,35 @@ from django.shortcuts import redirect, render
 from invites.models import User
 from django.core.urlresolvers import reverse
 from django.views import generic
+from holiday_manager.models import Project
 
 @sensitive_post_parameters()
 @csrf_protect
 @never_cache
-def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
+def login(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
     """
     Displays the login form and handles the login action.
     """
     redirect_to = request.REQUEST.get(redirect_field_name, '')
     template_name = 'login.html'
     authentication_form = forms.AuthenticationForm
-
+    
+    curr_project = Project.objects.get(slug=kwargs['project'])
+    
     if request.method == "POST":
         form = authentication_form(data=request.POST)
         if form.is_valid():
             netloc = urlparse.urlparse(redirect_to)[1]
 
             # Use default setting if redirect_to is empty
-            if not redirect_to:
-                redirect_to = settings.LOGIN_REDIRECT_URL
+            #if not redirect_to:
+            #    redirect_to = settings.LOGIN_REDIRECT_URL
+            redirect_to = reverse('app:dashboard', kwargs={'project': curr_project.slug})
 
             # Heavier security check -- don't allow redirection to a different
             # host.
-            elif netloc and netloc != request.get_host():
-                redirect_to = settings.LOGIN_REDIRECT_URL
+            #elif netloc and netloc != request.get_host():
+            #    redirect_to = settings.LOGIN_REDIRECT_URL
 
             # Okay, security checks complete. Log the user in.
             auth_login(request, form.get_user())
@@ -45,19 +49,21 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
 
             return HttpResponseRedirect(redirect_to)
     else:
-        form = authentication_form(request)
+        form = authentication_form(request, initial={'project': curr_project.slug})
 
     request.session.set_test_cookie()
 
     context = {
         'form': form,
+        'curr_project': curr_project,
         redirect_field_name: redirect_to,
     }
     return render(request, template_name, context)
 
-def logout(request):
+def logout(request, **kwargs):
+    curr_project = Project.objects.get(slug=kwargs['project'])
     auth_logout(request)
-    return redirect('invites:login')
+    return redirect(reverse('app:invites:login', kwargs={'project': curr_project.slug}))
     
 def no_user_association(request):
     return render(request, 'no_user_association.html')

@@ -1,0 +1,293 @@
+[
+    {
+        "pk": 2, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "approved", 
+            "end_date": "2012-10-27", 
+            "author": 1, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-25T00:27:17Z", 
+            "start_date": "2012-10-23"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "approved", 
+            "end_date": "2012-11-01", 
+            "author": 4, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-25T00:49:12Z", 
+            "start_date": "2012-10-25"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "approved", 
+            "end_date": "2012-11-05", 
+            "author": 5, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-25T23:21:59Z", 
+            "start_date": "2012-10-24"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "approved", 
+            "end_date": "2012-11-05", 
+            "author": 1, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-27T18:51:11Z", 
+            "start_date": "2012-11-05"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "cancelled", 
+            "end_date": "2012-11-10", 
+            "author": 6, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-28T15:26:28Z", 
+            "start_date": "2012-11-06"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "approved", 
+            "end_date": "2012-11-08", 
+            "author": 6, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-28T15:59:56Z", 
+            "start_date": "2012-11-04"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "pending", 
+            "end_date": "2012-10-26", 
+            "author": 6, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-28T16:31:25Z", 
+            "start_date": "2012-10-24"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "pending", 
+            "end_date": "2012-10-26", 
+            "author": 5, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-28T18:05:48Z", 
+            "start_date": "2012-10-25"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "cancelled", 
+            "end_date": "2012-10-26", 
+            "author": 5, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-28T18:06:00Z", 
+            "start_date": "2012-10-25"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "holiday_manager.holidayrequest", 
+        "fields": {
+            "status": "pending", 
+            "end_date": "2012-10-29", 
+            "author": 1, 
+            "approved_on": null, 
+            "notes": "", 
+            "requested_on": "2012-10-29T16:49:45Z", 
+            "start_date": "2012-10-29"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "approved", 
+            "notes": "Ok this is fine", 
+            "approver": 4, 
+            "request": 7, 
+            "order": 0, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "approved", 
+            "notes": "", 
+            "approver": 1, 
+            "request": 7, 
+            "order": 1, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "cancelled", 
+            "notes": null, 
+            "approver": 4, 
+            "request": 9, 
+            "order": 0, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "cancelled", 
+            "notes": null, 
+            "approver": 1, 
+            "request": 9, 
+            "order": 1, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "approved", 
+            "notes": "", 
+            "approver": 4, 
+            "request": 10, 
+            "order": 0, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "approved", 
+            "notes": "", 
+            "approver": 1, 
+            "request": 10, 
+            "order": 1, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "pending", 
+            "notes": null, 
+            "approver": 4, 
+            "request": 11, 
+            "order": 0, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "waiting", 
+            "notes": null, 
+            "approver": 1, 
+            "request": 11, 
+            "order": 1, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "pending", 
+            "notes": null, 
+            "approver": 4, 
+            "request": 15, 
+            "order": 0, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "holiday_manager.holidayapproval", 
+        "fields": {
+            "status": "waiting", 
+            "notes": null, 
+            "approver": 1, 
+            "request": 15, 
+            "order": 1, 
+            "changed_on": null
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "holiday_manager.approvalgroup", 
+        "fields": {
+            "name": "Frontend Team"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "holiday_manager.approvalgroup", 
+        "fields": {
+            "name": "Backend team"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "holiday_manager.approvalrule", 
+        "fields": {
+            "approver": 1, 
+            "group": 3, 
+            "order": 0
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "holiday_manager.approvalrule", 
+        "fields": {
+            "approver": 4, 
+            "group": 1, 
+            "order": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "holiday_manager.approvalrule", 
+        "fields": {
+            "approver": 1, 
+            "group": 1, 
+            "order": 2
+        }
+    }
+]

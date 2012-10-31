@@ -6,13 +6,13 @@
 
 <ul class="nav nav-tabs">
     <li class="{% if kind == 'all' %}active{% endif %}">
-        <a href="{% url user-request-list kind='all' %}">Pending</a>
+        <a href="{% url holiday_user_requests kind='all' %}">Pending</a>
     </li>
     <li class="{% if kind == 'approved' %}active{% endif %}">
-        <a href="{% url user-request-list kind='approved' %}">Approved</a>
+        <a href="{% url holiday_user_requests kind='approved' %}">Approved</a>
     </li>
     <li class="{% if kind == 'archived' %}active{% endif %}">
-        <a href="{% url user-request-list kind='archived' %}">Archived</a>
+        <a href="{% url holiday_user_requests kind='archived' %}">Archived</a>
     </li>
 </ul>
 
@@ -32,7 +32,7 @@
             <td>{{ object.status }}</td>
             <td>
                 {% if object.is_cancellable %}
-                <form action="{% url user-cancel-request pk=object.pk %}" method="post">{% csrf_token %}
+                <form action="{% url holiday_cancel pk=object.pk %}" method="post">{% csrf_token %}
                     <button type="submit" class="btn btn-danger">Cancel</button>
                 </form>
                 {% endif %}

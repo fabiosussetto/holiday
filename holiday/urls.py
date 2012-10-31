@@ -6,30 +6,36 @@ from django.conf.urls import patterns, include, url
 
 from holiday_manager import views
 
-urlpatterns = patterns('',
-    url(r'^$', views.home, name='home'),
-    url(r'^add$', views.AddHolidayRequest.as_view(), name='add-request'),
-    url(r'^your_requests/(?P<kind>all|approved|archived)$', views.UserHolidayRequestList.as_view(), name='user-request-list'),
-    url(r'^users/list$', views.UserList.as_view(), name='user-list'),
-    url(r'^users/edit/(?P<pk>\d+)$', views.EditUser.as_view(), name='user-edit'),
+app_patterns = patterns('',
+    url(r'^$', views.user.Dashboard.as_view(), name='dashboard'),
     
-    url(r'^requests/approvelist/$', views.HolidayApprovalList.as_view(), name='approvalrequest-list'),
-    url(r'^requests/approve/(?P<pk>\d+)$', views.ApproveRequest.as_view(), name='approve-request'),
+    url(r'^holiday/submit-request$', views.user.AddHolidayRequest.as_view(), name='holiday_submit'),
+    url(r'^holiday/your-requests/(?P<kind>all|approved|archived)$', views.user.UserHolidayRequestList.as_view(), name='holiday_user_requests'),
+    url(r'^holiday/cancel-request/(?P<pk>\d+)$', views.user.CancelRequest.as_view(), name='holiday_cancel'),
     
-    url(r'^requests/cancel/(?P<pk>\d+)$', views.CancelRequest.as_view(), name='user-cancel-request'),
+    url(r'^holiday/week(?:/(?P<kind>%s))?$' % views.approver.HolidayRequestWeek.url_params(), views.approver.HolidayRequestWeek.as_view(), name='holiday_weekly'),
+    url(r'^holiday/list(?:/(?P<kind>%s))?$' % views.approver.HolidayRequestList.url_params(), views.approver.HolidayRequestList.as_view(), name='holiday_list'),
+    url(r'^holiday/edit/(?P<pk>\d+)$', views.admin.EditHolidayRequest.as_view(), name='holiday_edit'),
     
-    url(r'^requests/week(?:/(?P<kind>%s))?$' % views.HolidayRequestWeek.url_params(), views.HolidayRequestWeek.as_view(), name='weekly-requests'),
+    url(r'^approval/approvelist/$', views.approver.HolidayApprovalList.as_view(), name='approval_list'),
+    url(r'^approval/approve/(?P<pk>\d+)$', views.approver.ApproveRequest.as_view(), name='approval_approve'),
+    url(r'^approvals/approvals/reject/(?P<pk>\d+)$', views.approver.RejectApprovalRequest.as_view(), name='approval_reject'),
     
-    url(r'^requests/edit/(?P<pk>\d+)$', views.EditHolidayRequest.as_view(), name='request-edit'),
-    url(r'^requests/list/(?P<kind>%s)$' % views.HolidayRequestList.url_params(), views.HolidayRequestList.as_view(), name='request-list'),
+    url(r'^user/list$', views.admin.UserList.as_view(), name='user_list'),
+    url(r'^user/edit/(?P<pk>\d+)$', views.admin.EditUser.as_view(), name='user_edit'),
     
-    url(r'^groups$', views.ListApprovalGroup.as_view(), name='group-list'),
-    url(r'^groups/add$', views.CreateApprovalGroup.as_view(), name='group-add'),
-    url(r'^groups/edit/(?P<pk>\d+)$', views.UpdateApprovalGroup.as_view(), name='group-edit'),
-    url(r'^groups/delete/(?P<pk>\d+)$', views.DeleteApprovalGroup.as_view(), name='group-delete'),
+    url(r'^group$', views.admin.ListApprovalGroup.as_view(), name='group_list'),
+    url(r'^group/add$', views.admin.CreateApprovalGroup.as_view(), name='group_add'),
+    url(r'^group/edit/(?P<pk>\d+)$', views.admin.UpdateApprovalGroup.as_view(), name='group_edit'),
+    url(r'^group/delete/(?P<pk>\d+)$', views.admin.DeleteApprovalGroup.as_view(), name='group_delete'),
     
     url(r'^accounts/', include('invites.urls', namespace='invites')),
-    
+)
+
+urlpatterns = patterns('',
+    url(r'^$', views.base.home, name='home'),
+    url(r'^project/register$', views.base.CreateProject.as_view(), name='project_register'),
+    (r'^app/(?P<project>[a-zA-Z0-9-]+)/', include(app_patterns, namespace='app')),
     url(r'', include('social_auth.urls')),
 )
 

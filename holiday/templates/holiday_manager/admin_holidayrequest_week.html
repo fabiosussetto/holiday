@@ -4,23 +4,29 @@
 
 {% block content %}
 
-<h4>Holiday requests by week</h4>
+<header class="row">
+    <h4 class="span10">Holiday requests by week</h4>
+    <div class="btn-group span2">
+        <a href="{% url holiday_weekly %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
+        <a href="{% url holiday_list %}" class="btn"><i class="icon-list"></i> List</a>
+    </div>
+</header>
 
 <ul class="nav nav-tabs">
     <li class="{% if list_kind == 'all' %}active{% endif %}">
-        <a href="{% url weekly-requests %}">All</a>
+        <a href="{% url holiday_weekly %}">All</a>
     </li>
     <li class="{% if list_kind == 'pending' %}active{% endif %}">
-        <a href="{% url weekly-requests kind='pending' %}">Pending</a>
+        <a href="{% url holiday_weekly kind='pending' %}">Pending</a>
     </li>
     <li class="{% if list_kind == 'approved' %}active{% endif %}">
-        <a href="{% url weekly-requests kind='approved' %}">Approved</a>
+        <a href="{% url holiday_weekly kind='approved' %}">Approved</a>
     </li>
     <li class="{% if list_kind == 'rejected' %}active{% endif %}">
-        <a href="{% url weekly-requests kind='rejected' %}">Rejected</a>
+        <a href="{% url holiday_weekly kind='rejected' %}">Rejected</a>
     </li>
     <li class="{% if list_kind == 'expired' %}active{% endif %}">
-        <a href="{% url weekly-requests kind='expired' %}">Expired</a>
+        <a href="{% url holiday_weekly kind='expired' %}">Expired</a>
     </li>
 </ul>
 
@@ -46,10 +52,10 @@
 
 <ul class="pager">
     <li class="previous">
-        <a href="{% url weekly-requests kind=list_kind %}?week={{ prev_week }}">&larr; Prev week</a>
+        <a href="{% url holiday_weekly kind=list_kind %}?week={{ prev_week }}">&larr; Prev week</a>
     </li>
     <li class="next">
-        <a href="{% url weekly-requests kind=list_kind %}?week={{ next_week }}">Next week &rarr;</a>
+        <a href="{% url holiday_weekly kind=list_kind %}?week={{ next_week }}">Next week &rarr;</a>
     </li>
 </ul>
 

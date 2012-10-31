@@ -2,17 +2,19 @@ from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model
+from holiday_manager.models import Project
 
 class CustomUserModelBackend(ModelBackend):
 
-    def authenticate(self, email=None, password=None, skip_password=False):
+    def authenticate(self, email=None, password=None, project_slug=None, skip_password=False):
         try:
-            user = self.user_class.objects.get(email=email)
+            project = Project.objects.get(slug=project_slug)
+            user = self.user_class.objects.get(email=email, project=project)
             if skip_password:
                 return user
             if user.check_password(password):
                 return user
-        except self.user_class.DoesNotExist:
+        except (self.user_class.DoesNotExist, Project.DoesNotExist):
             return None
 
     def get_user(self, user_id):

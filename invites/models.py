@@ -192,6 +192,13 @@ class User(models.Model):
     
     is_approver = models.BooleanField(default=False)
     
+    project = models.ForeignKey('holiday_manager.Project')
+    
+    # TODO: change the default value according to a settings model    
+    days_off_left = models.SmallIntegerField(default=20)
+    
+    pending_approvals = models.SmallIntegerField(default=0)
+    
     objects = UserManager()
     
     registration = RegistrationManager()

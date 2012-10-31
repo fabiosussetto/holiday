@@ -1,6 +1,7 @@
 # Django settings for holiday2 project.
 import os
 import django
+import sys
 
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +26,11 @@ DATABASES = {
     }
 }
 
+if 'test' in sys.argv:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+    
+SOUTH_TESTS_MIGRATE = False
+    
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.

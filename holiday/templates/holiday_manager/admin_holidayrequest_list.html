@@ -2,20 +2,26 @@
 
 {% block content %}
 
-<h3>Manage requests</h3>
+<header class="row">
+    <h4 class="span10">Holiday requests list</h4>
+    <div class="btn-group span2">
+        <a href="{% url holiday_weekly %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
+        <a href="{% url holiday_list %}" class="btn"><i class="icon-list"></i> List</a>
+    </div>
+</header>
 
 <ul class="nav nav-tabs">
     <li class="{% if list_kind == 'pending' %}active{% endif %}">
-        <a href="{% url request-list kind='pending' %}">Pending</a>
+        <a href="{% url holiday_list kind='pending' %}">Pending</a>
     </li>
     <li class="{% if list_kind == 'approved' %}active{% endif %}">
-        <a href="{% url request-list kind='approved' %}">Approved</a>
+        <a href="{% url holiday_list kind='approved' %}">Approved</a>
     </li>
     <li class="{% if list_kind == 'rejected' %}active{% endif %}">
-        <a href="{% url request-list kind='rejected' %}">Rejected</a>
+        <a href="{% url holiday_list kind='rejected' %}">Rejected</a>
     </li>
     <li class="{% if list_kind == 'archived' %}active{% endif %}">
-        <a href="{% url request-list kind='archived' %}">Archived</a>
+        <a href="{% url holiday_list kind='archived' %}">Archived</a>
     </li>
 </ul>
 
@@ -35,7 +41,7 @@
             <td>{{ object.start_date }}</td>
             <td>{{ object.end_date }}</td>
             <td>{{ object.status }}</td>
-            <td><a href="{% url request-edit pk=object.pk %}" class="btn">Edit</a></td>
+            <td><a href="{% url holiday_edit pk=object.pk %}" class="btn">Edit</a></td>
         </tr>
     {% endfor %}
 </table>

@@ -1,5 +1,8 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/public/base.html' %}
 
 {% block content %}
-    <h2>Home</h2>
+    <h2>Welcome</h2>
+    <p>
+        <a class="btn btn-primary" href="{% url project_register %}">Signup now</a>
+    </p>
 {% endblock %}

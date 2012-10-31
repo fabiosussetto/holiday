@@ -3,6 +3,17 @@ from holiday_manager.utils import Choices
 from django.db.models import Q
 from django.db import transaction
 
+class Project(models.Model):
+    
+    name = models.CharField(max_length=30, verbose_name='Project name')
+    slug = models.SlugField(max_length=30)
+    #creator = models.ForeignKey('invites.User', related_name='project_admin')
+    created_on = models.DateTimeField(auto_now_add=True)
+    
+    def __unicode__(self):
+        return self.slug
+
+
 class HolidayRequestQuerySet(models.query.QuerySet):
 
     def date_range(self, start_date, end_date):
@@ -26,6 +37,9 @@ class HolidayRequestManager(models.Manager):
             
 
 class HolidayRequest(models.Model):
+
+    class NotEnoughDaysLeft(Exception):
+        pass
     
     STATUS = Choices(
         ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'),
@@ -56,11 +70,23 @@ class HolidayRequest(models.Model):
             status = HolidayApproval.STATUS.waiting if index else HolidayApproval.STATUS.pending
             req = HolidayApproval.objects.create(approver=approver, request=self, order=index, status=status)
             approval_requests.append(req)
+            
+        if approval_requests:
+            approval_requests[0].approver.pending_approvals += 1
+            approval_requests[0].approver.save()
+            
         return self, approval_requests
         
+    @transaction.commit_on_success    
     def approve(self):
         self.status = HolidayRequest.STATUS.approved
         self.save()
+        tot_days = (self.end_date - self.start_date).days
+        if self.author.days_off_left < tot_days:
+            raise HolidayRequest.NotEnoughDaysLeft()
+            
+        self.author.days_off_left = self.author.days_off_left - tot_days
+        self.author.save()
     
     @transaction.commit_on_success    
     def author_cancel(self):
@@ -84,58 +110,10 @@ class HolidayRequest(models.Model):
                 pending request for the specified period.")
     
     
-class HolidayRequestStatus(models.Model):
-    
-    request = models.ForeignKey('HolidayRequest')
-    changed_on = models.DateTimeField(auto_now_add=True)
-    prev_status = models.CharField(choices=HolidayRequest.STATUS, max_length=50)
-    new_status = models.CharField(choices=HolidayRequest.STATUS, max_length=50)
-    comment = models.TextField(blank=True, null=True)
-    author = models.ForeignKey('invites.User')
-    send_notification = models.BooleanField(default=True)
-    
-    @classmethod
-    def record_change(cls, form, holiday_request, user):
-        new_change_obj = form.save(commit=False)
-        new_change_obj.author = user
-        new_change_obj.request = holiday_request
-        new_change_obj.prev_status = holiday_request.status
-        new_change_obj.save()
-        holiday_request.status = new_change_obj.new_status
-        holiday_request.save()
-        new_change_obj.notify_author()
-        return new_change_obj
-    
-    def notify_author(self):
-        if not self.send_notification:
-            return
-        #settings = Settings.get()
-        #email_params = {}
-        #context = {}
-        #if self.new_status == 'approved':
-        #    email_params['subject'] = settings.email_story_approved_subject
-        #    context['email_content'] = settings.email_story_approved_content
-        #elif self.new_status == 'rejected':
-        #    email_params['subject'] = settings.email_story_rejected_subject
-        #    context['email_content'] = settings.email_story_rejected_content
-        #
-        #email_content_context = {
-        #    'author_name': self.story.author,
-        #    'story_title': self.story.title
-        #}
-        ##Replace placeholders in the email content custom field, using the
-        ##same logic Django uses to replace vars in templates
-        #context['email_content'] = SafeString(format_email(Template(context['email_content'])
-        #                                                .render(Context(email_content_context))))
-        #
-        #email_params['html_body'] = loader.get_template('emails/story_status_notification.html').render(Context(context))
-        #send_email(to_address=self.story.email, **email_params)
-        
-        
 class HolidayApproval(models.Model):
     STATUS = Choices(
         ('waiting', 'Waiting'), ('pending', 'Pending'), ('approved', 'Approved'),
-        ('rejected', 'Rejected'), ('cancelled', 'Cancelled')
+        ('rejected', 'Rejected'), ('pre_rejected', 'Pre rejected'), ('cancelled', 'Cancelled')
     )
     
     approver = models.ForeignKey('invites.User')
@@ -149,18 +127,37 @@ class HolidayApproval(models.Model):
     def approve(self):
         self.status = HolidayApproval.STATUS.approved
         self.save()
+        self.approver.pending_approvals -= 1
+        self.approver.save()
         try:
             next_approval = HolidayApproval.objects.filter(
                 request=self.request, status=HolidayApproval.STATUS.waiting).order_by('order').get()
+            
+            assert(next_approval.approver_id != self.approver_id)
             next_approval.status = HolidayApproval.STATUS.pending
             next_approval.save()
+            next_approval.approver.pending_approvals += 1
+            next_approval.approver.save()
         except HolidayApproval.DoesNotExist:
             self.request.approve()
     
     def author_cancel(self):
         self.status = HolidayApproval.STATUS.cancelled
         self.save()
+    
+    @transaction.commit_on_success    
+    def reject(self):
+        for req in HolidayApproval.objects.filter(request_id=self.request_id, order__gt=self.order):
+            req.status = HolidayApproval.STATUS.pre_rejected
+            req.save()
+        self.status = HolidayApproval.STATUS.rejected
+        self.save()
+        self.request.status = HolidayRequest.STATUS.rejected
+        self.request.save()
+        self.approver.pending_approvals -= 1
+        self.approver.save()
 
+        
 class ApprovalGroup(models.Model):
     name = models.CharField(max_length=100)
     approvers = models.ManyToManyField('invites.User', through='ApprovalRule')
@@ -200,3 +197,9 @@ class ApprovalRule(models.Model):
         self.approver.is_approver = bool(count)
         self.approver.save()
         
+        
+#class Settings(models.Model):
+#    
+#    default_days_off = models.SmallIntegerField(default=20)
+#    day_count_reset_date = models.CharField(max_length=20, default='01-01') # day-month
+    

@@ -1,8 +1,14 @@
 from django import forms
 from holiday_manager import models
+from invites.models import User
 from django.forms.extras import SelectDateWidget
 
+class CreateProjectForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ('name', 'slug')
         
+
 class AddHolidayRequestForm(forms.ModelForm):
     class Meta:
         model = models.HolidayRequest

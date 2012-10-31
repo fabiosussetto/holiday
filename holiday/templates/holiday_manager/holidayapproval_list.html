@@ -20,7 +20,10 @@
             <td>{{ approval.status }}</td>
             <td>
                 {% if approval.status == 'pending' %}
-                    <a class="btn btn-success" href="{% url approve-request pk=approval.pk %}">Approve</a>
+                    <a class="btn btn-success" href="{% url approval_approve pk=approval.pk %}">Approve</a>
+                    <form action="{% url approval_reject pk=approval.pk %}" method="post">{% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Reject</button>
+                    </form>
                 {% endif %}
             </td>
         </tr>

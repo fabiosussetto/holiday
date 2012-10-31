@@ -13,39 +13,40 @@
         <div class="nav-collapse collapse">
         <div class="navbar-text pull-right">
             {% if user.is_authenticated %}
+                {% if user.is_approver or user.is_superuser %}
+                    <a href="{% url app:approval_list curr_project %}">Approval requests</a>
+                    {% if user.pending_approvals %}
+                        <span class="badge badge-warning">{{ user.pending_approvals }}</span>
+                    {% else %}
+                        <span class="badge">0</span>
+                    {% endif %}
+                {% endif %}
                 <div class="user-badge">
                     <img src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
                     {{ user }}
                 </div>
-                 - <a class="navbar-link" href="{% url invites:logout %}">logout</a>
+                 - <a class="navbar-link" href="{% url app:invites:logout curr_project %}">logout</a>
             {% else %}  
-                <a class="btn" href="{% url invites:login %}">Login</a>
+                <a class="btn" href="{% url app:invites:login curr_project %}">Login</a>
             {% endif %}
         </div>
           <ul class="nav">
-            <li class="active"><a href="{% url home %}">Home</a></li>
-            {% if user.is_staff %}
+            <li class="active"><a href="{% url app:dashboard curr_project %}">Home</a></li>
+            {% if user.is_staff or user.is_superuser %}
                 <li class="dropdown">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">Users <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                      <li><a href="{% url user-list %}">User list</a></li>
-                      <li><a href="{% url invites:invite %}">Invite user</a></li>
+                      <li><a href="{% url app:user_list curr_project %}">User list</a></li>
+                      <li><a href="{% url app:invites:invite curr_project %}">Invite user</a></li>
                     </ul>
                 </li>
             {% endif %}
-            {% if user.is_approver %}
-                <li class="dropdown">
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Requests <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="{% url request-list kind='pending' %}">List</a></li>
-                      <li><a href="{% url weekly-requests %}">By week</a></li>
-                      <li><a href="{% url approvalrequest-list %}">To be approved</a></li>
-                    </ul>
-                </li>
-                <li><a href="{% url group-list %}">Groups</a></li>
+            {% if user.is_approver or user.is_superuser %}
+                <li><a href="{% url app:holiday_weekly curr_project %}">Holidays</a></li>
+                <li><a href="{% url app:group_list curr_project %}">Groups</a></li>
             {% endif %}
-            <li><a href="{% url add-request %}">Submit request</a></li>
-            <li><a href="{% url user-request-list kind='all' %}">Your requests</a></li>
+            <li><a href="{% url app:holiday_submit curr_project %}">Submit request</a></li>
+            <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

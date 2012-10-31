@@ -18,7 +18,7 @@
             <td>{{ object.email }}</td>
             <td>{{ object.is_staff }}</td>
             <td>{{ object.approval_group.name }}</td>
-            <td><a href="{% url user-edit pk=object.pk %}" class="btn">Edit</a></td>
+            <td><a href="{% url user_edit pk=object.pk %}" class="btn">Edit</a></td>
         </tr>
     {% endfor %}
 </table>
