@@ -44,7 +44,12 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
     object = None
     
     def get_success_url(self):
-        return 
+        return
+    
+    #def get_form_kwargs(self):
+    #    kwargs = super(CreateApprovalGroup, self).get_form_kwargs()
+    #    kwargs.update({'project': self.curr_project})
+    #    return kwargs
     
     def get_context_data(self, **kwargs):
         context = super(CreateApprovalGroup, self).get_context_data(**kwargs)
@@ -57,7 +62,9 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
         return self.render_to_response(self.get_context_data(form=form))
         
     def get_formset(self):
-        RuleFormSet = inlineformset_factory(models.ApprovalGroup, models.ApprovalRule)
+        RuleFormSet = inlineformset_factory(models.ApprovalGroup, models.ApprovalRule, form=forms.ApprovalRuleForm)
+        for subform in RuleFormSet.forms:
+            subform.set_project(self.curr_project)
         form_data = self.request.POST if self.request.method == 'POST' else None
         formset = RuleFormSet(data=form_data, instance=self.object)
         return formset
