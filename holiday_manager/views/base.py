@@ -7,6 +7,7 @@ from invites import forms as invite_forms
 from django.shortcuts import redirect
 from django.db import transaction
 from django.core.urlresolvers import reverse
+from holiday_manager.views.generic import LoginRequiredViewMixin
 
 def home(request, **kwargs):
     return render(request, 'holiday_manager/index.html')
@@ -16,18 +17,25 @@ def error(request, **kwargs):
     return render(request, 'error.html', {'messages': messages})
     
     
-class ProjectView(generic.TemplateView):
+class ProjectViewMixin(object):
     
     curr_project = None
     
-    def dispatch(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.curr_project = models.Project.objects.get(slug=kwargs['project'])
-        return super(ProjectView, self).dispatch(*args, **kwargs)
+        if not request.user.is_authenticated() or request.user.project_id != self.curr_project.pk:
+            return redirect(reverse('app:invites:login', kwargs={'project': self.curr_project.slug}))
+            
+        return super(ProjectViewMixin, self).dispatch(request, *args, **kwargs)
+        
+    def get_queryset(self):
+        queryset = super(ProjectViewMixin, self).get_queryset()
+        return queryset.filter(project=self.curr_project)
         
     def render_to_response(self, context, **response_kwargs):
         if not 'curr_project' in context:
             context['curr_project'] = self.curr_project
-        return super(ProjectView, self).render_to_response(context, **response_kwargs)
+        return super(ProjectViewMixin, self).render_to_response(context, **response_kwargs)
 
     
 class CreateProject(generic.CreateView):

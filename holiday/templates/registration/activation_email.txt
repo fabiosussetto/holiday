@@ -7,4 +7,4 @@ Your temporary password is: {{ temp_password }}
 
 Please confirm your invitation by visiting the following link:
 
-{% url invites:confirm key=activation_key %}
+{% url app:invites:confirm project=user.project, key=activation_key %}

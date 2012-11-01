@@ -1,8 +1,28 @@
 from django.shortcuts import redirect
+from django.db.models import ForeignKey
+from django import forms
 
 def redirect_to_referer(request):
     return redirect(request.META.get('HTTP_REFERER', None))
+    
+    
+class ProjectRelated(ForeignKey):
+    
+    def formfield(self, **kwargs):
+        db = kwargs.pop('using', None)
+        if isinstance(self.rel.to, basestring):
+            raise ValueError("Cannot create form field for %r yet, because "
+                             "its related model %r has not been loaded yet" %
+                             (self.name, self.rel.to))
+        defaults = {
+            'form_class': forms.ModelChoiceField,
+            'queryset': self.rel.to._default_manager.using(db).complex_filter(self.rel.limit_choices_to),
+            'to_field_name': self.rel.field_name,
+        }
+        defaults.update(kwargs)
+        return super(ForeignKey, self).formfield(**defaults)
 
+        
 class Choices(object):
     """
     A class to encapsulate handy functionality for lists of choices

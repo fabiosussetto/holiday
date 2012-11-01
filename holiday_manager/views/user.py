@@ -1,21 +1,21 @@
 from django.views import generic
 from holiday_manager import models
 from holiday_manager.views import LoginRequiredViewMixin
-from holiday_manager.views.base import ProjectView
+from holiday_manager.views.base import ProjectViewMixin
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render
 from holiday_manager import forms
 import datetime
 
         
-class Dashboard(ProjectView):
+class Dashboard(ProjectViewMixin, generic.TemplateView):
     template_name = 'holiday_manager/dashboard.html'
     
 
     #def get(self, *args, **kwargs):
     #    return self.render_to_response()
 
-class AddHolidayRequest(LoginRequiredViewMixin, ProjectView, generic.CreateView):
+class AddHolidayRequest(LoginRequiredViewMixin, ProjectViewMixin, generic.CreateView):
     model = models.HolidayRequest
     form_class = forms.AddHolidayRequestForm
     success_url = '/'
@@ -40,7 +40,7 @@ class AddHolidayRequest(LoginRequiredViewMixin, ProjectView, generic.CreateView)
         self.object = request
         return super(AddHolidayRequest, self).form_valid(form)
 
-class UserHolidayRequestList(LoginRequiredViewMixin, ProjectView, generic.ListView):
+class UserHolidayRequestList(LoginRequiredViewMixin, ProjectViewMixin, generic.ListView):
     model = models.HolidayRequest
     kind = 'all'
 
@@ -62,7 +62,7 @@ class UserHolidayRequestList(LoginRequiredViewMixin, ProjectView, generic.ListVi
         return queryset.filter(author=self.request.user)
         
         
-class CancelRequest(ProjectView, generic.UpdateView):
+class CancelRequest(ProjectViewMixin, generic.UpdateView):
     model = models.HolidayRequest
     #form_class = forms.ApproveRequestForm
     

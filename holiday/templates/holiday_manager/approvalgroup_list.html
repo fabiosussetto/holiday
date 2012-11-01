@@ -3,7 +3,7 @@
 {% block content %}
 
 <p>
-    <a class="btn btn-success" href="{% url group_add %}">Add +</a>
+    <a class="btn btn-success" href="{% url app:group_add curr_project %}">Add +</a>
 </p>
 
 <table class="table table-striped">
@@ -22,12 +22,12 @@
             </td>
             <td>
                 <div class="btn-group">
-                    <a href="{% url group_edit pk=object.pk %}" class="btn">Edit</a>
+                    <a href="{% url app:group_edit project=curr_project pk=object.pk %}" class="btn">Edit</a>
                     <button class="btn dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a href="{% url group_delete pk=object.pk %}">Delete</a></li>
+                        <li><a href="{% url app:group_delete project=curr_project pk=object.pk %}">Delete</a></li>
                     </ul>
                 </div>
             </td>

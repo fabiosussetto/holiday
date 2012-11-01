@@ -1,7 +1,14 @@
 from django import forms
 from holiday_manager import models
-from invites.models import User
 from django.forms.extras import SelectDateWidget
+
+class ProjectFormMixin(object):
+    def __init__(self, *args, **kwargs):
+        project = kwargs.pop('project', None)
+        super(ProjectFormMixin, self).__init__(*args, **kwargs)
+        if project:
+            self.fields['project'].queryset = models.Project.objects.filter(project=self.instance.site)
+
 
 class CreateProjectForm(forms.ModelForm):
     class Meta:

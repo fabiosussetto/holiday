@@ -12,7 +12,7 @@ class Project(models.Model):
     
     def __unicode__(self):
         return self.slug
-
+        
 
 class HolidayRequestQuerySet(models.query.QuerySet):
 
@@ -45,6 +45,8 @@ class HolidayRequest(models.Model):
         ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'),
         ('cancelled', 'Cancelled')
     )
+    
+    project = models.ForeignKey('Project')
     
     author = models.ForeignKey('invites.User')
     requested_on = models.DateTimeField(auto_now_add=True)
@@ -116,6 +118,8 @@ class HolidayApproval(models.Model):
         ('rejected', 'Rejected'), ('pre_rejected', 'Pre rejected'), ('cancelled', 'Cancelled')
     )
     
+    project = models.ForeignKey('Project')
+    
     approver = models.ForeignKey('invites.User')
     request = models.ForeignKey('HolidayRequest')
     status = models.CharField(choices=STATUS, default=STATUS.pending, max_length=100)
@@ -160,6 +164,7 @@ class HolidayApproval(models.Model):
         
 class ApprovalGroup(models.Model):
     name = models.CharField(max_length=100)
+    project = models.ForeignKey('Project')
     approvers = models.ManyToManyField('invites.User', through='ApprovalRule')
     
     def __unicode__(self):

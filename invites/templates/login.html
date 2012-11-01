@@ -11,7 +11,7 @@
             </div>
         </form>
         <div class="span6">
-            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ next }}">Login with Google</a>
+            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={% if next %}{{ next }}{% else %}{% url app:dashboard curr_project %}{% endif %}">Login with Google</a>
         </div>
     </div>
 {% endblock %}

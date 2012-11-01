@@ -3,7 +3,6 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 import urlparse
-from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from invites import forms
 from django.http import HttpResponseRedirect
@@ -12,6 +11,9 @@ from invites.models import User
 from django.core.urlresolvers import reverse
 from django.views import generic
 from holiday_manager.models import Project
+from holiday_manager.views.base import ProjectViewMixin
+from django.db import transaction
+from holiday_manager.utils import redirect_to_referer
 
 @sensitive_post_parameters()
 @csrf_protect
@@ -78,18 +80,33 @@ def confirm_invitation(request, key=None):
     return render(request, 'user_welcome.html')
     
     
-class InviteUser(generic.CreateView):
+class InviteUser(ProjectViewMixin, generic.CreateView):
     model = User
     object = None
     form_class = forms.InviteUserForm
     template_name = 'user_form.html'
     
+    @transaction.commit_on_success
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
         if form.is_valid():
             password = User.objects.make_random_password()
-            self.object = User.registration.create_inactive_user(form.cleaned_data['email'], password, send_email=False)
+            self.object = User.registration.create_inactive_user(
+                            form.cleaned_data['email'], password, project=self.curr_project, send_email=False)
             self.object.send_activation_email(temp_password=password)
-            return redirect(reverse('user-edit', kwargs={'pk': self.object.pk}))
+            return redirect(reverse('app:user_edit', kwargs={'project': self.curr_project.slug, 'pk': self.object.pk}))
         else:
             return self.form_invalid(form=form)
+            
+            
+class ResendInvitation(ProjectViewMixin, generic.CreateView):
+    model = User
+
+    @transaction.commit_on_success
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        password = User.objects.make_random_password()
+        self.object.set_password(password)
+        self.object.save()
+        self.object.send_activation_email(temp_password=password)
+        return redirect_to_referer(request)

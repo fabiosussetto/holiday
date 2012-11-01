@@ -29,7 +29,7 @@ SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 class UserManager(DjangoUserManager):
 
-    def create_user(self, email=None, password=None):
+    def create_user(self, email=None, password=None, project=None):
         """
         Creates and saves a User with the given username, email and password.
         """
@@ -40,6 +40,8 @@ class UserManager(DjangoUserManager):
                           last_login=now, date_joined=now)
 
         user.set_password(password)
+        if project:
+            user.project = project
         user.save(using=self._db)
         return user
 
@@ -113,7 +115,7 @@ class RegistrationManager(models.Manager):
                 return user
         return False
     
-    def create_inactive_user(self, email, password, send_email=True):
+    def create_inactive_user(self, email, password, project=None, send_email=True):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -123,7 +125,7 @@ class RegistrationManager(models.Manager):
         user. To disable this, pass ``send_email=False``.
         
         """
-        new_user = User.objects.create_user(email, password)
+        new_user = User.objects.create_user(email, password, project=project)
         new_user.is_active = False
         
         salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
@@ -333,7 +335,8 @@ class User(models.Model):
         ctx_dict = {
             'activation_key': self.activation_key,
             'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
-            'temp_password': temp_password
+            'temp_password': temp_password,
+            'user': self
         }
         #subject = render_to_string('registration/activation_email_subject.txt',
         #                           ctx_dict)

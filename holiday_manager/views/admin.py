@@ -5,17 +5,18 @@ from django.forms.models import inlineformset_factory
 from invites import forms as invite_forms
 from invites.models import User
 from holiday_manager.views import LoginRequiredViewMixin
+from holiday_manager.views.base import ProjectViewMixin
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.shortcuts import redirect
 
 # User management
 
-class UserList(LoginRequiredViewMixin, generic.ListView):
+class UserList(ProjectViewMixin, generic.ListView):
     model = User
     template_name = 'holiday_manager/user_list.html'
     
-class EditUser(generic.UpdateView):
+class EditUser(ProjectViewMixin, generic.UpdateView):
     model = User
     form_class = invite_forms.UserForm
     template_name = 'user_form.html'
@@ -26,7 +27,7 @@ class EditUser(generic.UpdateView):
         
 # Holiday Requests
 
-class EditHolidayRequest(LoginRequiredViewMixin, generic.UpdateView):
+class EditHolidayRequest(ProjectViewMixin, generic.UpdateView):
     model = models.HolidayRequest
     
     def form_valid(self, form):
@@ -38,9 +39,12 @@ class EditHolidayRequest(LoginRequiredViewMixin, generic.UpdateView):
         
 # Approval groups
 
-class CreateApprovalGroup(generic.CreateView):
+class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
     model = models.ApprovalGroup
     object = None
+    
+    def get_success_url(self):
+        return 
     
     def get_context_data(self, **kwargs):
         context = super(CreateApprovalGroup, self).get_context_data(**kwargs)
@@ -64,10 +68,11 @@ class CreateApprovalGroup(generic.CreateView):
         form = self.get_form(form_class)
         formset = self.get_formset()
         if form.is_valid() and formset.is_valid():
+            form.instance.project = self.curr_project
             self.object = form.save()
             formset.instance = self.object
             formset.save()
-            return redirect(reverse('group_edit', kwargs={'pk': self.object.pk}))
+            return redirect(reverse('app:group_edit', kwargs={'project': self.curr_project.slug, 'pk': self.object.pk}))
         else:
             return self.form_invalid(form=form, formset=formset)
     
@@ -85,11 +90,12 @@ class UpdateApprovalGroup(CreateApprovalGroup):
         self.object = self.get_object()
         return super(UpdateApprovalGroup, self).post(request, *args, **kwargs)
     
-class ListApprovalGroup(generic.ListView):
+    
+class ListApprovalGroup(ProjectViewMixin, generic.ListView):
     model = models.ApprovalGroup
     
     
-class DeleteApprovalGroup(generic.DeleteView):
+class DeleteApprovalGroup(ProjectViewMixin, generic.DeleteView):
     model = models.ApprovalGroup
     
     def get_success_url(self):

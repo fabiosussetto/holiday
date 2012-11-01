@@ -3,12 +3,13 @@
 {% block content %}
     
 <p>
-    <a class="btn btn-success" href="{% url invites:invite %}">Add +</a>
+    <a class="btn btn-success" href="{% url app:invites:invite curr_project %}">Add +</a>
 </p>
 
 <table class="table table-striped">
     <tr>
         <th>Email</th>
+        <th>Is active</th>
         <th>Is staff</th>
         <th>Approval group</th>
         <th></th>
@@ -16,9 +17,17 @@
     {% for object in object_list %}
         <tr>
             <td>{{ object.email }}</td>
+            <td>
+                {{ object.is_active }}
+                {% if not object.is_active %}
+                    <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
+                        <button type="submit" class="btn btn-mini">Resend invite</button>
+                    </form>
+                {% endif %}
+            </td>
             <td>{{ object.is_staff }}</td>
             <td>{{ object.approval_group.name }}</td>
-            <td><a href="{% url user_edit pk=object.pk %}" class="btn">Edit</a></td>
+            <td><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="btn">Edit</a></td>
         </tr>
     {% endfor %}
 </table>

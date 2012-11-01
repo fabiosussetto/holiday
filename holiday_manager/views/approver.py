@@ -2,13 +2,13 @@ from django.views import generic
 from django.core.urlresolvers import reverse
 from holiday_manager import models
 from holiday_manager.views import LoginRequiredViewMixin, FilteredListView
-from holiday_manager.views.base import ProjectView
+from holiday_manager.views.base import ProjectViewMixin
 import datetime
 from holiday_manager.cal import days_of_week
 from holiday_manager import forms
 from django.shortcuts import redirect
 
-class HolidayRequestList(LoginRequiredViewMixin, ProjectView, FilteredListView):
+class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
     template_name = 'holiday_manager/admin_holidayrequest_list.html'
     
@@ -16,7 +16,7 @@ class HolidayRequestList(LoginRequiredViewMixin, ProjectView, FilteredListView):
     model_kind_field = 'status'
     
         
-class HolidayRequestWeek(LoginRequiredViewMixin, ProjectView, FilteredListView):
+class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
     template_name = 'holiday_manager/admin_holidayrequest_week.html'
     
@@ -24,6 +24,9 @@ class HolidayRequestWeek(LoginRequiredViewMixin, ProjectView, FilteredListView):
     model_kind_field = 'status'
 
     def get(self, request, *args, **kwargs):
+        #self.project = models.Project.objects.get(slug=kwargs['project'])
+        print HolidayRequestWeek.__mro__
+        print 'HolidayRequestWeek'
         curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
         self.week_num = int(self.request.GET.get('week', curr_week))
         self.week_days = list(days_of_week(curr_year, self.week_num))
@@ -38,6 +41,7 @@ class HolidayRequestWeek(LoginRequiredViewMixin, ProjectView, FilteredListView):
             'week_num': self.week_num,
             'prev_week': self.prev_week,
             'next_week': self.next_week,
+            #'curr_project': self.project
         })
         return context
     
@@ -48,7 +52,7 @@ class HolidayRequestWeek(LoginRequiredViewMixin, ProjectView, FilteredListView):
         
 # Holiday approvals
 
-class HolidayApprovalList(generic.ListView):
+class HolidayApprovalList(ProjectViewMixin, generic.ListView):
     model = models.HolidayApproval
     
     def get_queryset(self):
@@ -59,7 +63,7 @@ class HolidayApprovalList(generic.ListView):
         ).order_by('order')
         
         
-class ApproveRequest(generic.UpdateView):
+class ApproveRequest(ProjectViewMixin, generic.UpdateView):
     model = models.HolidayApproval
     form_class = forms.ApproveRequestForm
     
@@ -72,7 +76,7 @@ class ApproveRequest(generic.UpdateView):
         return super(ApproveRequest, self).form_valid(form)
         
         
-class RejectApprovalRequest(generic.UpdateView):
+class RejectApprovalRequest(ProjectViewMixin, generic.UpdateView):
     model = models.HolidayApproval
     
     def get_success_url(self):
