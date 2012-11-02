@@ -2,12 +2,19 @@ from django import forms
 from invites import models
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.contrib.auth import authenticate
+from holiday_manager.forms import ProjectFormMixin
 
 class UserForm(forms.ModelForm):
     class Meta:
         model = models.User
         fields = ('email', 'first_name', 'last_name', 'approval_group', 'is_staff',)
         
+
+class EditUserForm(ProjectFormMixin, forms.ModelForm):
+    class Meta:
+        model = models.User
+        fields = ('email', 'first_name', 'last_name', 'approval_group', 'is_staff',)        
+
         
 class InviteUserForm(forms.ModelForm):
     class Meta:

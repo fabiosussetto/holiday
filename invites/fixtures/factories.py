@@ -1,7 +1,11 @@
 import factory
 from invites.models import User
-from holiday_manager.models import ApprovalGroup, ApprovalRule, HolidayRequest
+from holiday_manager.models import ApprovalGroup, ApprovalRule, HolidayRequest, Project
 import datetime
+
+class ProjectFactory(factory.Factory):
+    name = 'Test project'
+    slug = 'test-project'
 
 class GroupFactory(factory.Factory):
     FACTORY_FOR = ApprovalGroup

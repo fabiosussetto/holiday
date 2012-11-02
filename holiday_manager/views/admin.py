@@ -16,9 +16,10 @@ class UserList(ProjectViewMixin, generic.ListView):
     model = User
     template_name = 'holiday_manager/user_list.html'
     
+    
 class EditUser(ProjectViewMixin, generic.UpdateView):
     model = User
-    form_class = invite_forms.UserForm
+    form_class = invite_forms.EditUserForm
     template_name = 'user_form.html'
     
     def get_success_url(self):
@@ -46,11 +47,6 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
     def get_success_url(self):
         return
     
-    #def get_form_kwargs(self):
-    #    kwargs = super(CreateApprovalGroup, self).get_form_kwargs()
-    #    kwargs.update({'project': self.curr_project})
-    #    return kwargs
-    
     def get_context_data(self, **kwargs):
         context = super(CreateApprovalGroup, self).get_context_data(**kwargs)
         context.update({'formset': self.get_formset()})
@@ -63,10 +59,10 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
         
     def get_formset(self):
         RuleFormSet = inlineformset_factory(models.ApprovalGroup, models.ApprovalRule, form=forms.ApprovalRuleForm)
-        for subform in RuleFormSet.forms:
-            subform.set_project(self.curr_project)
         form_data = self.request.POST if self.request.method == 'POST' else None
         formset = RuleFormSet(data=form_data, instance=self.object)
+        for subform in formset.forms:
+            subform.set_project(self.curr_project)
         return formset
     
     @transaction.commit_on_success

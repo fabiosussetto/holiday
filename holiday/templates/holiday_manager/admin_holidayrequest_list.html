@@ -5,23 +5,23 @@
 <header class="row">
     <h4 class="span10">Holiday requests list</h4>
     <div class="btn-group span2">
-        <a href="{% url holiday_weekly %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
-        <a href="{% url holiday_list %}" class="btn"><i class="icon-list"></i> List</a>
+        <a href="{% url app:holiday_weekly project=curr_project %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
+        <a href="{% url app:holiday_list project=curr_project %}" class="btn"><i class="icon-list"></i> List</a>
     </div>
 </header>
 
 <ul class="nav nav-tabs">
     <li class="{% if list_kind == 'pending' %}active{% endif %}">
-        <a href="{% url holiday_list kind='pending' %}">Pending</a>
+        <a href="{% url app:holiday_list kind='pending' project=curr_project %}">Pending</a>
     </li>
     <li class="{% if list_kind == 'approved' %}active{% endif %}">
-        <a href="{% url holiday_list kind='approved' %}">Approved</a>
+        <a href="{% url app:holiday_list kind='approved' project=curr_project %}">Approved</a>
     </li>
     <li class="{% if list_kind == 'rejected' %}active{% endif %}">
-        <a href="{% url holiday_list kind='rejected' %}">Rejected</a>
+        <a href="{% url app:holiday_list kind='rejected' project=curr_project %}">Rejected</a>
     </li>
     <li class="{% if list_kind == 'archived' %}active{% endif %}">
-        <a href="{% url holiday_list kind='archived' %}">Archived</a>
+        <a href="{% url app:holiday_list kind='archived' project=curr_project %}">Archived</a>
     </li>
 </ul>
 
@@ -41,7 +41,7 @@
             <td>{{ object.start_date }}</td>
             <td>{{ object.end_date }}</td>
             <td>{{ object.status }}</td>
-            <td><a href="{% url holiday_edit pk=object.pk %}" class="btn">Edit</a></td>
+            <td><a href="{% url app:holiday_edit project=curr_project pk=object.pk %}" class="btn">Edit</a></td>
         </tr>
     {% endfor %}
 </table>

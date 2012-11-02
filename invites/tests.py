@@ -1,8 +1,8 @@
 from django.test import TestCase
-from holiday_manager.models import HolidayApproval, HolidayRequest, ApprovalGroup, ApprovalRule
+from holiday_manager.models import HolidayApproval, HolidayRequest, ApprovalGroup, ApprovalRule, Project
 from invites.models import User
 from invites.fixtures.factories import (
-    UserFactory, GroupFactory, ApprovalRuleFactory, HolidayRequestFactory )
+    UserFactory, GroupFactory, ApprovalRuleFactory, HolidayRequestFactory, ProjectFactory )
 import datetime
 
 def reload_entity(obj):
@@ -11,11 +11,12 @@ def reload_entity(obj):
 class ApprovalFlowBaseScenario(object):
 
     def setUp(self):
-        self.frontend_group = GroupFactory(name='Frontend team')
-        self.backend_group = GroupFactory(name='Backend team')
-        self.fe_approver_1 = UserFactory(first_name='Mark', last_name='Green')
-        self.fe_approver_2 = UserFactory(first_name='Adam', last_name='Red', approval_group=self.frontend_group)
-        self.fe_user_1 = UserFactory(first_name='John', last_name='Doe', approval_group=self.frontend_group)
+        self.project = ProjectFactory()
+        self.frontend_group = GroupFactory(name='Frontend team', project=self.project)
+        self.backend_group = GroupFactory(name='Backend team', project=self.project)
+        self.fe_approver_1 = UserFactory(first_name='Mark', last_name='Green', project=self.project)
+        self.fe_approver_2 = UserFactory(first_name='Adam', last_name='Red', approval_group=self.frontend_group, project=self.project)
+        self.fe_user_1 = UserFactory(first_name='John', last_name='Doe', approval_group=self.frontend_group, project=self.project)
         
         r1 = ApprovalRuleFactory(order=0, group=self.frontend_group, approver=self.fe_approver_1)
         r2 = ApprovalRuleFactory(order=1, group=self.frontend_group, approver=self.fe_approver_2)
@@ -24,7 +25,8 @@ class ApprovalFlowBaseScenario(object):
             author=self.fe_user_1,
             requested_days_ago=3,
             start_date=datetime.date(2012, 11, 1),
-            end_date=datetime.date(2012, 11, 3)
+            end_date=datetime.date(2012, 11, 3),
+            project=self.project
         )
         
 

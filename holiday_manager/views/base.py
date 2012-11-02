@@ -36,6 +36,12 @@ class ProjectViewMixin(object):
         if not 'curr_project' in context:
             context['curr_project'] = self.curr_project
         return super(ProjectViewMixin, self).render_to_response(context, **response_kwargs)
+        
+    def get_form_kwargs(self):
+        kwargs = super(ProjectViewMixin, self).get_form_kwargs()
+        if issubclass(self.get_form_class(), forms.ProjectFormMixin):
+            kwargs.update({'project': self.curr_project})
+        return kwargs
 
     
 class CreateProject(generic.CreateView):

@@ -118,7 +118,7 @@ class HolidayApproval(models.Model):
         ('rejected', 'Rejected'), ('pre_rejected', 'Pre rejected'), ('cancelled', 'Cancelled')
     )
     
-    project = models.ForeignKey('Project')
+    #project = models.ForeignKey('Project')
     
     approver = models.ForeignKey('invites.User')
     request = models.ForeignKey('HolidayRequest')

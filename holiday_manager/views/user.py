@@ -12,17 +12,17 @@ class Dashboard(ProjectViewMixin, generic.TemplateView):
     template_name = 'holiday_manager/dashboard.html'
     
 
-    #def get(self, *args, **kwargs):
-    #    return self.render_to_response()
-
-class AddHolidayRequest(LoginRequiredViewMixin, ProjectViewMixin, generic.CreateView):
+class AddHolidayRequest(ProjectViewMixin, generic.CreateView):
     model = models.HolidayRequest
     form_class = forms.AddHolidayRequestForm
-    success_url = '/'
     initial = {
         'start_date': datetime.datetime.now().date(),
         'end_date': datetime.datetime.now().date()
     }
+    
+    def get_success_url(self):
+        return reverse('app:holiday_user_requests', kwargs={
+            'project': self.curr_project.slug, 'kind': 'all'})
     
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -40,7 +40,7 @@ class AddHolidayRequest(LoginRequiredViewMixin, ProjectViewMixin, generic.Create
         self.object = request
         return super(AddHolidayRequest, self).form_valid(form)
 
-class UserHolidayRequestList(LoginRequiredViewMixin, ProjectViewMixin, generic.ListView):
+class UserHolidayRequestList(ProjectViewMixin, generic.ListView):
     model = models.HolidayRequest
     kind = 'all'
 
@@ -67,7 +67,7 @@ class CancelRequest(ProjectViewMixin, generic.UpdateView):
     #form_class = forms.ApproveRequestForm
     
     def get_success_url(self):
-        return reverse('holiday_user_requests', kwargs={'kind': 'all'})
+        return reverse('app:holiday_user_requests', kwargs={'project': self.curr_project.slug, 'kind': 'all'})
         
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()

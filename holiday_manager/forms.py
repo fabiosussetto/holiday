@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import FieldError
 from holiday_manager import models
 from django.forms.extras import SelectDateWidget
 
@@ -13,12 +14,17 @@ class ProjectFormMixin(object):
             self.set_project(project)
             
     def set_project(self, project):
-        self.project
-        for field in self.fields:
-            print field
-            print hasattr(field, 'queryset')
-            if isinstance(field, forms.fields.ChoiceField):
-                field.queryset = field.queryset.filter(project=self.project)
+        self.project = project
+        for name, field in self.fields.items():
+            if isinstance(field, forms.models.ModelChoiceField):
+                try:
+                    field.queryset = field.queryset.filter(project=self.project)
+                except FieldError:
+                    pass
+                    
+    def save(self, *args, **kwargs):
+        self.instance.project = self.project
+        return super(ProjectFormMixin, self).save(*args, **kwargs)
         
 
 
@@ -28,7 +34,7 @@ class CreateProjectForm(forms.ModelForm):
         fields = ('name', 'slug')
         
 
-class AddHolidayRequestForm(forms.ModelForm):
+class AddHolidayRequestForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.HolidayRequest
         fields = ('start_date', 'end_date', 'notes')
@@ -47,7 +53,7 @@ class ApprovalGroupForm(forms.ModelForm):
 class ApprovalRuleForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.ApprovalRule
-        fields = ('approver',)
+        fields = ('approver', 'order')
         
 
 class ApproveRequestForm(forms.ModelForm):
