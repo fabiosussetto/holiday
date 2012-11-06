@@ -1,11 +1,38 @@
 {% extends 'holiday_manager/base.html' %}
 
 {% block content %}
+    <h4>Send an invite to use this app by email:</h4>
     <form action="" method="post">{% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Send invite</button>
-            <button type="button" class="btn">Cancel</button>
+        <div class="input-append">
+            {{ form.email }}<button type="submit" class="btn btn-primary">Send invite</button>
         </div>
+    </form>
+        
+    <form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
+        <h4>Your gmail contacts</h4>
+    
+        {% if oauthed %}
+            {% if contacts %}
+                <ul>
+                {% for contact in contacts %}
+                    <li>
+                        <input type="checkbox" name="email" value="{{ contact.email }}">
+                        <img onerror="this.src='/static/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
+                        {{ contact.full_name }} ({{ contact.email }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>You don't have any contacts to import.</p>
+            {% endif %}
+        {% else %}
+            <p>Please authorize this app to import your Gmail contacts:</p>
+            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
+        {% endif %}
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Import selected contacts</button>
+        </div>
+
     </form>
 {% endblock %}

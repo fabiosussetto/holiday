@@ -9,6 +9,7 @@ from holiday_manager.views.base import ProjectViewMixin
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.shortcuts import redirect
+from django.contrib import messages
 
 # User management
 
@@ -20,11 +21,20 @@ class UserList(ProjectViewMixin, generic.ListView):
 class EditUser(ProjectViewMixin, generic.UpdateView):
     model = User
     form_class = invite_forms.EditUserForm
-    template_name = 'user_form.html'
+    template_name = 'edit_user.html'
     
     def get_success_url(self):
-        return reverse('user_edit', kwargs={'pk': self.object.pk})
+        return reverse('app:user_edit', kwargs={'pk': self.object.pk, 'project': self.curr_project.slug})
 
+        
+class DeleteUser(ProjectViewMixin, generic.DeleteView):
+    model = User
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        messages.warning(request, 'User "%s" deleted.' % self.object)
+        return redirect_to_referer(self.request)
         
 # Holiday Requests
 
@@ -36,7 +46,6 @@ class EditHolidayRequest(ProjectViewMixin, generic.UpdateView):
         self.object.save()
         return redirect_to_referer(self.request)
         
-
         
 # Approval groups
 
@@ -108,3 +117,18 @@ class DeleteApprovalGroup(ProjectViewMixin, generic.DeleteView):
         self.object = self.get_object()
         self.object.delete()
         return redirect(self.get_success_url())
+        
+        
+# Project settings
+
+class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
+    model = models.Project
+    form_class = forms.EditProjectSettingsForm
+    template_name = 'holiday_manager/project_settings.html'
+    
+    def get_success_url(self):
+        return reverse('app:project_settings', kwargs={'project': self.curr_project.slug})
+    
+    def get_object(self, queryset=None):
+        return models.Project.objects.get(pk=self.curr_project.pk)
+    

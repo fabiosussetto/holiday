@@ -13,7 +13,11 @@ from django.views import generic
 from holiday_manager.models import Project
 from holiday_manager.views.base import ProjectViewMixin
 from django.db import transaction
-from holiday_manager.utils import redirect_to_referer
+from holiday_manager.utils import redirect_to_referer, filter_project_contacts
+from social_auth.db.django_models import UserSocialAuth
+from invites.google_api import google_contacts, AuthTokenException
+from django.forms.models import modelformset_factory
+from django.contrib import messages
 
 @sensitive_post_parameters()
 @csrf_protect
@@ -70,7 +74,7 @@ def logout(request, **kwargs):
 def no_user_association(request):
     return render(request, 'no_user_association.html')
 
-def confirm_invitation(request, key=None):
+def confirm_invitation(request, key=None, project=None):
     user = User.registration.activate_user(key)
     if not user:
         return redirect('/wrong_key')
@@ -86,17 +90,46 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
     form_class = forms.InviteUserForm
     template_name = 'user_form.html'
     
+    def get_formset(self):
+        InviteFormSet = modelformset_factory(User, form=forms.ApprovalRuleForm)
+        form_data = self.request.POST if self.request.method == 'POST' else None
+        formset = InviteFormSet(data=form_data, instance=self.object)
+        for subform in formset.forms:
+            subform.set_project(self.curr_project)
+        return formset
+    
+    def get_context_data(self, **kwargs):
+        context = super(InviteUser, self).get_context_data(**kwargs)
+        try:
+            contacts = filter_project_contacts(
+                            google_contacts(self.request.user), self.curr_project)
+            data = {'oauthed': True, 'contacts': contacts}
+        except (UserSocialAuth.DoesNotExist,):
+            data = {'oauthed': False, 'contacts': []}
+        context.update(data)
+        return context
+    
     @transaction.commit_on_success
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
         if form.is_valid():
-            password = User.objects.make_random_password()
-            self.object = User.registration.create_inactive_user(
-                            form.cleaned_data['email'], password, project=self.curr_project, send_email=False)
-            self.object.send_activation_email(temp_password=password)
+            new_user = User.registration.invite(self.curr_project, form.cleaned_data['email'])
+            messages.success(request, "Invite sent to %s." % new_user.email)
             return redirect(reverse('app:user_edit', kwargs={'project': self.curr_project.slug, 'pk': self.object.pk}))
         else:
             return self.form_invalid(form=form)
+            
+            
+class ImportContacts(ProjectViewMixin, generic.View):
+    
+    @transaction.commit_on_success
+    def post(self, request, *args, **kwargs):
+        emails = self.request.POST.getlist('email')
+        for email in emails:
+            User.registration.invite(self.curr_project, email)
+            
+        messages.success(request, "Invitation sent to the selected contacts.")
+        return redirect_to_referer(self.request)    
             
             
 class ResendInvitation(ProjectViewMixin, generic.CreateView):
@@ -109,4 +142,30 @@ class ResendInvitation(ProjectViewMixin, generic.CreateView):
         self.object.set_password(password)
         self.object.save()
         self.object.send_activation_email(temp_password=password)
+        messages.success(request, "Invitation resent to '%s'." % self.object.email)
         return redirect_to_referer(request)
+        
+        
+class EditProfile(ProjectViewMixin, generic.UpdateView):
+    model = User
+    form_class = forms.EditProfileForm
+    template_name = 'edit_profile.html'
+    
+    def get_object(self, queryset=None):
+        return self.request.user
+        
+        
+class ChangePassword(ProjectViewMixin, generic.UpdateView):
+    form_class = forms.PasswordChangeForm
+    template_name = 'change_password.html'
+
+    def get_form_kwargs(self):
+        kwargs = {'user': self.request.user}
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+            })
+        return kwargs
+
+    def get_object(self, queryset=None):
+        return self.request.user

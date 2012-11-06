@@ -27,7 +27,12 @@
             </td>
             <td>{{ object.is_staff }}</td>
             <td>{{ object.approval_group.name }}</td>
-            <td><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="btn">Edit</a></td>
+            <td>
+                <a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="btn">Edit</a>
+                <form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
         </tr>
     {% endfor %}
 </table>

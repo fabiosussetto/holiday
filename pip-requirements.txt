@@ -7,10 +7,12 @@ django-debug-toolbar==0.9.4
 django-social-auth==0.7.7
 django-storages==1.1.5
 easy-thumbnails==1.1
+factory-boy==1.2.0
 httplib2==0.7.6
 logilab-astng==0.24.1
 logilab-common==0.58.1
 oauth2==1.5.211
 pylint==0.26.0
 python-openid==2.2.5
+pytz==2012h
 wsgiref==0.1.2

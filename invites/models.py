@@ -23,6 +23,8 @@ except ImportError:
     datetime_now = datetime.datetime.now
     
 from holiday_manager.models import ApprovalGroup
+from django.conf import settings
+from holiday_manager.cal import COMMON_TIMEZONE_CHOICES
     
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
@@ -80,6 +82,13 @@ class RegistrationManager(models.Manager):
     
     """
     ACTIVATED = u"ALREADY_ACTIVATED"
+    
+    def invite(self, project, email):
+        password = User.objects.make_random_password()
+        new_user = self.create_inactive_user(
+                        email, password, project=project, send_email=False)
+        new_user.send_activation_email(temp_password=password)
+        return new_user
     
     def activate_user(self, activation_key):
         """
@@ -169,7 +178,7 @@ class User(models.Model):
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     
-    email = models.EmailField(_('e-mail address'), blank=True, unique=True)
+    email = models.EmailField(_('e-mail address'), blank=True)
     
     password = models.CharField(_('password'), max_length=128)
     is_staff = models.BooleanField(_('staff status'), default=False,
@@ -199,6 +208,8 @@ class User(models.Model):
     # TODO: change the default value according to a settings model    
     days_off_left = models.SmallIntegerField(default=20)
     
+    timezone = models.CharField(max_length=100, choices=COMMON_TIMEZONE_CHOICES, default=settings.TIME_ZONE)
+    
     pending_approvals = models.SmallIntegerField(default=0)
     
     objects = UserManager()
@@ -208,6 +219,7 @@ class User(models.Model):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+        unique_together = ('email', 'project')
 
     def __unicode__(self):
         if self.first_name and self.last_name:

@@ -9,7 +9,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </a>
-        <a href="#" class="brand">Project name</a>
+        <a href="#" class="brand">{{ curr_project.name }}</a>
         <div class="nav-collapse collapse">
         <div class="navbar-text pull-right">
             {% if user.is_authenticated %}
@@ -23,7 +23,7 @@
                 {% endif %}
                 <div class="user-badge">
                     <img src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
-                    {{ user }}
+                    <a href="{% url app:invites:edit_profile curr_project %}">{{ user }}</a>
                 </div>
                  - <a class="navbar-link" href="{% url app:invites:logout curr_project %}">logout</a>
             {% else %}  
@@ -47,6 +47,10 @@
             {% endif %}
             <li><a href="{% url app:holiday_submit curr_project %}">Submit request</a></li>
             <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
+            
+            {% if user.is_superuser %}
+                <li><a href="{% url app:project_settings project=curr_project %}">Settings</a></li>
+            {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
       </div>

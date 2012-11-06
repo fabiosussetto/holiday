@@ -1,0 +1,22 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+    <h4>Edit your profile:</h4>
+    
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="{% url app:invites:edit_profile curr_project %}">Profile data</a>
+        </li>
+        <li class="">
+            <a href="{% url app:invites:change_password curr_project %}">Change password</a>
+        </li>
+    </ul>
+    
+    <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </form>
+    
+{% endblock %}

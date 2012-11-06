@@ -60,3 +60,9 @@ class ApproveRequestForm(forms.ModelForm):
     class Meta:
         model = models.HolidayApproval
         fields = ('notes',)
+
+        
+class EditProjectSettingsForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ('name', 'day_count_reset_date', 'default_timezone', 'default_days_off',)

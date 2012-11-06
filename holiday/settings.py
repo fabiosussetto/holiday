@@ -104,6 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'holiday_manager.middleware.TimezoneMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -146,6 +147,7 @@ INSTALLED_APPS = (
     'social_auth',
     'debug_toolbar',
     'easy_thumbnails',
+    'paypal.standard.ipn',
     'invites',
     'holiday_manager',
 )
@@ -244,3 +246,16 @@ INTERNAL_IPS = ('127.0.0.1',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+
+GOOGLE_OAUTH_EXTRA_SCOPE = ['https://www.google.com/m8/feeds']
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: '',
+    messages.ERROR: 'alert-error'
+}
+
+PAYPAL_RECEIVER_EMAIL = "h1_1352217439_biz@gmail.com"
+PAYPAL_TEST = True

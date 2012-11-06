@@ -1,0 +1,22 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+    
+<h4>Your gmail contacts</h4>
+
+{% if oauthed %}
+    {% if contacts %}
+        <ul>
+        {% for contact in contacts %}
+            <li><img style="width:30px" src="{{ contact.pic }}"> {{ contact.full_name }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>You don't have any contacts to import.</p>
+    {% endif %}
+{% else %}
+    <p>Please authorize this app to import your Gmail contacts:</p>
+    <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
+{% endif %}
+
+{% endblock %}

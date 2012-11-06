@@ -9,6 +9,14 @@
   <body>
     {% include 'holiday_manager/elements/topbar.html' %}
     <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+    
           {% block content %}{% endblock %}
     </div>
     <script src="http://code.jquery.com/jquery-latest.js"></script>

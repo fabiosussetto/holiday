@@ -23,6 +23,9 @@ app_patterns = patterns('',
     
     url(r'^user/list$', views.admin.UserList.as_view(), name='user_list'),
     url(r'^user/edit/(?P<pk>\d+)$', views.admin.EditUser.as_view(), name='user_edit'),
+    url(r'^user/delete/(?P<pk>\d+)$', views.admin.DeleteUser.as_view(), name='user_delete'),
+    
+    url(r'^project/settings/$', views.admin.EditProjectSettings.as_view(), name='project_settings'),
     
     url(r'^group$', views.admin.ListApprovalGroup.as_view(), name='group_list'),
     url(r'^group/add$', views.admin.CreateApprovalGroup.as_view(), name='group_add'),
@@ -34,9 +37,11 @@ app_patterns = patterns('',
 
 urlpatterns = patterns('',
     url(r'^$', views.base.home, name='home'),
+    url(r'^subscribe/$', views.public.subscribe, name='subscribe'),
     url(r'^project/register$', views.base.CreateProject.as_view(), name='project_register'),
     (r'^app/(?P<project>[a-zA-Z0-9-]+)/', include(app_patterns, namespace='app')),
     url(r'', include('social_auth.urls')),
+    url(r'^paypal_ipn/', include('paypal.standard.ipn.urls', namespace='paypal')),
 )
 
 

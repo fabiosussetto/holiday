@@ -2,13 +2,19 @@ from django.db import models
 from holiday_manager.utils import Choices
 from django.db.models import Q
 from django.db import transaction
+from django.conf import settings
+from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES
 
 class Project(models.Model):
     
     name = models.CharField(max_length=30, verbose_name='Project name')
     slug = models.SlugField(max_length=30)
-    #creator = models.ForeignKey('invites.User', related_name='project_admin')
     created_on = models.DateTimeField(auto_now_add=True)
+    
+    # Settings
+    default_days_off = models.SmallIntegerField(default=20)
+    day_count_reset_date = models.CharField(max_length=20, default='1/1') # day-month
+    default_timezone = models.CharField(max_length=100, choices=PRETTY_TIMEZONE_CHOICES, default=settings.TIME_ZONE)
     
     def __unicode__(self):
         return self.slug
@@ -127,6 +133,8 @@ class HolidayApproval(models.Model):
     changed_on = models.DateTimeField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(default=0)
     
+    project = models.ForeignKey('Project')
+    
     @transaction.commit_on_success
     def approve(self):
         self.status = HolidayApproval.STATUS.approved
@@ -207,4 +215,15 @@ class ApprovalRule(models.Model):
 #    
 #    default_days_off = models.SmallIntegerField(default=20)
 #    day_count_reset_date = models.CharField(max_length=20, default='01-01') # day-month
+
+
+from paypal.standard.ipn.signals import subscription_signup
+
+def on_subscription_start(sender, **kwargs):
+    ipn_obj = sender
+    # Undertake some action depending upon `ipn_obj`.
+    print ipn_obj
+    #if ipn_obj.custom == "Upgrade all users!":
+        #Users.objects.update(paid=True)        
+subscription_signup.connect(on_subscription_start)
     

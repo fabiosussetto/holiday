@@ -5,6 +5,11 @@ from django import forms
 def redirect_to_referer(request):
     return redirect(request.META.get('HTTP_REFERER', None))
     
+    
+def filter_project_contacts(contacts, project):
+    existing_emails = [user.email for user in project.user_set.all()]
+    contacts = [item for item in contacts if item['email'] not in existing_emails]
+    return contacts
 
         
 class Choices(object):

@@ -3,6 +3,7 @@ from invites import models
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.contrib.auth import authenticate
 from holiday_manager.forms import ProjectFormMixin
+from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeForm
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -13,14 +14,24 @@ class UserForm(forms.ModelForm):
 class EditUserForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.User
-        fields = ('email', 'first_name', 'last_name', 'approval_group', 'is_staff',)        
+        fields = ('email', 'first_name', 'last_name', 'approval_group', 'days_off_left',
+                  'is_staff', 'is_active',)        
 
         
-class InviteUserForm(forms.ModelForm):
+class InviteUserForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.User
         fields = ('email',)
         
+        
+class EditProfileForm(ProjectFormMixin, forms.ModelForm):
+    class Meta:
+        model = models.User
+        fields = ('email', 'first_name', 'last_name',)
+      
+        
+class PasswordChangeForm(BasePasswordChangeForm):
+    pass
         
 class ConfirmInvitationForm(forms.Form):
     key = forms.CharField(required=True)
