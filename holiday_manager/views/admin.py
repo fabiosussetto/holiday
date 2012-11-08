@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.shortcuts import redirect
 from django.contrib import messages
+from paypal.standard.forms import PayPalPaymentsForm
 
 # User management
 
@@ -132,3 +133,28 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     def get_object(self, queryset=None):
         return models.Project.objects.get(pk=self.curr_project.pk)
     
+    
+class UpgradePlan(ProjectViewMixin, generic.TemplateView):
+    template_name = 'holiday_manager/upgrade_plan.html'
+    
+    def get_context_data(self, **kwargs):
+        paypal_dict = {
+            "cmd": "_xclick-subscriptions",
+            "business": "h1_1352217439_biz@gmail.com",
+            "a3": self.curr_project.calculate_price(),                      # monthly price 
+            "p3": 1,                           # duration of each unit (depends on unit)
+            "t3": "M",                         # duration unit ("M for Month")
+            "src": "1",                        # make payments recur
+            "sra": "1",                        # reattempt payment on payment error
+            "no_note": "1",                    # remove extra notes (optional)
+            "item_name": "Holiday manager subscription",
+            "notify_url": self.request.build_absolute_uri(reverse('paypal:paypal-ipn')),
+            "return_url": self.request.build_absolute_uri(reverse('home')),
+            "cancel_return": self.request.build_absolute_uri(reverse('home')),
+            'custom': 'some custom data'
+        }
+        # Create the instance.
+        form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
+        return {
+            'paypal_form': form
+        }

@@ -1,23 +1,62 @@
 from django.db import models
+from django.conf import settings
 from holiday_manager.utils import Choices
 from django.db.models import Q
 from django.db import transaction
 from django.conf import settings
 from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES
+import datetime
+
+class ProjectManager(models.Manager):
+
+    def create(self, instance):
+        instance.trial_start = datetime.datetime.now()
+        instance.price_per_user = settings.PRICE_PER_USERS_FUNC(instance.plan_users)
+        instance.save()
+        return instance
 
 class Project(models.Model):
+
+    PLANS = Choices(
+        ('free', 'Free'),
+    )
     
     name = models.CharField(max_length=30, verbose_name='Project name')
     slug = models.SlugField(max_length=30)
     created_on = models.DateTimeField(auto_now_add=True)
+    
+    # Billing
+    plan = models.CharField(max_length=20, choices=PLANS, default='free')
+    plan_users = models.SmallIntegerField(default=3)
+    price_per_user = models.FloatField()
+    trial_start = models.DateField(blank=True, null=True)
     
     # Settings
     default_days_off = models.SmallIntegerField(default=20)
     day_count_reset_date = models.CharField(max_length=20, default='1/1') # day-month
     default_timezone = models.CharField(max_length=100, choices=PRETTY_TIMEZONE_CHOICES, default=settings.TIME_ZONE)
     
+    objects = models.Manager()
+    subscription = ProjectManager()
+    
     def __unicode__(self):
         return self.slug
+        
+    def calculate_price(self):
+        return self.price_per_user * self.plan_users
+        
+    def is_in_trial(self):
+        return self.plan == Project.PLANS.free and datetime.datetime.now().date() >= self.trial_start
+        
+    def trial_days_left(self):
+        return (self.trial_expire_date() - datetime.datetime.now().date()).days
+        
+    def trial_expire_date(self):
+        return self.trial_start + datetime.timedelta(days=settings.TRIAL_PERIOD_DAYS)
+        
+    def is_trial_expired(self):
+        duration = settings.TRIAL_PERIOD_DAYS
+        return datetime.datetime.now().date() > self.trial_expire_date()
         
 
 class HolidayRequestQuerySet(models.query.QuerySet):

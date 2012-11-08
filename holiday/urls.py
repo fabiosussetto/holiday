@@ -32,6 +32,8 @@ app_patterns = patterns('',
     url(r'^group/edit/(?P<pk>\d+)$', views.admin.UpdateApprovalGroup.as_view(), name='group_edit'),
     url(r'^group/delete/(?P<pk>\d+)$', views.admin.DeleteApprovalGroup.as_view(), name='group_delete'),
     
+    url(r'^upgrade$', views.admin.UpgradePlan.as_view(), name='upgrade_plan'),
+    
     url(r'^accounts/', include('invites.urls', namespace='invites')),
 )
 

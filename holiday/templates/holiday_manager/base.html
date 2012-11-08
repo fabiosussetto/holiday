@@ -9,6 +9,12 @@
   <body>
     {% include 'holiday_manager/elements/topbar.html' %}
     <div class="container">
+            {% if curr_project.is_in_trial %}
+                <div class="alert">
+                    You have <strong>{{ curr_project.trial_days_left }} days left</strong> of your trial period.
+                    <a href="{% url app:upgrade_plan curr_project %}" class="btn btn-success">Upgrade now!</a>
+                </div>
+            {% endif %}
             {% if messages %}
                 {% for message in messages %}
                 <div class="alert {{ message.tags }}">

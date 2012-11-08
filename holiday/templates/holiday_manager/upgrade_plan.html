@@ -1,0 +1,16 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+    <h4>Upgrade your plan for this project:</h4>
+    <table>
+        <tr>
+            <th>Price per month:</th>
+            <td>{{ curr_project.calculate_price }}</td>
+        </tr>
+        <tr>
+            <th>Users:</th>
+            <td>xx</td>
+        </tr>
+    </table>
+    {{ paypal_form.sandbox }}
+{% endblock %}

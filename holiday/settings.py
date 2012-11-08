@@ -259,3 +259,17 @@ MESSAGE_TAGS = {
 
 PAYPAL_RECEIVER_EMAIL = "h1_1352217439_biz@gmail.com"
 PAYPAL_TEST = True
+
+# Pricing settings
+def _price_function(user_num):
+    if user_num <= 10:
+        return 5.00
+    elif user_num > 30 and user_num <= 50:
+        return 4.00
+    else:
+        return 3.00
+    
+
+PRICE_PER_USERS_FUNC = _price_function
+
+TRIAL_PERIOD_DAYS = 15

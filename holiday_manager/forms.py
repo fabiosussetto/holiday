@@ -31,7 +31,11 @@ class ProjectFormMixin(object):
 class CreateProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ('name', 'slug')
+        fields = ('name', 'slug', 'plan_users', 'plan')
+        
+    def save(self, **kwargs):
+        return models.Project.subscription.create(self.instance)
+        
         
 
 class AddHolidayRequestForm(ProjectFormMixin, forms.ModelForm):
