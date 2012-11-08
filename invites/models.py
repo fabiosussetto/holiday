@@ -27,6 +27,7 @@ from django.conf import settings
 from holiday_manager.cal import COMMON_TIMEZONE_CHOICES
     
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
+from holiday_manager.pymill import PayMillApi
 
 
 class UserManager(DjangoUserManager):
@@ -212,6 +213,9 @@ class User(models.Model):
     
     pending_approvals = models.SmallIntegerField(default=0)
     
+    # credit card
+    paymill_client_id = models.CharField(max_length=200, blank=True, null=True)
+    
     objects = UserManager()
     
     registration = RegistrationManager()
@@ -360,4 +364,23 @@ class User(models.Model):
                                    ctx_dict)
         
         self.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
+        
+    def get_credit_cards(self):
+        if not self.paymill_client_id:
+            return {}
+        api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)
+        return api.list_cards(self.paymill_client_id)
+    
+    def add_credit_card(self, token):
+        api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)
+        if not self.paymill_client_id:
+            self.create_card_account()
+        return api.create_card(token, self.paymill_client_id)
+    
+    def create_card_account(self):
+        api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)
+        data = api.create_client(email=self.email, description=str(self))
+        self.paymill_client_id = data['id']
+        self.save()
+        
         

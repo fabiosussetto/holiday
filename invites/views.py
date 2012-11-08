@@ -169,3 +169,24 @@ class ChangePassword(ProjectViewMixin, generic.UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
+    
+    
+class AddCreditCard(ProjectViewMixin, generic.TemplateView):
+    template_name = 'credit_cards.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(AddCreditCard, self).get_context_data(**kwargs)
+        context.update({
+            'cards': self.request.user.get_credit_cards()    
+        })
+        print context['cards']
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.request.user.add_credit_card(request.POST['paymillToken'])
+        messages.success(request, "The card has been added to your account.")
+        return redirect_to_referer(request)
+    
+    #def get(self, request, *args, **kwargs):
+    #    return render(request, self.template_name)
+        

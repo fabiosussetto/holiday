@@ -4,6 +4,7 @@ from invites import views
 urlpatterns = patterns('invites.views',
     url(r'^login/$', 'login', name='login'),
     url(r'^profile/edit/$', views.EditProfile.as_view(), name='edit_profile'),
+    url(r'^profile/cards/$', views.AddCreditCard.as_view(), name='credit_cards'),
     url(r'^profile/change-password/$', views.ChangePassword.as_view(), name='change_password'),
     url(r'^logout/$', 'logout', name='logout'),
     url(r'^no-association$', 'no_user_association', name='no-user-association'),

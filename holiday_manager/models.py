@@ -57,6 +57,7 @@ class Project(models.Model):
     def is_trial_expired(self):
         duration = settings.TRIAL_PERIOD_DAYS
         return datetime.datetime.now().date() > self.trial_expire_date()
+    
         
 
 class HolidayRequestQuerySet(models.query.QuerySet):

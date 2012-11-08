@@ -122,6 +122,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social_auth.context_processors.social_auth_backends',
     #'social_auth.context_processors.social_auth_by_type_backends',
     'social_auth.context_processors.social_auth_login_redirect',
+    'holiday_manager.context_processors.django_settings'
 )
 
 ROOT_URLCONF = 'holiday.urls'
@@ -273,3 +274,6 @@ def _price_function(user_num):
 PRICE_PER_USERS_FUNC = _price_function
 
 TRIAL_PERIOD_DAYS = 15
+
+PAYMILL_PUBLIC_TEST_KEY = '86700143132d486485024c4b2b6e5648'
+PAYMILL_PRIVATE_TEST_KEY = '06919cb9f02d8f0c3d1d645c4b4ff373'

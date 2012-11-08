@@ -1,0 +1,70 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block content %}
+    {% include 'partials/edit_profile_nav.html' %}
+    <h4>Your registered credit cards:</h4>
+    
+    {% for card in cards.data %}
+        <div>
+            {{ card.card_type }} - {{ card.last4 }}
+        </div>
+    {% endfor %}
+    
+    <h4>Add a new credit card:</h4>
+    
+    <form id="payment-form" action="#" method="POST">{% csrf_token %}
+        <div class="form-row"><label>Credit card number</label>
+          <input class="card-number" type="text" size="20" /></div>
+        
+        <div class="form-row"><label>CVC</label>
+          <input class="card-cvc" type="text" size="4" /></div>
+        
+        <div class="form-row"><label>Name</label>
+          <input class="card-holdername" type="text" size="4" /></div>
+        
+        <div class="form-row"><label>Expiry date (MM/YYYY)</label>
+          <input class="card-expiry-month" type="text" size="2" />
+          <span></span>
+          <input class="card-expiry-year" type="text" size="4" /></div>
+        
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="https://bridge.paymill.com"></script>
+    <script type="text/javascript">
+        var PAYMILL_PUBLIC_KEY = '{{ django_settings.PAYMILL_PUBLIC_TEST_KEY }}';
+        
+        function PaymillResponseHandler(error, result) {
+            if (error) {
+              // Shows the error above the form
+              $(".payment-errors").text(error.apierror);
+              $(".submit-button").removeAttr("disabled");
+            } else {
+              var form = $("#payment-form");
+              // Output token
+              var token = result.token;
+              // Insert token into form in order to submit to server
+              form.append("<input type='hidden' name='paymillToken' value='" + token + "'/>");
+              form.get(0).submit();
+            }
+        }
+        
+        
+        $("#payment-form").submit(function(event) {
+          // Deactivate submit button to avoid further clicks
+          $('.submit-button').attr("disabled", "disabled");
+          paymill.createToken({
+            number: $('.card-number').val(),          //required
+            exp_month: $('.card-expiry-month').val(), //required
+            exp_year: $('.card-expiry-year').val(),   //required
+            cvc: $('.card-cvc').val(),                //optional
+            cardholdername: $('.card-holdername').val()   //optional
+          }, PaymillResponseHandler);                 //this function is described below
+      
+          return false;
+        });
+        
+    </script>
+{% endblock %}
