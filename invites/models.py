@@ -369,7 +369,9 @@ class User(models.Model):
         if not self.paymill_client_id:
             return {}
         api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)
-        return api.list_cards(self.paymill_client_id)
+        data = api.client_details(self.paymill_client_id)
+        print data['payment']
+        return data['payment']
     
     def add_credit_card(self, token):
         api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)

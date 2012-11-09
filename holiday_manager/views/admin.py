@@ -11,6 +11,8 @@ from django.db import transaction
 from django.shortcuts import redirect
 from django.contrib import messages
 from paypal.standard.forms import PayPalPaymentsForm
+from holiday_manager.google_calendar import GoogleCalendarApi, calendar_choices
+from django.conf import settings
 
 # User management
 
@@ -126,6 +128,14 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     model = models.Project
     form_class = forms.EditProjectSettingsForm
     template_name = 'holiday_manager/project_settings.html'
+    
+    def get_form(self, form_class):
+        access_token = self.request.user.social_auth.get(provider='google-oauth2').extra_data['access_token']
+        gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token)
+        calendars = gapi.list_calendars()
+        form = super(EditProjectSettings, self).get_form(form_class)
+        form.fields['google_calendar_id'].widget.choices = [(None, "Don't use Google Calendar")] + calendar_choices(calendars)
+        return form
     
     def get_success_url(self):
         return reverse('app:project_settings', kwargs={'project': self.curr_project.slug})

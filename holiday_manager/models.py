@@ -36,6 +36,8 @@ class Project(models.Model):
     day_count_reset_date = models.CharField(max_length=20, default='1/1') # day-month
     default_timezone = models.CharField(max_length=100, choices=PRETTY_TIMEZONE_CHOICES, default=settings.TIME_ZONE)
     
+    google_calendar_id = models.CharField(max_length=200, blank=True, null=True)
+    
     objects = models.Manager()
     subscription = ProjectManager()
     

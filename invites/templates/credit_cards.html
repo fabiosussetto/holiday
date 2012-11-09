@@ -4,7 +4,7 @@
     {% include 'partials/edit_profile_nav.html' %}
     <h4>Your registered credit cards:</h4>
     
-    {% for card in cards.data %}
+    {% for card in cards %}
         <div>
             {{ card.card_holder }} - {{ card.card_type }} - {{ card.last4 }}
             <form action="{% url app:invites:remove_card card_id=card.id project=curr_project %}" method="post" style="display: inline-block">{% csrf_token %}<button type="submit" class="btn">Remove</button></form>
@@ -40,6 +40,7 @@
         function PaymillResponseHandler(error, result) {
             if (error) {
               // Shows the error above the form
+              console.log(error);
               $(".payment-errors").text(error.apierror);
               $(".submit-button").removeAttr("disabled");
             } else {

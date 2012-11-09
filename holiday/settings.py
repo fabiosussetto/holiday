@@ -164,8 +164,10 @@ AUTHENTICATION_BACKENDS = (
 
 GOOGLE_CONSUMER_KEY          = ''
 GOOGLE_CONSUMER_SECRET       = ''
-GOOGLE_OAUTH2_CLIENT_ID      = '486929283791.apps.googleusercontent.com'
-GOOGLE_OAUTH2_CLIENT_SECRET  = '_phgoyxbjGXFxzdLIGhWM2yw'
+GOOGLE_OAUTH2_CLIENT_ID      = '537598744846.apps.googleusercontent.com'
+GOOGLE_OAUTH2_CLIENT_SECRET  = 'fqQz3JbfS-wGvJi4Z5yP-HIA'
+
+GOOGLE_API_KEY = 'AIzaSyDymz8SMM1XC_fnxV_gLd6eozd2nNyRsTg'
 
 LOGIN_REDIRECT_URL = '/'
 
@@ -248,7 +250,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-GOOGLE_OAUTH_EXTRA_SCOPE = ['https://www.google.com/m8/feeds']
+GOOGLE_OAUTH_EXTRA_SCOPE = ['https://www.google.com/m8/feeds', 'https://www.googleapis.com/auth/calendar']
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {

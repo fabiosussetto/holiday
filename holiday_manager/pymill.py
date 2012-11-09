@@ -15,9 +15,12 @@ class PayMillApi(object):
         response = self.send_request('post', '%s/clients' % self.api_base_url, data=data)
         return response.json['data']
     
-    def list_cards(self, client_id):
-        query = {'client': client_id}
-        response = self.send_request('get', '%s/payments' % self.api_base_url, params=query)
+    def client_details(self, client_id):
+        response = self.send_request('get', '%s/clients/%s' % (self.api_base_url, client_id))
+        return response.json['data']
+        
+    def list_cards(self):
+        response = self.send_request('get', '%s/payments' % self.api_base_url)
         return response.json
     
     def create_card(self, token, client_id=None):
