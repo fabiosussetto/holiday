@@ -179,7 +179,6 @@ class AddCreditCard(ProjectViewMixin, generic.TemplateView):
         context.update({
             'cards': self.request.user.get_credit_cards()    
         })
-        print context['cards']
         return context
     
     def post(self, request, *args, **kwargs):
@@ -187,6 +186,9 @@ class AddCreditCard(ProjectViewMixin, generic.TemplateView):
         messages.success(request, "The card has been added to your account.")
         return redirect_to_referer(request)
     
-    #def get(self, request, *args, **kwargs):
-    #    return render(request, self.template_name)
-        
+class RemoveCreditCard(ProjectViewMixin, generic.TemplateView):
+    
+    def post(self, request, *args, **kwargs):
+        self.request.user.remove_credit_card(kwargs['card_id'])
+        messages.warning(request, "The card has been removed from your account.")
+        return redirect_to_referer(request)

@@ -376,6 +376,10 @@ class User(models.Model):
         if not self.paymill_client_id:
             self.create_card_account()
         return api.create_card(token, self.paymill_client_id)
+        
+    def remove_credit_card(self, card_id):
+        api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)
+        api.remove_card(card_id)
     
     def create_card_account(self):
         api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)

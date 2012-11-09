@@ -4,6 +4,7 @@ PIL==1.1.7
 South==0.7.6
 boto==2.6.0
 django-debug-toolbar==0.9.4
+django-paypal==0.1.2
 django-social-auth==0.7.7
 django-storages==1.1.5
 easy-thumbnails==1.1
@@ -15,4 +16,5 @@ oauth2==1.5.211
 pylint==0.26.0
 python-openid==2.2.5
 pytz==2012h
+requests==0.14.2
 wsgiref==0.1.2

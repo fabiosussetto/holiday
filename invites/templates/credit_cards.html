@@ -6,7 +6,8 @@
     
     {% for card in cards.data %}
         <div>
-            {{ card.card_type }} - {{ card.last4 }}
+            {{ card.card_holder }} - {{ card.card_type }} - {{ card.last4 }}
+            <form action="{% url app:invites:remove_card card_id=card.id project=curr_project %}" method="post" style="display: inline-block">{% csrf_token %}<button type="submit" class="btn">Remove</button></form>
         </div>
     {% endfor %}
     

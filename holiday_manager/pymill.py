@@ -23,8 +23,16 @@ class PayMillApi(object):
     def create_card(self, token, client_id=None):
         data = {'token': token}
         if client_id:
-            data['client_id'] = client_id
+            data['client'] = client_id
         response = self.send_request('post', '%s/payments' % self.api_base_url, data=data)
+        return response.json['data']
+        
+    def remove_card(self, card_id):
+        response = self.send_request('delete', '%s/payments/%s' % (self.api_base_url, card_id))
+        return response.json
+        
+    def subscribe(self, **kwargs):
+        response = self.send_request('post', '%s/subscriptions' % self.api_base_url, data=kwargs)
         return response.json['data']
         
     def send_request(self, method, url, **kwargs):
