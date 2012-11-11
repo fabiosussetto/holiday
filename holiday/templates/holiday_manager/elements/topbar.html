@@ -1,7 +1,7 @@
 {% load misc %}
 {% load thumbnail %}
 
-<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="navbar navbar-inversea navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
         <a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar">
@@ -22,34 +22,37 @@
                     {% endif %}
                 {% endif %}
                 <div class="user-badge">
-                    <img src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
+                    <img src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
                     <a href="{% url app:invites:edit_profile curr_project %}">{{ user }}</a>
                 </div>
                  - <a class="navbar-link" href="{% url app:invites:logout curr_project %}">logout</a>
-            {% else %}  
-                <a class="btn" href="{% url app:invites:login curr_project %}">Login</a>
             {% endif %}
         </div>
           <ul class="nav">
-            <li class="active"><a href="{% url app:dashboard curr_project %}">Home</a></li>
+            <li class="active"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
             {% if user.is_staff or user.is_superuser %}
+                <li class="divider-vertical"></li>
                 <li class="dropdown">
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Users <b class="caret"></b></a>
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon-group"></i> Users</a>
                     <ul class="dropdown-menu">
                       <li><a href="{% url app:user_list curr_project %}">User list</a></li>
                       <li><a href="{% url app:invites:invite curr_project %}">Invite user</a></li>
+                      <li><a href="{% url app:group_list curr_project %}">Groups</a></li>
                     </ul>
                 </li>
             {% endif %}
             {% if user.is_approver or user.is_superuser %}
-                <li><a href="{% url app:holiday_weekly curr_project %}">Holidays</a></li>
-                <li><a href="{% url app:group_list curr_project %}">Groups</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="{% url app:holiday_weekly curr_project %}"><i class="icon-inbox"></i> Holidays</a></li>
             {% endif %}
+            <li class="divider-vertical"></li>
             <li><a href="{% url app:holiday_submit curr_project %}">Submit request</a></li>
+            <li class="divider-vertical"></li>
             <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
             
             {% if user.is_superuser %}
-                <li><a href="{% url app:project_settings project=curr_project %}">Settings</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="{% url app:project_settings project=curr_project %}"><i class="icon-cog"></i> Settings</a></li>
             {% endif %}
           </ul>
         </div><!--/.nav-collapse -->

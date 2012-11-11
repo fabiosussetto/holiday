@@ -2,24 +2,32 @@ from urllib2 import Request, HTTPError
 from django.utils import simplejson
 from social_auth.utils import dsa_urlopen
 from urllib import urlencode
+from holiday_manager.utils import refresh_token
 
 
 class AuthTokenException(Exception):
     pass
 
 def google_contacts(user):
-    access_token = user.social_auth.get(provider='google-oauth2').extra_data['access_token']
-    data = {'alt': 'json', 'max-results': 200}
-    url = 'https://www.google.com/m8/feeds/contacts/default/full'
-    headers = {
-        'Gdata-version': '3.0',
-        'Authorization': 'OAuth %s' % access_token
-    }
-    request = Request(url + '?' + urlencode(data), headers=headers)
+    social_auth = user.social_auth.get(provider='google-oauth2')
+    access_token = social_auth.extra_data['access_token']
+    
+    def _req():
+        data = {'alt': 'json', 'max-results': 200}
+        url = 'https://www.google.com/m8/feeds/contacts/default/full'
+        headers = {
+            'Gdata-version': '3.0',
+            'Authorization': 'OAuth %s' % access_token
+        }
+        request = Request(url + '?' + urlencode(data), headers=headers)
+        return simplejson.loads(dsa_urlopen(request).read())
+        
     try:
-        content = simplejson.loads(dsa_urlopen(request).read())
+        content = _req()
     except HTTPError as error:
-        raise AuthTokenException(str(error))
+        refresh_token(social_auth)
+        content = _req()
+        #raise AuthTokenException(str(error))
         
     contacts = []
     if 'entry' in content['feed']:

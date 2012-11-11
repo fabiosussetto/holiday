@@ -1,0 +1,23 @@
+/*
+	Template: Leopard
+	Author: Adrian Lampart
+	URL: http://themeforest.net/user/yeroo
+	BOXED STYLE
+*/
+
+
+body {
+	background: #e0e0e0 !important;	
+}
+
+.boxedWrap {
+	/*margin: 0 auto !important;*/
+	background: #fff !important; /* BACKGROUND COLOR, URL */
+	/*width: 1002px;	*/
+	/*height: 100%;*/
+        
+        height: auto !important;
+        margin: 0 auto -30px;
+        min-height: 100%;
+}
+

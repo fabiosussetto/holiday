@@ -2,9 +2,16 @@
 
 {% block content %}
 
-<p>
-    <a class="btn btn-success" href="{% url app:group_add curr_project %}">Add +</a>
-</p>
+
+<header class="page-head row">
+    <div class="span10">
+        <h4 class="title title-icon icon-small"><i class="icon-group"></i> Staff groups</h4>
+    </div>
+    <div class="btn-group span2">
+        <a class="btn btn-success" href="{% url app:group_add curr_project %}"><i class="icon-plus"></i> Create new</a>
+    </div>    
+</header>
+
 
 <table class="table table-striped">
     <tr>

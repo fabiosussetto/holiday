@@ -6,6 +6,8 @@ from django.db import transaction
 from django.conf import settings
 from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES
 import datetime
+from holiday_manager.google_calendar import GoogleCalendarApi
+from django.conf import settings
 
 class ProjectManager(models.Manager):
 
@@ -59,7 +61,10 @@ class Project(models.Model):
     def is_trial_expired(self):
         duration = settings.TRIAL_PERIOD_DAYS
         return datetime.datetime.now().date() > self.trial_expire_date()
-    
+        
+    def get_admin(self):
+        from invites.models import User
+        return User.objects.get(is_superuser=True, project=self)
         
 
 class HolidayRequestQuerySet(models.query.QuerySet):
@@ -114,12 +119,18 @@ class HolidayRequest(models.Model):
         self.save()
         approval_requests = []
         group = self.author.approval_group
-        if not group:
-            return self, []
-        for index, approver in enumerate(group.ordered_approvers()):
-            status = HolidayApproval.STATUS.waiting if index else HolidayApproval.STATUS.pending
-            req = HolidayApproval.objects.create(approver=approver, request=self, order=index, status=status)
+        if not group and self.author.is_superuser:
+            req = HolidayApproval.objects.create(
+                    approver=self.author, request=self, order=0,
+                    status=HolidayApproval.STATUS.pending, project=self.project
+                )
             approval_requests.append(req)
+            #return self, []
+        else:
+            for index, approver in enumerate(group.ordered_approvers()):
+                status = HolidayApproval.STATUS.waiting if index else HolidayApproval.STATUS.pending
+                req = HolidayApproval.objects.create(approver=approver, request=self, order=index, status=status, project=self.project)
+                approval_requests.append(req)
             
         if approval_requests:
             approval_requests[0].approver.pending_approvals += 1
@@ -137,6 +148,7 @@ class HolidayRequest(models.Model):
             
         self.author.days_off_left = self.author.days_off_left - tot_days
         self.author.save()
+        self.gcal_sync()
     
     @transaction.commit_on_success    
     def author_cancel(self):
@@ -158,6 +170,24 @@ class HolidayRequest(models.Model):
         if same_period_requests:
             raise ValidationError("You have already an approved or \
                 pending request for the specified period.")
+            
+    def gcal_sync(self):
+        calendar_id = self.project.google_calendar_id
+        if not calendar_id:
+            return
+        from social_auth.db.django_models import UserSocialAuth
+        
+        project_admin = self.project.get_admin()
+        try:
+            #TODO: autorefresh token!
+            access_token = project_admin.social_auth.get(provider='google-oauth2').extra_data['access_token']
+        except UserSocialAuth.DoesNotExist:
+            return
+        
+        gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token)
+        gapi.create_event(calendar_id,
+                start=self.start_date, end=self.end_date, summary="%s holiday" % self.author)
+        
     
     
 class HolidayApproval(models.Model):

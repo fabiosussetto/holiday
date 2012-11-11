@@ -4,13 +4,17 @@
 
 {% block content %}
 
-<header class="row">
-    <h4 class="span10">Holiday requests by week</h4>
+
+<header class="page-head row">
+    <div class="span10">
+        <h4 class="title title-icon icon-small"><i class="icon-inbox"></i> Holiday requests</h4>
+    </div>
     <div class="btn-group span2">
         <a href="{% url app:holiday_weekly curr_project %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
         <a href="{% url app:holiday_list curr_project %}" class="btn"><i class="icon-list"></i> List</a>
     </div>
 </header>
+
 
 <ul class="nav nav-tabs">
     <li class="{% if list_kind == 'all' %}active{% endif %}">
@@ -29,6 +33,11 @@
         <a href="{% url app:holiday_weekly project=curr_project kind='expired' %}">Expired</a>
     </li>
 </ul>
+
+<!--<p class="intro well well-small">-->
+<!--    Manage people in your staff. Invite them by email or import your GMail contacts. Assign people to groups-->
+<!--    with different holiday approval settings.-->
+<!--</p>-->
 
 <h5>{{ week_days.0|date:"F" }}</h5>
 

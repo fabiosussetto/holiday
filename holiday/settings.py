@@ -105,7 +105,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'holiday_manager.middleware.TimezoneMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'linaro_django_pagination.middleware.PaginationMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -149,6 +150,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'easy_thumbnails',
     'paypal.standard.ipn',
+    'linaro_django_pagination',
     'invites',
     'holiday_manager',
 )
@@ -251,6 +253,9 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 GOOGLE_OAUTH_EXTRA_SCOPE = ['https://www.google.com/m8/feeds', 'https://www.googleapis.com/auth/calendar']
+GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'access_type': 'offline'}
+SOCIAL_AUTH_EXTRA_DATA = True
+SOCIAL_AUTH_SESSION_EXPIRATION = False
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {

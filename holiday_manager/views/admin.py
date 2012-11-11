@@ -19,6 +19,7 @@ from django.conf import settings
 class UserList(ProjectViewMixin, generic.ListView):
     model = User
     template_name = 'holiday_manager/user_list.html'
+    #paginate_by = 5
     
     
 class EditUser(ProjectViewMixin, generic.UpdateView):
@@ -130,8 +131,9 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     template_name = 'holiday_manager/project_settings.html'
     
     def get_form(self, form_class):
-        access_token = self.request.user.social_auth.get(provider='google-oauth2').extra_data['access_token']
-        gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token)
+        social_user = self.request.user.social_auth.get(provider='google-oauth2')
+        access_token = social_user.extra_data['access_token']
+        gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token, auth_user=social_user)
         calendars = gapi.list_calendars()
         form = super(EditProjectSettings, self).get_form(form_class)
         form.fields['google_calendar_id'].widget.choices = [(None, "Don't use Google Calendar")] + calendar_choices(calendars)

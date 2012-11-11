@@ -115,7 +115,7 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
         if form.is_valid():
             new_user = User.registration.invite(self.curr_project, form.cleaned_data['email'])
             messages.success(request, "Invite sent to %s." % new_user.email)
-            return redirect(reverse('app:user_edit', kwargs={'project': self.curr_project.slug, 'pk': self.object.pk}))
+            return redirect_to_referer(request)
         else:
             return self.form_invalid(form=form)
             

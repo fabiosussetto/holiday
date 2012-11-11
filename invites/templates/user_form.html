@@ -1,7 +1,19 @@
 {% extends 'holiday_manager/base.html' %}
 
 {% block content %}
-    <h4>Send an invite to use this app by email:</h4>
+    
+    <header class="page-head row">
+        <div class="span12">
+            <h4 class="title title-icon icon-small"><i class="icon-user"></i> Invite people</h4>
+        </div>
+    </header>
+
+    <p class="intro well well-small">
+        Manage people in your staff. Invite them by email or import your GMail contacts. Assign people to groups
+        with different holiday approval settings.
+    </p>
+    
+    <h4 class="title titleLineBottom">Send an invite to use this app by email</h4>
     <form action="" method="post">{% csrf_token %}
         <div class="input-append">
             {{ form.email }}<button type="submit" class="btn btn-primary">Send invite</button>
@@ -9,22 +21,24 @@
     </form>
         
     <form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
-        <h4>Your gmail contacts</h4>
-    
+        <h4 class="title titleLineBottom">Your gmail contacts</h4>
+        <p class="lightColor">Select your GMail contacts to invite:</p>
         {% if oauthed %}
-            {% if contacts %}
-                <ul>
-                {% for contact in contacts %}
-                    <li>
-                        <input type="checkbox" name="email" value="{{ contact.email }}">
-                        <img onerror="this.src='/static/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
-                        {{ contact.full_name }} ({{ contact.email }})
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>You don't have any contacts to import.</p>
-            {% endif %}
+            <div class="scroller contact-picker">
+                {% if contacts %}
+                    <ul>
+                    {% for contact in contacts %}
+                        <li>
+                            <input type="checkbox" name="email" value="{{ contact.email }}">
+                            <img onerror="this.src='/static/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
+                            {{ contact.full_name }} ({{ contact.email }})
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>You don't have any contacts to import.</p>
+                {% endif %}
+            </div>
         {% else %}
             <p>Please authorize this app to import your Gmail contacts:</p>
             <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>

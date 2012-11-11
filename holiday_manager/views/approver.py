@@ -68,7 +68,7 @@ class ApproveRequest(ProjectViewMixin, generic.UpdateView):
     form_class = forms.ApproveRequestForm
     
     def get_success_url(self):
-        return reverse('approval_list')
+        return reverse('app:approval_list', kwargs={'project': self.curr_project.slug})
     
     def form_valid(self, form):
         self.object = form.save(commit=False)

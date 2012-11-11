@@ -1,20 +1,59 @@
-<!DOCTYPE html>
+{% load misc %}
+{% load thumbnail %}
+<!doctype html>
 <html>
-  <head>
-    <title>Bootstrap 101 Template</title>
-    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+<head>
+
+    <meta charset="utf-8">
+    <title>DaysOff App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Leopard - Clean & Responsive HTML Template">
+    
+    <!-- FAVICON & ICONS -->
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon.ico" />
+    <link rel="apple-touch-icon" href="{{ STATIC_URL }}img/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ STATIC_URL }}img/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ STATIC_URL }}img/apple-touch-icon-114x114.png">
+    
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if IE 7]>
+ 	<link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome-ie7.css">
+	<![endif]-->
+    
+    <!-- CSS --> 
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css">
     <link href="{{ STATIC_URL }}css/style.less" rel="stylesheet/less" type="text/css">
-  </head>
-  <body>
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.css"> 
+    <!-- GOOGLE FONTS -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>  
+    
+    <!-- JAVA SCRIPT -->
+    <script src="{{ STATIC_URL }}js/jquery-1.8.1.min.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.flexslider.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.nivo.slider.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.tweet.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.quicksand.js"></script>
+    <script src="{{ STATIC_URL }}js/superfish.js"></script> 
+    <script src="{{ STATIC_URL }}js/custom.js"></script> 
+
+</head>
+
+<body>
+
+
+<div class="boxedWrap">
     {% include 'holiday_manager/elements/topbar.html' %}
-    <div class="container">
-            {% if curr_project.is_in_trial %}
-                <div class="alert">
-                    You have <strong>{{ curr_project.trial_days_left }} days left</strong> of your trial period.
-                    <a href="{% url app:upgrade_plan curr_project %}" class="btn btn-success">Upgrade now!</a>
-                </div>
-            {% endif %}
+    <div class="subnav"></div>
+    
+    <!-- CONTAINER WRAPPER -->
+    <div id="content" class="container">
+    
+        <div class="row">
             {% if messages %}
                 {% for message in messages %}
                 <div class="alert {{ message.tags }}">
@@ -23,13 +62,44 @@
                 {% endfor %}
             {% endif %}
     
-          {% block content %}{% endblock %}
-    </div>
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="{{ STATIC_URL }}js/less.min.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+            {% block content %}{% endblock %}
+        </div>
     
-    {% block extra_js %}{% endblock %}
-    
-  </body>
+	</div> 
+    <!-- End CONTAINER -->
+</div>
+
+
+<!-- FOOTER -->
+    <footer>
+        <!-- End FOOTER WIDGETS -->
+        <div id="footerBottom">
+        	<div class="container">
+            	<div class="row">
+                	<div class="span4">
+                    © Copyright 2012 by <a href="index.html">Leopard.</a> All Right Reserved.
+                    </div>
+					<div class="span8 hidden-phone">
+                    	<!-- SECONDARY NAV -->
+                    	<nav id="secondary-nav"> 
+                            <ul>
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="about.html">About us</a></li>
+                                <li><a href="portfolio-4columns.html">Portfolio</a></li>
+                                <li><a href="blog.html">Blog</a></li>
+                                <li><a href="contact.html">Contact</a></li>
+                            </ul>
+                        </nav>
+                        <!-- End SECONDARY NAV -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End FOOTER -->
+
+
+<script src="{{ STATIC_URL }}js/less.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
 </html>

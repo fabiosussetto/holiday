@@ -1,40 +1,95 @@
 {% extends 'holiday_manager/base.html' %}
+{% load pagination_tags %}
 
 {% block content %}
+
+{% autopaginate object_list 10 %}
     
-<p>
-    <a class="btn btn-success" href="{% url app:invites:invite curr_project %}">Add +</a>
+<header class="page-head row">
+    <div class="span7">
+        <h4 class="title title-icon icon-small"><i class="icon-group"></i> Your staff</h4>
+    </div>
+    <form class="span5 pull-right">
+        <div class="btn-group span2">
+            <a class="btn btn-success" href="{% url app:invites:invite curr_project %}">Add +</a>
+            <a href="{% url app:holiday_list curr_project %}" class="btn"><i class="icon-list"></i> List</a>
+        </div>
+        <div class="input-append row">
+            <input class="span2" id="appendedInputButtons" type="text">
+            <button class="btn" type="button">Search</button>
+            <!--<button class="btn" type="button">Options</button>-->
+        </div>
+    </form>
+</header>
+
+<p class="intro well well-small">
+    Manage people in your staff. Invite them by email or import your GMail contacts. Assign people to groups
+    with different holiday approval settings.
 </p>
 
-<table class="table table-striped">
-    <tr>
-        <th>Email</th>
-        <th>Is active</th>
-        <th>Is staff</th>
-        <th>Approval group</th>
-        <th></th>
-    </tr>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                <div class="btn-group">
+                    <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+                    <i class="icon-cog"></i>
+                    <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Assign to group</a></li>
+                        <li><a href="#">Delete</a></li>
+                    </ul>
+                </div>
+            </th>
+            <th>Name</th>
+            <th>Is active</th>
+            <th>Is staff</th>
+            <th>Approval group</th>
+            <th>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
     {% for object in object_list %}
         <tr>
-            <td>{{ object.email }}</td>
+            <td><input type="checkbox"></td>
+            <td><a href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
             <td>
-                {{ object.is_active }}
-                {% if not object.is_active %}
-                    <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
-                        <button type="submit" class="btn btn-mini">Resend invite</button>
-                    </form>
-                {% endif %}
+                {{ object.is_active|yesno }}
             </td>
-            <td>{{ object.is_staff }}</td>
+            <td>{{ object.is_staff|yesno}}</td>
             <td>{{ object.approval_group.name }}</td>
-            <td>
-                <a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="btn">Edit</a>
-                <form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+            <td class="action">
+                <div class="btn-group">
+                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="icon icon-cog"></i>
+                    Action
+                    <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="">Edit</a></li>
+                        {% if not object.is_active %}
+                        <li>
+                            <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
+                                <button type="submit" class="btn btn-mini">Resend invite</button>
+                            </form>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
+                                <a class="" href="#">Delete</a>
+                                <!--<button type="submit" class="">Delete</button>-->
+                            <!--</form>-->
+                        </li>
+                    </ul>
+                </div>
             </td>
         </tr>
     {% endfor %}
+    </tbody>
 </table>
+
+{% paginate %}
 
 {% endblock %}
