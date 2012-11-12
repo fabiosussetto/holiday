@@ -11,9 +11,8 @@
         </a>
         <a href="#" class="brand">{{ curr_project.name }}</a>
         <div class="nav-collapse collapse">
-        <!--<div class="navbar-text pull-right">-->
-        <!--    -->
-        <!--</div>-->
+            
+          {% if user.is_authenticated %}
           <ul class="nav">
             <li class="{% topnav_active 'dashboard' %}"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
             {% if user.is_staff or user.is_superuser %}
@@ -58,20 +57,23 @@
                 </li>
             {% endif %}
           </ul>
-          
-          <div class="user-menu pull-right dropdown">
-            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                <img class="user-pic" src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
-                <span class="username">{{ user }}</span>
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a href="{% url app:invites:edit_profile curr_project %}"><i class="icon-user"></i> Edit your profile</a></li>
-              <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
-              <li class="divider"></li>
-              <li><a href="{% url app:invites:logout curr_project %}"><i class="icon-off"></i> Logout</a></li>
-            </ul>
-        </div>
+        {% endif %}
+            
+            {% if user.is_authenticated %}
+            <div class="user-menu pull-right dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    <img class="user-pic" src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                    <span class="username">{{ user }}</span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="{% url app:invites:edit_profile curr_project %}"><i class="icon-user"></i> Edit your profile</a></li>
+                  <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
+                  <li class="divider"></li>
+                  <li><a href="{% url app:invites:logout curr_project %}"><i class="icon-off"></i> Logout</a></li>
+                </ul>
+            </div>
+            {% endif %}
           
         </div><!--/.nav-collapse -->
       </div>

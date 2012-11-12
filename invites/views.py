@@ -18,6 +18,11 @@ from social_auth.db.django_models import UserSocialAuth
 from invites.google_api import google_contacts, AuthTokenException
 from django.forms.models import modelformset_factory
 from django.contrib import messages
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import base36_to_int
+from django.contrib import messages
 
 @sensitive_post_parameters()
 @csrf_protect
@@ -82,8 +87,72 @@ def confirm_invitation(request, key=None, project=None):
     user = authenticate(email=user.email, skip_password=True)    
     auth_login(request, user)
     return render(request, 'user_welcome.html')
-    
-    
+
+
+def password_reset(request, **kwargs):
+    curr_project = Project.objects.get(slug=kwargs['project'])
+    password_reset_form = forms.PasswordResetForm
+    if request.method == "POST":
+        form = password_reset_form(request.POST)
+        if form.is_valid():
+            opts = {
+                'use_https': request.is_secure(),
+            }
+            form.save(curr_project, **opts)
+            return redirect(reverse('app:invites:password_reset_done', kwargs={'project': curr_project.slug}))
+    else:
+        form = password_reset_form()
+    context = {
+        'form': form,
+        'curr_project': curr_project,
+    }
+    return render(request, 'password_reset_form.html', context)
+
+def password_reset_done(request, template_name='password_reset_done.html', **kwargs):
+    curr_project = Project.objects.get(slug=kwargs['project'])
+    context = {'curr_project': curr_project}
+    return render(request, template_name, context)
+
+
+@sensitive_post_parameters()
+@never_cache
+def password_reset_confirm(request, uidb36=None, token=None,
+                           template_name='password_reset_confirm.html',
+                           token_generator=default_token_generator,
+                           set_password_form=forms.SetPasswordForm, **kwargs):
+    """
+    View that checks the hash in a password reset link and presents a
+    form for entering a new password.
+    """
+    assert uidb36 is not None and token is not None # checked by URLconf
+    curr_project = Project.objects.get(slug=kwargs['project'])
+    try:
+        uid_int = base36_to_int(uidb36)
+        user = User.objects.get(id=uid_int)
+    except (ValueError, User.DoesNotExist):
+        user = None
+
+    if user is not None and token_generator.check_token(user, token):
+        validlink = True
+        if request.method == 'POST':
+            form = set_password_form(user, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Your password has been reset.")
+                return redirect(reverse('app:invites:login', kwargs={'project': curr_project.slug}))
+        else:
+            form = set_password_form(None)
+    else:
+        validlink = False
+        form = None
+    context = {
+        'form': form,
+        'curr_project': curr_project,
+        'validlink': validlink,
+    }
+    return render(request, template_name, context)
+
+
 class InviteUser(ProjectViewMixin, generic.CreateView):
     model = User
     object = None

@@ -1,9 +1,14 @@
 from django import forms
 from invites import models
+from invites.models import User
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.contrib.auth import authenticate
 from holiday_manager.forms import ProjectFormMixin
 from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeForm
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD, is_password_usable, get_hasher
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import int_to_base36
+from django.template import loader
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -43,12 +48,12 @@ class AuthenticationForm(forms.Form):
     Base class for authenticating users. Extend this to get a form that accepts
     username/password logins.
     """
-    email = forms.CharField(label=_("Email"), max_length=50)
-    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
-    project = forms.CharField()
+    email = forms.CharField(label=_("Email"), max_length=50, widget=forms.TextInput(attrs={'placeholder': 'Email'}))
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    project = forms.CharField(widget=forms.HiddenInput())
 
     error_messages = {
-        'invalid_login': _("Please enter a correct username and password. "
+        'invalid_login': _("Please enter a correct email and password. "
                            "Note that both fields are case-sensitive."),
         'no_cookies': _("Your Web browser doesn't appear to have cookies "
                         "enabled. Cookies are required for logging in."),
@@ -93,6 +98,87 @@ class AuthenticationForm(forms.Form):
 
     def get_user(self):
         return self.user_cache
+    
+    
+class PasswordResetForm(forms.Form):
+    error_messages = {
+        'unknown': _("That e-mail address doesn't have an associated "
+                     "user account. Are you sure you've registered?"),
+        'unusable': _("The user account associated with this e-mail "
+                      "address cannot reset the password."),
+    }
+    email = forms.EmailField(label=_("E-mail"), max_length=75)
+
+    def clean_email(self):
+        """
+        Validates that an active user exists with the given email address.
+        """
+        email = self.cleaned_data["email"]
+        self.users_cache = User.objects.filter(email__iexact=email,
+                                               is_active=True)
+        if not len(self.users_cache):
+            raise forms.ValidationError(self.error_messages['unknown'])
+        if any((user.password == UNUSABLE_PASSWORD)
+               for user in self.users_cache):
+            raise forms.ValidationError(self.error_messages['unusable'])
+        return email
+
+    def save(self, project, subject_template_name='password_reset_subject.txt',
+             email_template_name='password_reset_email.html',
+             use_https=False, token_generator=default_token_generator,
+             from_email=None):
+        """
+        Generates a one-use only link for resetting password and sends to the
+        user.
+        """
+        from django.core.mail import send_mail
+        for user in self.users_cache:
+            c = {
+                'email': user.email,
+                'uid': int_to_base36(user.id),
+                'user': user,
+                'token': token_generator.make_token(user),
+                'protocol': use_https and 'https' or 'http',
+                'project': project
+            }
+            subject = loader.render_to_string(subject_template_name, c)
+            # Email subject *must not* contain newlines
+            subject = ''.join(subject.splitlines())
+            email = loader.render_to_string(email_template_name, c)
+            send_mail(subject, email, from_email, [user.email])
+
+
+class SetPasswordForm(forms.Form):
+    """
+    A form that lets a user change set his/her password without entering the
+    old password
+    """
+    error_messages = {
+        'password_mismatch': _("The two password fields didn't match."),
+    }
+    new_password1 = forms.CharField(label=_("New password"),
+                                    widget=forms.PasswordInput)
+    new_password2 = forms.CharField(label=_("New password confirmation"),
+                                    widget=forms.PasswordInput)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(SetPasswordForm, self).__init__(*args, **kwargs)
+
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError(
+                    self.error_messages['password_mismatch'])
+        return password2
+
+    def save(self, commit=True):
+        self.user.set_password(self.cleaned_data['new_password1'])
+        if commit:
+            self.user.save()
+        return self.user
         
         
 class SignupForm(forms.ModelForm):

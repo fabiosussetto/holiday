@@ -1,17 +1,36 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'login_base.html' %}
 
-{% block content %}
-    <div class="row">
-        <form action="" method="post" class="span6">{% csrf_token %}
-            <h3>Login</h3>
-            {{ form.as_p }}
-            <input type="hidden" name="next" value="{{ next }}" />
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Login</button>
-            </div>
-        </form>
-        <div class="span6">
-            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={% if next %}{{ next }}{% else %}{% url app:dashboard curr_project %}{% endif %}">Login with Google</a>
+{% block loginheader %}
+    <h2>Login <small>enter your credentials to access</small></h2>
+{% endblock %}
+
+{% block logincontent %}
+    <form action="" method="post" class="default-login">{% csrf_token %}
+        {{ form.project }}
+        <div class="form-errors">
+            {{ form.non_field_errors }}    
         </div>
+        <div class="form-row">
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+        <div class="form-row">
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+        <div class="form-row">
+            <input type="hidden" name="next" value="{{ next }}" />
+            <button type="submit" class="btn btn-primary">Login</button>
+            <a href="{% url app:invites:password_reset curr_project %}" class="forgot-password">Forgot your password?</a>
+        </div>
+    </form>
+    <div class="google-login">
+        <p class="lightColor">
+            You can use your Google/GMail account to login, just follow the authorization steps:
+        </p>
+        <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={% if next %}{{ next }}{% else %}{% url app:dashboard curr_project %}{% endif %}">
+            <img src="{{ STATIC_URL }}img/google-button-small.png"> 
+            Login with Google
+        </a>
     </div>
 {% endblock %}

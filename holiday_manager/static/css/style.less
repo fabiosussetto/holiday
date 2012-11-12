@@ -3,6 +3,20 @@ body {
     
 }
 
+/* For modern browsers */
+.cf:before,
+.cf:after {
+    content:"";
+    display:table;
+}
+.cf:after {
+    clear:both;
+}
+/* For IE 6/7 (trigger hasLayout) */
+.cf {
+    zoom:1;
+}
+
 .navbar-inner {
     border-top: 3px solid #C9400A !important;
     //border-bottom: 1px solid #ccc !important;
@@ -189,4 +203,89 @@ table form {
         padding: 12px 0 2px 0;
         list-style: none;
     }
+}
+
+#login-form {
+    width: 600px;
+    margin: 0 auto;
+    margin-top: 20px;
+    border: 1px solid #E5E5E5;
+    border-radius: 5px 5px 5px 5px;
+    //box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px 15px 20px;
+    background: #fff;
+    header {
+        border-bottom: 0;
+        padding: 0 0;
+        margin-bottom: 20px;
+        h2 {
+            font-size: 24px;
+            small {
+                font-size: 16px;
+                font-weight: 100;
+                margin-left: 10px;
+            }
+        }
+    }
+    .default-login {
+        width: 50%;
+        float: left;
+        border-right: 1px solid #eee;
+        margin-bottom: 0;
+        padding-top: 20px;
+        .form-row {
+            padding-left: 30px;
+            margin-bottom: 10px;
+        }
+        .forgot-password {
+            color: #999;
+            margin-left: 10px;
+        }
+    }
+    .google-login {
+        width: 49%;
+        float: right;
+        text-align: center;
+        padding-top: 30px;
+        .btn-primary {
+            display: inline-block;
+            margin-top: 10px;
+        }
+        p {
+            padding: 0 10px;
+        }
+    }
+    .footer {
+        text-align: right;
+        padding: 10px 0 0 0;
+        margin-top: 5px;
+        a {
+            //color: #C9400A;
+            color: #999;
+            font-size: 12px;
+        }
+    }
+    .errorlist {
+        margin: -8px 0 0 2px;
+        li {
+            list-style: none;
+            color: #D14;
+            font-size: 12px;
+        }
+    }
+    .form-errors {
+        margin-bottom: 10px;
+    }
+}
+
+.login-screen {
+    .boxedWrap {
+        background: #eee !important;
+    }
+}
+
+.btn img {
+    margin-right: 5px;
+    border: 1px solid #ccc;
 }

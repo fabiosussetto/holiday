@@ -1,0 +1,22 @@
+{% extends 'holiday_manager/base.html' %}
+
+{% block body_class %}login-screen{% endblock %}
+
+{% block content %}
+    <div class="row" id="login-form">
+        <header>
+            {% block loginheader %}
+                <h2>Forgot your password?<small> No problem, create a new one.</small></h2>
+            {% endblock %}
+        </header>
+        <div class="cf">
+            {% block logincontent %}
+            {% endblock %}
+        </div>
+        <div class="footer">
+            {% block loginfooter %}
+                <a href="#"><i class="icon-question-sign"></i> Do you have troubles logging in?</a>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

@@ -38,6 +38,10 @@ body, p {
 	margin: 0px;
 }
 
+p {
+    margin: 0 0 10px;
+}
+
 
 .boxedWrap {
 	/*margin: 0 auto !important;*/
@@ -588,7 +592,7 @@ nav#secondary-nav ul li {
 /* ------- */
 
 #content {
-    padding-top: 45px;
+    padding-top: 60px;
     padding-bottom: 20px;
     /*height: auto !important;*/
     /*margin: 0 auto -60px;*/
