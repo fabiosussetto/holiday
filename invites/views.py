@@ -150,6 +150,10 @@ class EditProfile(ProjectViewMixin, generic.UpdateView):
     model = User
     form_class = forms.EditProfileForm
     template_name = 'edit_profile.html'
+    active_section = 'profile_data'
+    
+    def get_success_url(self):
+        return reverse('app:invites:edit_profile', kwargs={'project': self.curr_project.slug})
     
     def get_object(self, queryset=None):
         return self.request.user
@@ -158,6 +162,7 @@ class EditProfile(ProjectViewMixin, generic.UpdateView):
 class ChangePassword(ProjectViewMixin, generic.UpdateView):
     form_class = forms.PasswordChangeForm
     template_name = 'change_password.html'
+    active_section = 'change_password'
 
     def get_form_kwargs(self):
         kwargs = {'user': self.request.user}
@@ -173,6 +178,7 @@ class ChangePassword(ProjectViewMixin, generic.UpdateView):
     
 class AddCreditCard(ProjectViewMixin, generic.TemplateView):
     template_name = 'credit_cards.html'
+    active_section = 'credit_cards'
     
     def get_context_data(self, **kwargs):
         context = super(AddCreditCard, self).get_context_data(**kwargs)

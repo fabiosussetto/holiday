@@ -10,6 +10,7 @@ django-storages==1.1.5
 easy-thumbnails==1.1
 factory-boy==1.2.0
 httplib2==0.7.6
+linaro-django-pagination==2.0.2
 logilab-astng==0.24.1
 logilab-common==0.58.1
 oauth2==1.5.211

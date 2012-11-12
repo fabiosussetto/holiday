@@ -10,6 +10,7 @@ import datetime
         
 class Dashboard(ProjectViewMixin, generic.TemplateView):
     template_name = 'holiday_manager/dashboard.html'
+    main_section = 'dashboard'
     
 
 class AddHolidayRequest(ProjectViewMixin, generic.CreateView):

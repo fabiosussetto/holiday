@@ -1,17 +1,26 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/tabbed_page.html' %}
 
-{% block content %}
+{% block tabtitle %}<i class="icon-user"></i> Edit your profile{% endblock %}
+
+{% block subtabnav %}
     {% include 'partials/edit_profile_nav.html' %}
-    <h4>Your registered credit cards:</h4>
+{% endblock %}
+
+{% block tabcontent %}
     
-    {% for card in cards %}
-        <div>
-            {{ card.card_holder }} - {{ card.card_type }} - {{ card.last4 }}
-            <form action="{% url app:invites:remove_card card_id=card.id project=curr_project %}" method="post" style="display: inline-block">{% csrf_token %}<button type="submit" class="btn">Remove</button></form>
-        </div>
-    {% endfor %}
+    <h4 class="title titleLineBottom">Your credit cards <small>Here's the list of your credit cards associated with your account</small></h4>
+    {% if cards %}
+        {% for card in cards %}
+            <div>
+                {{ card.card_holder }} - {{ card.card_type }} - {{ card.last4 }}
+                <form action="{% url app:invites:remove_card card_id=card.id project=curr_project %}" method="post" style="display: inline-block">{% csrf_token %}<button type="submit" class="btn">Remove</button></form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You don't have any linked credit card at the moment.</p>
+    {% endif %}
     
-    <h4>Add a new credit card:</h4>
+    <h4 class="title titleLineBottom">Add a credit card <small>Enter the detail of your credit card to make payments</small></h4>
     
     <form id="payment-form" action="#" method="POST">{% csrf_token %}
         <div class="form-row"><label>Credit card number</label>

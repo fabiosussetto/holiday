@@ -11,28 +11,14 @@
         </a>
         <a href="#" class="brand">{{ curr_project.name }}</a>
         <div class="nav-collapse collapse">
-        <div class="navbar-text pull-right">
-            {% if user.is_authenticated %}
-                {% if user.is_approver or user.is_superuser %}
-                    <a href="{% url app:approval_list curr_project %}">Approval requests</a>
-                    {% if user.pending_approvals %}
-                        <span class="badge badge-warning">{{ user.pending_approvals }}</span>
-                    {% else %}
-                        <span class="badge">0</span>
-                    {% endif %}
-                {% endif %}
-                <div class="user-badge">
-                    <img src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
-                    <a href="{% url app:invites:edit_profile curr_project %}">{{ user }}</a>
-                </div>
-                 - <a class="navbar-link" href="{% url app:invites:logout curr_project %}">logout</a>
-            {% endif %}
-        </div>
+        <!--<div class="navbar-text pull-right">-->
+        <!--    -->
+        <!--</div>-->
           <ul class="nav">
-            <li class="active"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
+            <li class="{% topnav_active 'dashboard' %}"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
             {% if user.is_staff or user.is_superuser %}
                 <li class="divider-vertical"></li>
-                <li class="dropdown">
+                <li class="dropdown {% topnav_active 'users' %}">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon-group"></i> Users</a>
                     <ul class="dropdown-menu">
                       <li><a href="{% url app:user_list curr_project %}">User list</a></li>
@@ -43,18 +29,50 @@
             {% endif %}
             {% if user.is_approver or user.is_superuser %}
                 <li class="divider-vertical"></li>
-                <li><a href="{% url app:holiday_weekly curr_project %}"><i class="icon-inbox"></i> Holidays</a></li>
+                <li class="{% topnav_active 'requests' %}">
+                    <a href="{% url app:holiday_weekly curr_project %}"><i class="icon-inbox"></i> Holidays</a>
+                </li>
             {% endif %}
             <li class="divider-vertical"></li>
             <li><a href="{% url app:holiday_submit curr_project %}">Submit request</a></li>
-            <li class="divider-vertical"></li>
-            <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
             
             {% if user.is_superuser %}
                 <li class="divider-vertical"></li>
-                <li><a href="{% url app:project_settings project=curr_project %}"><i class="icon-cog"></i> Settings</a></li>
+                <li class="{% topnav_active 'settings' %}">
+                    <a href="{% url app:project_settings project=curr_project %}"><i class="icon-cog"></i> Settings</a>
+                </li>
+            {% endif %}
+            
+            {% if user.is_approver or user.is_superuser %}
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href="{% url app:approval_list curr_project %}">
+                        Notifications
+                        {% if user.pending_approvals %}
+                            <span class="badge badge-warning">{{ user.pending_approvals }}</span>
+                        {% else %}
+                            <span class="badge">0</span>
+                        {% endif %}
+                    </a>
+                    <div class="popover fade bottom in" style="top: 33px; left: 481.667px; display: block;"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title">Popover on bottom</h3><div class="popover-content"><p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus.</p></div></div></div>
+                </li>
             {% endif %}
           </ul>
+          
+          <div class="user-menu pull-right dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                <img class="user-pic" src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                <span class="username">{{ user }}</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url app:invites:edit_profile curr_project %}"><i class="icon-user"></i> Edit your profile</a></li>
+              <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url app:invites:logout curr_project %}"><i class="icon-off"></i> Logout</a></li>
+            </ul>
+        </div>
+          
         </div><!--/.nav-collapse -->
       </div>
     </div>

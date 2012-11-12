@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from django.db import transaction
 from django.core.urlresolvers import reverse
 from holiday_manager.views.generic import LoginRequiredViewMixin
+from django.contrib import messages
 
 def home(request, **kwargs):
     return render(request, 'holiday_manager/index.html')
@@ -20,6 +21,8 @@ def error(request, **kwargs):
 class ProjectViewMixin(object):
     
     curr_project = None
+    main_section = None
+    active_section = None
     
     def dispatch(self, request, *args, **kwargs):
         self.curr_project = models.Project.objects.get(slug=kwargs['project'])
@@ -33,15 +36,29 @@ class ProjectViewMixin(object):
         return queryset.filter(project=self.curr_project)
         
     def render_to_response(self, context, **response_kwargs):
-        if not 'curr_project' in context:
-            context['curr_project'] = self.curr_project
-        return super(ProjectViewMixin, self).render_to_response(context, **response_kwargs)
+        data = {
+            'curr_project': self.curr_project,
+            'active_section': self.active_section,
+            'main_section': self.main_section
+        }
+        data.update(context)
+        return super(ProjectViewMixin, self).render_to_response(data, **response_kwargs)
         
     def get_form_kwargs(self):
         kwargs = super(ProjectViewMixin, self).get_form_kwargs()
         if issubclass(self.get_form_class(), forms.ProjectFormMixin):
             kwargs.update({'project': self.curr_project})
         return kwargs
+        
+    def form_valid(self, form):
+        res = super(ProjectViewMixin, self).form_valid(form)
+        messages.success(self.request, "Changes has been successfully saved.")
+        return res
+
+    def form_invalid(self, form):
+        res = super(ProjectViewMixin, self).form_invalid(form)
+        messages.error(self.request, "Please correct the errors and retry.")
+        return res
 
     
 class CreateProject(generic.CreateView):

@@ -10,7 +10,7 @@ body {
     a {
         //text-shadow: none !important;
         [class^="icon-"]:before, [class*=" icon-"]:before {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: normal;
             position: relative;
             top: 2px;
@@ -23,6 +23,26 @@ body {
 .nav {
     li.active a {
         font-weight: 700;
+    }
+    .divider-vertical {
+        margin: 0;
+        margin-bottom: 1px;
+    }
+}
+
+.user-menu {
+    margin-right: 50px;
+    .caret {
+        margin-top: 19px;
+    }
+    .user-pic {
+        border-left: 1px solid #F2F2F2;
+        border-right: 1px solid #fff;
+    }
+    .username {
+        padding-left: 5px;
+        position: relative;
+        top: 2px;
     }
 }
 
@@ -159,5 +179,14 @@ table form {
         list-style: none;
         border-bottom: 1px solid #eee;
         padding: 5px;
+    }
+}
+
+.sortable-formset {
+    margin: 0;
+    li {
+        border-bottom: 1px solid #eee;
+        padding: 12px 0 2px 0;
+        list-style: none;
     }
 }

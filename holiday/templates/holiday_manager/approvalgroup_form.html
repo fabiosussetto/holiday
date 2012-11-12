@@ -1,12 +1,26 @@
 {% extends 'holiday_manager/base.html' %}
 
 {% block content %}
-    <form action="" method="post">{% csrf_token %}
+    
+    <header class="page-head row">
+        <div class="span7">
+            <h4 class="title title-icon icon-small"><i class="icon-group"></i> Add user group</h4>
+        </div>
+    </header>
+    
+    <form action="" method="post" id="ruleform">{% csrf_token %}
+        <h4 class="title titleLineBottom">Main data</h4>
         {{ form.as_p }}
-        {% for ruleform in formset %}
-            <hr>
-            {{ ruleform.as_p }}
-        {% endfor %}
+        <h4 class="title titleLineBottom">Approval rules</h4>
+        <ul class="sortable-formset">
+            {% for ruleform in formset %}
+                <li>
+                    {{ ruleform.approver }}
+                    {{ ruleform.order }}
+                    {{ ruleform.DELETE }}
+                </li>
+            {% endfor %}
+        </ul>
         {{ formset.management_form }}
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Save changes</button>
@@ -14,3 +28,27 @@
         </div>
     </form>
 {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}select2/select2.css">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ STATIC_URL }}select2/select2.js"></script>
+    <script>
+        $(".select2").select2({width: 'element'});
+        $(".sortable-formset").sortable({
+            update: function(e, ui) {
+            }
+        });
+        $(".sortable-formset").disableSelection();
+        $('#ruleform').submit(function(e) {
+            $('.sortable-formset li', this).each(function() {
+                var $li = $(this);
+                $('.order', $li).val($li.index());
+            });
+            return false;
+        });
+    </script>
+{% endblock %}
+

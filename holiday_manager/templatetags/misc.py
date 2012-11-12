@@ -11,6 +11,13 @@ def profile_pic(user):
     else:
         output = '<img src="%s" class="user-pic missing">' % staticfiles_storage.url('img/missing_pic.gif')
     return output
+    
+@register.simple_tag(takes_context=True)
+def topnav_active(context, section):
+    try:
+        return 'active' if context['main_section'] == section else ''
+    except KeyError:
+        return ''
 
 @register.simple_tag
 def in_date_range(obj, week_days):

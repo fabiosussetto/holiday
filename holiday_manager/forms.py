@@ -58,7 +58,11 @@ class ApprovalRuleForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.ApprovalRule
         fields = ('approver', 'order')
-        
+        widgets = {
+            'approver': forms.Select(attrs={'class': 'select2'}),
+            'order': forms.TextInput(attrs={'class': 'order'})
+        }
+    
 
 class ApproveRequestForm(forms.ModelForm):
     class Meta:

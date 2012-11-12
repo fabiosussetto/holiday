@@ -259,7 +259,7 @@ class ApprovalGroup(models.Model):
             
 class ApprovalRule(models.Model):
     group = models.ForeignKey('ApprovalGroup')
-    approver = models.ForeignKey('invites.User')
+    approver = models.ForeignKey('invites.User', limit_choices_to = {'is_active': True})
     order = models.PositiveSmallIntegerField(default=0)
     
     class Meta:

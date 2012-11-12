@@ -1,11 +1,11 @@
 <ul class="nav nav-tabs">
-    <li class="active">
+    <li class="{% if active_section == 'profile_data' %}active{% endif %}">
         <a href="{% url app:invites:edit_profile curr_project %}">Profile data</a>
     </li>
-    <li class="">
+    <li class="{% if active_section == 'change_password' %}active{% endif %}">
         <a href="{% url app:invites:change_password curr_project %}">Change password</a>
     </li>
-    <li class="">
+    <li class="{% if active_section == 'credit_cards' %}active{% endif %}">
         <a href="{% url app:invites:credit_cards curr_project %}">Credit cards</a>
     </li>
 </ul>

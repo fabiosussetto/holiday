@@ -179,7 +179,7 @@ class User(models.Model):
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     
-    email = models.EmailField(_('e-mail address'), blank=True)
+    email = models.EmailField(_('e-mail address'), blank=False)
     
     password = models.CharField(_('password'), max_length=128)
     is_staff = models.BooleanField(_('staff status'), default=False,
@@ -367,10 +367,10 @@ class User(models.Model):
         
     def get_credit_cards(self):
         if not self.paymill_client_id:
-            return {}
+            return []
         api = PayMillApi(settings.PAYMILL_PRIVATE_TEST_KEY)
         data = api.client_details(self.paymill_client_id)
-        print data['payment']
+        print data
         return data['payment']
     
     def add_credit_card(self, token):

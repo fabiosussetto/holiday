@@ -19,6 +19,7 @@ from django.conf import settings
 class UserList(ProjectViewMixin, generic.ListView):
     model = User
     template_name = 'holiday_manager/user_list.html'
+    main_section = 'users'
     #paginate_by = 5
     
     
@@ -26,6 +27,7 @@ class EditUser(ProjectViewMixin, generic.UpdateView):
     model = User
     form_class = invite_forms.EditUserForm
     template_name = 'edit_user.html'
+    main_section = 'users'
     
     def get_success_url(self):
         return reverse('app:user_edit', kwargs={'pk': self.object.pk, 'project': self.curr_project.slug})
@@ -129,6 +131,7 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     model = models.Project
     form_class = forms.EditProjectSettingsForm
     template_name = 'holiday_manager/project_settings.html'
+    main_section = 'settings'
     
     def get_form(self, form_class):
         social_user = self.request.user.social_auth.get(provider='google-oauth2')

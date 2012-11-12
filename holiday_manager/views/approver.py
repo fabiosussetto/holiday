@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
     template_name = 'holiday_manager/admin_holidayrequest_list.html'
+    main_section = 'requests'
     
     kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
     model_kind_field = 'status'
@@ -19,6 +20,7 @@ class HolidayRequestList(ProjectViewMixin, FilteredListView):
 class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
     template_name = 'holiday_manager/admin_holidayrequest_week.html'
+    main_section = 'requests'
     
     kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
     model_kind_field = 'status'
@@ -54,6 +56,7 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
 
 class HolidayApprovalList(ProjectViewMixin, generic.ListView):
     model = models.HolidayApproval
+    main_section = 'requests'
     
     def get_queryset(self):
         queryset = super(HolidayApprovalList, self).get_queryset()
