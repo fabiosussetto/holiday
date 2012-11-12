@@ -26,7 +26,27 @@ class EditUserForm(ProjectFormMixin, forms.ModelForm):
 class InviteUserForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.User
-        fields = ('email',)
+        fields = ('email', 'first_name', 'last_name')
+        widgets = {
+            'email': forms.TextInput(attrs={'placeholder': 'Email'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'First name (optional)'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Last name (optional)'})
+        }
+        
+        
+class ConfirmInvitationForm(forms.ModelForm):
+    class Meta:
+        model = models.User
+        fields = ('email', 'first_name', 'last_name')
+        widgets = {
+            'email': forms.TextInput(attrs={'readonly':'readonly'})
+        }
+        
+    key = forms.CharField(widget=forms.HiddenInput())
+        
+    def save(self):
+        user = User.registration.activate_user(self.cleaned_data['key'])
+        return user
         
         
 class EditProfileForm(ProjectFormMixin, forms.ModelForm):
@@ -38,10 +58,6 @@ class EditProfileForm(ProjectFormMixin, forms.ModelForm):
 class PasswordChangeForm(BasePasswordChangeForm):
     pass
         
-class ConfirmInvitationForm(forms.Form):
-    key = forms.CharField(required=True)
-    email = forms.CharField(required=True)
-    
     
 class AuthenticationForm(forms.Form):
     """

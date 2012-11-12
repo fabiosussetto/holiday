@@ -14,9 +14,11 @@
     </p>
     
     <h4 class="title titleLineBottom">Send an invite to use this app by email</h4>
-    <form action="" method="post">{% csrf_token %}
-        <div class="input-append">
-            {{ form.email }}<button type="submit" class="btn btn-primary">Send invite</button>
+    <form action="" method="post" class="form-inline">{% csrf_token %}
+        {{ form.errors }}
+        <div>
+            {{ form.email }} {{ form.first_name }} {{ form.last_name }}
+            <button type="submit" class="btn btn-primary">Send invite</button>
         </div>
     </form>
         

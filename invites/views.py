@@ -187,7 +187,26 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
             return redirect_to_referer(request)
         else:
             return self.form_invalid(form=form)
-            
+        
+        
+class ConfirmInvitation(ProjectViewMixin, generic.UpdateView):
+    template_name = 'confirm_invitation.html'
+    form_class = forms.ConfirmInvitationForm
+    
+    def get_initial(self):
+        return {'key': self.kwargs['key']}
+    
+    def get_object(self, queryset=None):
+        return User.objects.get(activation_key=self.kwargs['key'])
+    
+    def form_valid(self, form):
+        user = form.save()
+        assert user
+        #TODO: user is null!
+        user = authenticate(email=user.email, skip_password=True)    
+        auth_login(self.request, user)
+        return redirect(reverse('app:dashboard', kwargs={'project': self.curr_project.slug}))
+
             
 class ImportContacts(ProjectViewMixin, generic.View):
     

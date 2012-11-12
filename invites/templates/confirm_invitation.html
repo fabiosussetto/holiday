@@ -1,11 +1,37 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'login_base.html' %}
 
-{% block content %}
-    <h3>Confirm invitation</h3>
-    <form action="" method="post">{% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Confirm invitation</button>
+{% block loginheader %}
+    <h2>Confirm your invitation <small>and start right away!</small></h2>
+{% endblock %}
+
+{% block logincontent %}
+    <form action="" method="post" class="default-login">{% csrf_token %}
+        {{ form.key }}
+        <div class="form-errors">
+            {{ form.non_field_errors }}    
+        </div>
+        <div class="form-row">
+            {{ form.email.label }}
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+        <div class="form-row">
+            {{ form.first_name.label }}
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+        </div>
+        <div class="form-row">
+            {{ form.last_name.label }}
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+        </div>
+        <div class="form-row">
+            <button type="submit" class="btn btn-primary">Yes, bring me to the app</button>
         </div>
     </form>
+    <div class="google-login">
+        <p class="lightColor">
+            In order to start using the application, just confirm your identity and fill out any missing information.
+        </p>
+    </div>
 {% endblock %}
