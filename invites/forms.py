@@ -33,6 +33,13 @@ class InviteUserForm(ProjectFormMixin, forms.ModelForm):
             'last_name': forms.TextInput(attrs={'placeholder': 'Last name (optional)'})
         }
         
+    def save(self, project, commit=True):
+        new_user = super(InviteUserForm, self).save(commit=False)
+        new_user = User.registration.invite(project, user=new_user, commit=False)
+        if commit:
+            new_user.save()
+        return new_user
+        
         
 class ConfirmInvitationForm(forms.ModelForm):
     class Meta:
@@ -45,7 +52,9 @@ class ConfirmInvitationForm(forms.ModelForm):
     key = forms.CharField(widget=forms.HiddenInput())
         
     def save(self):
-        user = User.registration.activate_user(self.cleaned_data['key'])
+        user = super(ConfirmInvitationForm, self).save(commit=False)
+        user = User.registration.activate_user(self.cleaned_data['key'], commit=False, user=user)
+        user.save()
         return user
         
         

@@ -6,9 +6,13 @@ from holiday_manager.models import Project
 
 class CustomUserModelBackend(ModelBackend):
 
-    def authenticate(self, email=None, password=None, project_slug=None, skip_password=False):
+    def authenticate(self, email=None, password=None, project=None, project_slug=None, skip_password=False):
+        # TODO: make project_slug mandatory! Maybe pass a project obj instead
         try:
-            project = Project.objects.get(slug=project_slug)
+            if project_slug:
+                project = Project.objects.get(slug=project_slug)
+            else:
+                assert project
             user = self.user_class.objects.get(email=email, project=project)
             if skip_password:
                 return user

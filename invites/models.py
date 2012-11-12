@@ -84,14 +84,22 @@ class RegistrationManager(models.Manager):
     """
     ACTIVATED = u"ALREADY_ACTIVATED"
     
-    def invite(self, project, email):
-        password = User.objects.make_random_password()
-        new_user = self.create_inactive_user(
-                        email, password, project=project, send_email=False)
+    def invite(self, project, user=None, **kwargs):
+        if not 'password' in kwargs:
+            password = User.objects.make_random_password()
+        else:
+            password = kwargs['password']
+        if user:
+            user.is_active = False
+            user.project = project
+            user.generate_activation_key()
+            new_user = user
+        else:
+            new_user = self.create_inactive_user(send_email=False, project=project, **kwargs)
         new_user.send_activation_email(temp_password=password)
         return new_user
     
-    def activate_user(self, activation_key):
+    def activate_user(self, activation_key, commit=True, user=None):
         """
         Validate an activation key and activate the corresponding
         ``User`` if valid.
@@ -115,17 +123,21 @@ class RegistrationManager(models.Manager):
         # the database.
         if SHA1_RE.search(activation_key):
             try:
-                user = self.get(activation_key=activation_key)
+                if user:
+                    assert user.activation_key == activation_key
+                else:
+                    user = self.get(activation_key=activation_key)
             except self.model.DoesNotExist:
                 return False
             if not user.activation_key_expired():
                 user.is_active = True
                 user.activation_key = self.ACTIVATED
-                user.save()
+                if commit:
+                    user.save()
                 return user
         return False
     
-    def create_inactive_user(self, email, password, project=None, send_email=True):
+    def create_inactive_user(self, send_email=True, **kwargs):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -135,11 +147,10 @@ class RegistrationManager(models.Manager):
         user. To disable this, pass ``send_email=False``.
         
         """
-        new_user = User.objects.create_user(email, password, project=project)
+        new_user = User.objects.create_user(**kwargs)
         new_user.is_active = False
         
-        salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-        new_user.activation_key = hashlib.sha1(salt + email).hexdigest()
+        new_user.generate_activation_key()
         
         new_user.save()
 
@@ -282,6 +293,10 @@ class User(models.Model):
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email])
+        
+    def generate_activation_key(self):
+        salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+        self.activation_key = hashlib.sha1(salt + self.email).hexdigest()
 
     def activation_key_expired(self):
         """

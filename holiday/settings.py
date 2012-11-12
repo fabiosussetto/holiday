@@ -156,10 +156,10 @@ INSTALLED_APPS = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.google.GoogleOAuthBackend',
+    #'social_auth.backends.google.GoogleOAuthBackend',
     'social_auth.backends.google.GoogleOAuth2Backend',
-    'social_auth.backends.google.GoogleBackend',
-    'social_auth.backends.OpenIDBackend',
+    #'social_auth.backends.google.GoogleBackend',
+    #'social_auth.backends.OpenIDBackend',
     #'django.contrib.auth.backends.ModelBackend',
     'holiday.auth_backends.CustomUserModelBackend',
 )

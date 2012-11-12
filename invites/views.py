@@ -79,15 +79,14 @@ def logout(request, **kwargs):
 def no_user_association(request):
     return render(request, 'no_user_association.html')
 
-def confirm_invitation(request, key=None, project=None):
-    user = User.registration.activate_user(key)
-    if not user:
-        return redirect('/wrong_key')
-    
-    user = authenticate(email=user.email, skip_password=True)    
-    auth_login(request, user)
-    return render(request, 'user_welcome.html')
-
+#def confirm_invitation(request, key=None, project=None):
+#    user = User.registration.activate_user(key)
+#    if not user:
+#        return redirect('/wrong_key')
+#    
+#    user = authenticate(email=user.email, skip_password=True)    
+#    auth_login(request, user)
+#    return render(request, 'user_welcome.html')
 
 def password_reset(request, **kwargs):
     curr_project = Project.objects.get(slug=kwargs['project'])
@@ -182,7 +181,7 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
         if form.is_valid():
-            new_user = User.registration.invite(self.curr_project, form.cleaned_data['email'])
+            new_user = form.save(self.curr_project)
             messages.success(request, "Invite sent to %s." % new_user.email)
             return redirect_to_referer(request)
         else:
@@ -201,9 +200,7 @@ class ConfirmInvitation(ProjectViewMixin, generic.UpdateView):
     
     def form_valid(self, form):
         user = form.save()
-        assert user
-        #TODO: user is null!
-        user = authenticate(email=user.email, skip_password=True)    
+        user = authenticate(email=user.email, project=self.curr_project, skip_password=True)    
         auth_login(self.request, user)
         return redirect(reverse('app:dashboard', kwargs={'project': self.curr_project.slug}))
 
