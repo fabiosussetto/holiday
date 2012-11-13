@@ -165,7 +165,7 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 .icon-minus-sign:before           { content: "\f056"; }
 .icon-remove-sign:before          { content: "\f057"; }
 .icon-ok-sign:before              { content: "\f058"; }
-.icon-question-sign:before        { content: "\f059"; }
+/*.icon-question-sign:before        { content: "\f059"; }*/
 .icon-info-sign:before            { content: "\f05a"; }
 .icon-screenshot:before           { content: "\f05b"; }
 .icon-remove-circle:before        { content: "\f05c"; }

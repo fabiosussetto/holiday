@@ -59,21 +59,35 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
     model = models.ApprovalGroup
     object = None
     
-    def get_success_url(self):
-        return
-    
     def get_context_data(self, **kwargs):
         context = super(CreateApprovalGroup, self).get_context_data(**kwargs)
-        context.update({'formset': self.get_formset()})
+        formset = kwargs.get('formset') or self.get_formset()
+        
+        # TODO: refactor this creating a ProjectFormsetMixin maybe, which sets curr project even for empty form
+        empty_form = formset.empty_form
+        empty_form.set_project(self.curr_project)
+        context.update({
+            'formset': formset,
+            'empty_form': empty_form # Small hack: each time this is called in the template, the form is recreated, so we can't set the project!
+        })
         return context
     
     def get(self, request, *args, **kwargs):
         form_class = forms.ApprovalGroupForm
         form = self.get_form(form_class)
         return self.render_to_response(self.get_context_data(form=form))
+    
+    def formset_kwargs(self):
+        kwargs = {
+            'formset': forms.ApprovalRulesFormset,
+            'form': forms.ApprovalRuleForm,
+            'extra': 3
+        }
+        return kwargs
         
     def get_formset(self):
-        RuleFormSet = inlineformset_factory(models.ApprovalGroup, models.ApprovalRule, form=forms.ApprovalRuleForm)
+        formset_args = self.formset_kwargs()
+        RuleFormSet = inlineformset_factory(models.ApprovalGroup, models.ApprovalRule, **formset_args)
         form_data = self.request.POST if self.request.method == 'POST' else None
         formset = RuleFormSet(data=form_data, instance=self.object)
         for subform in formset.forms:
@@ -90,6 +104,7 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
             self.object = form.save()
             formset.instance = self.object
             formset.save()
+            messages.success(self.request, "Changes saved successfully")
             return redirect(reverse('app:group_edit', kwargs={'project': self.curr_project.slug, 'pk': self.object.pk}))
         else:
             return self.form_invalid(form=form, formset=formset)
@@ -99,6 +114,13 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
     
     
 class UpdateApprovalGroup(CreateApprovalGroup):
+    
+    def formset_kwargs(self):
+        kwargs = super(UpdateApprovalGroup, self).formset_kwargs();
+        kwargs.update({
+            'extra': 0
+        })
+        return kwargs
     
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

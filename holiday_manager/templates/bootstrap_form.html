@@ -1,0 +1,8 @@
+<div class="control-group {% if field.errors %}error{% endif %}">
+    {{ field.label_tag }}
+    <div class="controls">
+        {{ field }}
+        {% if field.help_text %}<i class="icon-question-sign help-icon" data-content="{{ field.help_text }}"></i>{% endif %}
+        {{ field.errors }}
+    </div>
+</div>

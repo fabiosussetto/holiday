@@ -2,6 +2,8 @@ from django import forms
 from django.core.exceptions import FieldError
 from holiday_manager import models
 from django.forms.extras import SelectDateWidget
+from django.forms.models import BaseInlineFormSet
+import collections
 
 class ProjectFormMixin(object):
     
@@ -60,8 +62,21 @@ class ApprovalRuleForm(ProjectFormMixin, forms.ModelForm):
         fields = ('approver', 'order')
         widgets = {
             'approver': forms.Select(attrs={'class': 'select2'}),
-            'order': forms.TextInput(attrs={'class': 'order'})
+            'order': forms.HiddenInput(attrs={'class': 'order'})
         }
+        
+        
+class ApprovalRulesFormset(BaseInlineFormSet):
+    
+    def clean(self):
+        try:
+            approvers = [form.cleaned_data['approver'] for form in self.forms if 'approver' in form.cleaned_data]
+            occourrences = collections.Counter(approvers)
+            duplicates = [item for item in occourrences if occourrences[item] > 1]
+            if duplicates:
+                raise forms.ValidationError("You can specify an approver just once.")
+        except AttributeError:
+            pass
     
 
 class ApproveRequestForm(forms.ModelForm):

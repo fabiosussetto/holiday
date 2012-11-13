@@ -1,9 +1,9 @@
 {% extends 'holiday_manager/base.html' %}
 
-{% block content %}
+{% block header %}
     <header class="page-head row">
         <div class="span10">
-            <h4 class="title title-icon icon-small"><i class="icon-wrench"></i> Settings</h4>
+            <h4 class="title title-icon title-icon-small"><i class="icon-wrench"></i> Settings</h4>
         </div>
     </header>
     
@@ -16,11 +16,38 @@
         </li>
     </ul>
     
-    <form action="" method="post">{% csrf_token %}
-        {{ form.as_p }}
+    <p class="intro well well-small">
+        Change the generic settings of your project.
+    </p>
+    
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+        {% for field in form %}
+            {% include 'bootstrap_form.html' %}
+        {% endfor %}
         <div class="form-actions">
-            <button type="submit" class="btn btn-success">Save</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" class="btn">Cancel</button>
         </div>
     </form>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(':input').focus(function(e) {
+            $help = $(this).siblings('.help-icon');
+            if ($help.length) {
+                $help.clickover('clickery');
+            } else {
+                $('[data-clickover-open=1]').each( function() { 
+                    $(this).data('clickover') && $(this).data('clickover').clickery();
+                });
+            }
+        });
+        $('.help-icon').clickover({
+            template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-content"><p></p></div></div></div>'
+        });    
+    </script>
 {% endblock %}

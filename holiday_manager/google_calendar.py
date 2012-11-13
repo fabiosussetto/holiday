@@ -41,11 +41,11 @@ class GoogleCalendarApi(object):
         return response.json
         
     def send_request(self, method, url, **kwargs):
-        def _req():
+        def _req(access_token):
             auth_params = {'key': self.api_key}
             if self.access_token:
                 kwargs['headers'] = {
-                    'Authorization': 'OAuth %s' % self.access_token,
+                    'Authorization': 'OAuth %s' % access_token,
                     'Content-Type': 'application/json'
                 }
                 
@@ -57,9 +57,9 @@ class GoogleCalendarApi(object):
             http_method = getattr(requests, method)
             return http_method(self.api_base_url + url, **kwargs)
         
-        resp = _req()
+        resp = _req(self.access_token)
         if resp.status_code == 401:
-            refresh_token(self.auth_user)
-            resp = _req()
+            updated_data = refresh_token(self.auth_user)
+            resp = _req(updated_data.extra_data['access_token'])
             
         return resp

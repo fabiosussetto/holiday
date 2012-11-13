@@ -30,6 +30,7 @@ def refresh_token(user_social_auth):
         # Keys in response are: access_token, token_type, expires_in, id_token
         user_social_auth.extra_data['access_token'] = response['access_token']
         user_social_auth.save()
+        return user_social_auth
         
         
 def redirect_to_referer(request):

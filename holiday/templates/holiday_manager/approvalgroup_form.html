@@ -1,30 +1,72 @@
 {% extends 'holiday_manager/base.html' %}
 
-{% block content %}
-    
+{% block header %}
     <header class="page-head row">
         <div class="span7">
             <h4 class="title title-icon icon-small"><i class="icon-group"></i> Add user group</h4>
         </div>
     </header>
+{% endblock %}
+
+{% block content %}
     
-    <form action="" method="post" id="ruleform">{% csrf_token %}
+    <p class="intro well well-small">
+        You can arrange your staff memebers into groups. For each group, you can specify different holidays approval rules.
+    </p>
+    
+    <form action="" method="post" id="ruleform" class="form-horizontal narrow">{% csrf_token %}
         <h4 class="title titleLineBottom">Main data</h4>
-        {{ form.as_p }}
+        {% for field in form %}
+            {% include 'bootstrap_form.html' %}
+        {% endfor %}
+        
         <h4 class="title titleLineBottom">Approval rules</h4>
-        <ul class="sortable-formset">
-            {% for ruleform in formset %}
-                <li>
-                    {{ ruleform.approver }}
-                    {{ ruleform.order }}
-                    {{ ruleform.DELETE }}
-                </li>
-            {% endfor %}
-        </ul>
-        {{ formset.management_form }}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save changes</button>
-            <button type="button" class="btn">Cancel</button>
+        {{ formset.non_form_errors }}
+        <div class="row">
+            <div class="span8 sortable-formset-container">
+                <ul id="rule-formset" class="sortable-formset myform">
+                    {% for ruleform in formset %}
+                        <li>
+                            <span class="position">{{ forloop.counter }}</span>
+                            <span class="handle"></span>
+                            {{ ruleform.errors }}
+                            {{ ruleform.id }}
+                            {{ ruleform.approver }}
+                            {{ ruleform.order }}
+                            {{ ruleform.DELETE }}
+                            Delete
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <div id="empty-form-template" style="display: none;">
+                    <li>
+                        <span class="position"></span>
+                        <span class="handle"></span>
+                        {{ empty_form.id }}
+                        {{ empty_form.approver }}
+                        {{ empty_form.order }}
+                        {{ empty_form.DELETE }}
+                        Remove
+                    </li>
+                </div>
+                
+                <a class="add-form btn btn" href="#"><i class="icon-plus"></i> Add another rule</a>
+                {{ formset.management_form }}
+            </div>
+            <div class="span4 form-help">
+                <p>
+                    <h4 class="thin"><i class="icon-question-sign"></i> Drag and drop your approval rules.</h4>
+                    <p>You can rearrange the order of the approvers from top (first approver to be notified) to bottom (last one).</p>
+                    <p>If you live the approver field blank, the rule will be ignored.</p>
+                </p>
+            </div>
+            <div class="span12">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn">Cancel</button>
+                </div>    
+            </div>
         </div>
     </form>
 {% endblock %}
@@ -35,20 +77,45 @@
 
 {% block extra_js %}
     <script src="{{ STATIC_URL }}select2/select2.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
     <script>
-        $(".select2").select2({width: 'element'});
+        $(".sortable-formset .select2").select2();
         $(".sortable-formset").sortable({
             update: function(e, ui) {
+                var position = 1;
+                $('.sortable-formset li').each(function() {
+                    var $li = $(this);
+                    if ($('select', $li).val() && !$(':checkbox', $li).is(':checked')) {
+                        $('.position', $li).text(position);
+                        position++;    
+                    }
+                });
             }
         });
-        $(".sortable-formset").disableSelection();
+        
+        $('.sortable-formset > li').formset({
+            prefix: '{{ formset.prefix }}',
+            formTemplate: $('#empty-form-template'),
+            fieldsetContainer: '.sortable-formset',
+            beforeRender: function(row, form_count) {
+                $(".select2", row).select2();
+                $(".position", row).text(form_count + 1);
+                return row;
+            }
+        });
+        
         $('#ruleform').submit(function(e) {
+            e.preventDefault();
+            var self = this;
+            var position = 0;
             $('.sortable-formset li', this).each(function() {
                 var $li = $(this);
-                $('.order', $li).val($li.index());
+                if ($('select', $li).val() && !$(':checkbox', $li).is(':checked')) {
+                    $('.order', $li).val(position);
+                    position++;    
+                }
             });
-            return false;
+            self.submit();
         });
     </script>
 {% endblock %}
-

@@ -23,7 +23,10 @@ class Project(models.Model):
         ('free', 'Free'),
     )
     
-    name = models.CharField(max_length=30, verbose_name='Project name')
+    name = models.CharField(
+        max_length=30, verbose_name='Project name',
+        help_text="The display name for this project."
+    )
     slug = models.SlugField(max_length=30)
     created_on = models.DateTimeField(auto_now_add=True)
     
@@ -34,9 +37,19 @@ class Project(models.Model):
     trial_start = models.DateField(blank=True, null=True)
     
     # Settings
-    default_days_off = models.SmallIntegerField(default=20)
+    default_days_off = models.SmallIntegerField(
+        default=20,
+        help_text="The default number of days off a user has per year."
+    )
     day_count_reset_date = models.CharField(max_length=20, default='1/1') # day-month
-    default_timezone = models.CharField(max_length=100, choices=PRETTY_TIMEZONE_CHOICES, default=settings.TIME_ZONE)
+    
+    default_timezone = models.CharField(
+        max_length=100, choices=PRETTY_TIMEZONE_CHOICES, default=settings.TIME_ZONE,
+        help_text=(
+            "By default, dates and time are displayed in this timezone. "
+            "Every user can customise this setting in his/her profile."       
+            )
+    )
     
     google_calendar_id = models.CharField(max_length=200, blank=True, null=True)
     
@@ -243,7 +256,10 @@ class HolidayApproval(models.Model):
 
         
 class ApprovalGroup(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100,
+        help_text="Enter the name of this group."
+    )
     project = models.ForeignKey('Project')
     approvers = models.ManyToManyField('invites.User', through='ApprovalRule')
     
