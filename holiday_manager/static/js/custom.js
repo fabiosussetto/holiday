@@ -40,26 +40,6 @@ $(window).load(function() {
 			});
 }); 
 
-/* PORTFOLIO ITEM SLIDER */
-$(window).load(function() {
-	$('#itemSlider').nivoSlider({
-				directionNav: true,
-				pauseTime: 4000,
-				effect: 'fade',	
-	});
-}); 
-
-/* TWITTER WIDGET */
-$(document).ready(function() { 
-$(".tweet").tweet({
-            username: "envato",
-            join_text: null,
-            avatar_size: null,
-            count: 2,
-			template: "{text}<br>{time}",
-    });
-});
-
 
 /* NAV */
 $(document).ready(function(){
@@ -87,65 +67,54 @@ $(document).ready(function() {
 	$('li ul ul ul li').children('a').prepend(span,span,span,'');
 });
 
-/* PORTFOLIO FILTER */
-$(document).ready(function() {
-  var $filterType = $('#filterOptions li.active a').attr('class');
-  var $holder = $('ul.portfolioHolder');
-  var $data = $holder.clone();
-  $('#filterOptions li a').click(function(e) {
-    $('#filterOptions li').removeClass('active');
-    var $filterType = $(this).attr('class');
-    $(this).parent().addClass('active');
-    if ($filterType == 'all') {
-      var $filteredData = $data.find('li');
+$(document).ready(function(){
+    var $loader = $('#content-overlay');
+    
+    var get_page = function(url) {
+        $loader.show();
+        $.get(url, function(template) {
+            window.history.replaceState({}, document.title, url);
+            $('#content').html(template);
+            $loader.hide();
+        });
     }
-    else {
-      var $filteredData = $data.find('li[data-type~=' + $filterType + ']');
+    
+    var submit_form = function($form) {
+        $loader.show();
+        $.post($form.attr('action'), $form.serialize(), function(template) {
+            $('#content').html(template);
+            $loader.hide();
+        });
     }
-    $holder.quicksand($filteredData, {
-      duration: 0,
+    
+    $('#topnav > li a').not('.dropdown-toggle').click(function(e) {
+        e.preventDefault();
+        var $link = $(this);
+        $('#topnav li.active').removeClass('active');
+        $link.closest('li').addClass('active');
+        get_page($link.attr('href'));
     });
-    return false;
-  });
-});
-
-
-/* FORM VALIDATION JAVASCRIPT */
-$(document).ready(function() {
-	$('form#contact-form').submit(function() {
-		$('form#contact-form .alert').remove();
-		var hasError = false;
-		$('.requiredField').each(function() {
-			if(jQuery.trim($(this).val()) == '') {
-            	var labelText = $(this).prev('span').text();
-            	$(this).parent().append('<div class="alert alert-error">This field is required!</div>');
-            	$(this).addClass('inputError');
-            	hasError = true;
-            } else if($(this).hasClass('email')) {
-            	var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-            	if(!emailReg.test(jQuery.trim($(this).val()))) {
-            		var labelText = $(this).prev('span').text();
-            		$(this).parent().append('<div class="alert alert-error">You entered an invalid email address!</div>');
-            		$(this).addClass('inputError');
-            		hasError = true;
-            	}
-            }
-		});
-		if(!hasError) {
-			$('form#contact-form button#send').fadeOut('normal', function() {
-				$(this).parent().append('');
-			});
-			var formInput = $(this).serialize();
-			$.post($(this).attr('action'),formInput, function(data){
-				$('form#contact-form').slideUp("fast", function() {
-					$(this).before('<div class="alert alert-success">Your email was successfully sent!</div>');
-				});
-			});
-		}
-
-		return false;
-
-	});
+    
+    $('body').on('click', 'a.ajax', function(e) {
+        e.preventDefault();
+        var $link = $(this);
+        get_page($link.attr('href'));
+    });
+    
+    $('body').on('submit', 'form.ajax', function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        submit_form($form);
+    });
+    
+    $('body').on('click', '.pagination a', function(e) {
+        e.preventDefault();
+        var $link = $(this);
+        $('.pagination .active').removeClass('active');
+        $link.closest('li').addClass('active');
+        get_page($link.attr('href'));
+    });
+    
 });
 
 

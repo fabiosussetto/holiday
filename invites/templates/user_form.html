@@ -1,13 +1,15 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
 
-{% block content %}
-    
+{% block header %}
     <header class="page-head row">
         <div class="span12">
-            <h4 class="title title-icon title-icon-small"><i class="icon-user"></i> Invite people</h4>
+            <h4 class="title title-icon title-icon-small"><i class="icon-user"></i> Invite people <a class="btn ajax" href="{{ request.META.HTTP_REFERER }}">Back to list</a></h4>
         </div>
     </header>
+{% endblock %}
 
+{% block pagecontent %}
+    
     <p class="intro well well-small">
         Manage people in your staff. Invite them by email or import your GMail contacts. Assign people to groups
         with different holiday approval settings.

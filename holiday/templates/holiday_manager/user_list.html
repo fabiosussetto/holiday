@@ -1,14 +1,14 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
 {% load pagination_tags %}
 
 {% block header %}
     <header class="page-head row">
         <div class="span7">
-            <h4 class="title title-icon icon-small"><i class="icon-group"></i> Your staff</h4>
+            <h4 class="title title-icon title-icon-small"><i class="icon-group"></i> Your staff</h4>
         </div>
         <form class="span5 pull-right">
             <div class="btn-group span2">
-                <a class="btn btn-success" href="{% url app:invites:invite curr_project %}">Add +</a>
+                <a class="btn btn-success ajax" href="{% url app:invites:invite curr_project %}">Add +</a>
                 <a href="{% url app:holiday_list curr_project %}" class="btn"><i class="icon-list"></i> List</a>
             </div>
             <div class="input-append row">
@@ -20,7 +20,7 @@
     </header>    
 {% endblock %}
 
-{% block content %}
+{% block pagecontent %}
 
 {% autopaginate object_list 10 %}
     
@@ -51,7 +51,7 @@
     {% for object in object_list %}
         <tr>
             <td><input type="checkbox"></td>
-            <td><a href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
+            <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
             <td>
                 {{ object.is_active|yesno }}
             </td>

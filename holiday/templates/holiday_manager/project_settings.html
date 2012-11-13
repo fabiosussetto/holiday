@@ -1,4 +1,4 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
 
 {% block header %}
     <header class="page-head row">
@@ -22,8 +22,8 @@
     
 {% endblock %}
 
-{% block content %}
-    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+{% block pagecontent %}
+    <form action="{{ request.path }}" method="post" class="form-horizontal ajax">{% csrf_token %}
         {% for field in form %}
             {% include 'bootstrap_form.html' %}
         {% endfor %}

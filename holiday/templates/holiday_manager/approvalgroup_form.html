@@ -1,20 +1,20 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
 
 {% block header %}
     <header class="page-head row">
         <div class="span7">
-            <h4 class="title title-icon icon-small"><i class="icon-group"></i> Add user group</h4>
+            <h4 class="title title-icon title-icon-small"><i class="icon-group"></i> Add user group</h4>
         </div>
     </header>
 {% endblock %}
 
-{% block content %}
+{% block pagecontent %}
     
     <p class="intro well well-small">
         You can arrange your staff memebers into groups. For each group, you can specify different holidays approval rules.
     </p>
     
-    <form action="" method="post" id="ruleform" class="form-horizontal narrow">{% csrf_token %}
+    <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
         <h4 class="title titleLineBottom">Main data</h4>
         {% for field in form %}
             {% include 'bootstrap_form.html' %}

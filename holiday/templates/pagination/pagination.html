@@ -3,7 +3,7 @@
   <ul>
   {% block previouslink %}
   {% if page_obj.has_previous %}
-      <li class=""><a href="?page{{ page_suffix }}={{ page_obj.previous_page_number }}{{ getvars }}">«</a></li>
+      <li class=""><a href="{{ request.path }}?page{{ page_suffix }}={{ page_obj.previous_page_number }}{{ getvars }}">«</a></li>
   {% else %}
     {% if display_disabled_previous_link %}
       <li class="disabled"><a href="#">«</a></li>
@@ -19,7 +19,7 @@
     {% if page %}
     
     <li class="{% ifequal page page_obj.number %}active{% endifequal %}">
-        <a href="?page{{ page_suffix }}={{ page }}{{ getvars }}">{{ page }}</a>
+        <a href="{{ request.path }}?page{{ page_suffix }}={{ page }}{{ getvars }}">{{ page }}</a>
     </li>
     {% endif %}
     {% endfor %}
@@ -30,7 +30,7 @@
   {% block nextlink %}
     
     {% if page_obj.has_next %}
-      <li class=""><a href="?page{{ page_suffix }}={{ page_obj.next_page_number }}{{ getvars }}">»</a></li>
+      <li class=""><a href="{{ request.path }}?page{{ page_suffix }}={{ page_obj.next_page_number }}{{ getvars }}">»</a></li>
   {% else %}
     {% if display_disabled_previous_link %}
       <li class="disabled"><a href="#">»</a></li>

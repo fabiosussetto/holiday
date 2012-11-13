@@ -1,6 +1,14 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
 
-{% block content %}
+{% block header %}
+    <header class="page-head row">
+        <div class="span10">
+            <h4 class="title title-icon title-icon-small"><i class="icon-user"></i> Edit user</h4>
+        </div>
+    </header>
+{% endblock %}
+
+{% block pagecontent %}
     <form action="" method="post">{% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">

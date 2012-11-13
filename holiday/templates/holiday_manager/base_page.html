@@ -1,0 +1,19 @@
+{% extends request.is_ajax|yesno:"holiday_manager/base_ajax.html,holiday_manager/base.html" %}
+
+{% block content %}
+    {% block header %}{% endblock %}
+                
+    {% block messages %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+
+    {% block pagecontent %}{% endblock %}
+    
+{% endblock %}
+

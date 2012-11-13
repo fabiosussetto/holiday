@@ -13,7 +13,7 @@
         <div class="nav-collapse collapse">
             
           {% if user.is_authenticated %}
-          <ul class="nav">
+          <ul class="nav" id="topnav">
             <li class="{% topnav_active 'dashboard' %}"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
             {% if user.is_staff or user.is_superuser %}
                 <li class="divider-vertical"></li>
@@ -69,7 +69,7 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a href="{% url app:invites:edit_profile curr_project %}"><i class="icon-user"></i> Edit your profile</a></li>
+                  <li><a href="{% url app:invites:edit_profile curr_project %}" class="ajax"><i class="icon-user"></i> Edit your profile</a></li>
                   <li><a href="{% url app:holiday_user_requests project=curr_project kind='all' %}">Your requests</a></li>
                   <li class="divider"></li>
                   <li><a href="{% url app:invites:logout curr_project %}"><i class="icon-off"></i> Logout</a></li>
