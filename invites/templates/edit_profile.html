@@ -7,12 +7,10 @@
 {% endblock %}
 
 {% block tabcontent %}
-    
     <form action="{{ request.path }}" method="post" class="ajax">{% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
     </form>
-    
 {% endblock %}

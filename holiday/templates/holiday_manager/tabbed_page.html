@@ -2,15 +2,17 @@
 
 {% block pagecontent %}
     
-    {% block tabhead %}
-    <header class="page-head row">
-        <div class="span12">
-            <h4 class="title title-icon title-icon-small">{% block tabtitle %}{% endblock %}</h4>
-        </div>
-    </header>
-    {% endblock %}
-    
-    {% block subtabnav %}{% endblock %}
+    {% if not request.is_ajax %}
+        {% block tabhead %}
+        <header class="page-head row">
+            <div class="span12">
+                <h4 class="title title-icon title-icon-small">{% block tabtitle %}{% endblock %}</h4>
+            </div>
+        </header>
+        {% endblock %}
+        
+        {% block subtabnav %}{% endblock %}
+    {% endif %}
     
     {% block messages %}{% endblock %}
     {% if messages %}
@@ -21,6 +23,9 @@
         {% endfor %}
     {% endif %}
     
-    {% block tabcontent %}{% endblock %}
+    <div class="tab-content">
+        {% block tabcontent %}{% endblock %}
+    </div>
+    <div id="tab-overlay"></div>
     
 {% endblock %}

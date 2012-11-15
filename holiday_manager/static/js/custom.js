@@ -115,6 +115,21 @@ $(document).ready(function(){
         get_page($link.attr('href'));
     });
     
+    $('body').on('click', '.nav-tabs a', function(e) {
+        e.preventDefault();
+        var $link = $(this);
+        $link.closest('.nav-tabs').find('li.active').removeClass('active');
+        $link.closest('li').addClass('active');
+        var $loader = $('#tab-overlay');
+        var url = $link.attr('href');
+        $loader.show();
+        $.get(url, function(template) {
+            window.history.replaceState({}, document.title, url);
+            $('.tab-content').html(template);
+            $loader.hide();
+        });
+    });
+    
 });
 
 
