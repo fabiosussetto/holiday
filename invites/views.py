@@ -211,7 +211,7 @@ class ImportContacts(ProjectViewMixin, generic.View):
     def post(self, request, *args, **kwargs):
         emails = self.request.POST.getlist('email')
         for email in emails:
-            User.registration.invite(self.curr_project, email)
+            User.registration.invite(self.curr_project, email=email)
             
         messages.success(request, "Invitation sent to the selected contacts.")
         return redirect_to_referer(self.request)    
