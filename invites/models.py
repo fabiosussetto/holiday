@@ -86,17 +86,16 @@ class RegistrationManager(models.Manager):
     
     def invite(self, project, user=None, **kwargs):
         if not 'password' in kwargs:
-            password = User.objects.make_random_password()
-        else:
-            password = kwargs['password']
+            kwargs['password'] = User.objects.make_random_password()
         if user:
+            user.set_password(kwargs['password'])
             user.is_active = False
             user.project = project
             user.generate_activation_key()
             new_user = user
         else:
             new_user = self.create_inactive_user(send_email=False, project=project, **kwargs)
-        new_user.send_activation_email(temp_password=password)
+        new_user.send_activation_email(temp_password=kwargs['password'])
         return new_user
     
     def activate_user(self, activation_key, commit=True, user=None):

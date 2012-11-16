@@ -26,6 +26,16 @@
             {{ form.last_name.errors }}
         </div>
         <div class="form-row">
+            {{ form.new_password1.label }}
+            {{ form.new_password1 }}
+            {{ form.new_password1.errors }}
+        </div>
+        <div class="form-row">
+            {{ form.new_password2.label }}
+            {{ form.new_password2 }}
+            {{ form.new_password2.errors }}
+        </div>
+        <div class="form-row">
             <button type="submit" class="btn btn-primary">Yes, bring me to the app</button>
         </div>
     </form>

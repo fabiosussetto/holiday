@@ -7,6 +7,7 @@ import datetime
 from holiday_manager.cal import days_of_week, date_range
 from holiday_manager import forms
 from django.shortcuts import redirect
+import time
 
 class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
@@ -50,8 +51,14 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     def get(self, request, *args, **kwargs):
         #curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
         today = datetime.datetime.now().date()
-        self.start = today - datetime.timedelta(days=15)
-        self.end = today + datetime.timedelta(days=15)
+        start = self.request.GET.get('start')
+        if start:
+            start = datetime.datetime.fromtimestamp(int(start))
+        else:
+            start = today
+            
+        self.start = start - datetime.timedelta(days=7)
+        self.end = start + datetime.timedelta(days=30)
         self.week_days = list(date_range(self.start, self.end))
         #self.week_num = int(self.request.GET.get('week', curr_week))
         #self.week_days = list(days_of_week(curr_year, self.week_num))
@@ -61,10 +68,13 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     
     def get_context_data(self, **kwargs):
         context = super(HolidayRequestWeek, self).get_context_data(**kwargs)
+        next = self.end - datetime.timedelta(days=7)
+        prev = self.start - datetime.timedelta(days=7)
         context.update({
             'week_days': self.week_days,
             #'week_num': self.week_num,
-            #'prev_week': self.prev_week,
+            'next': int(time.mktime(next.timetuple())),
+            'prev': int(time.mktime(prev.timetuple())),
             #'next_week': self.next_week,
         })
         return context

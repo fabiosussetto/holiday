@@ -1,3 +1,4 @@
+import datetime
 from django.template import Library, Node, TemplateSyntaxError
 from django.contrib.staticfiles.storage import staticfiles_storage
 
@@ -22,16 +23,21 @@ def topnav_active(context, section):
 @register.simple_tag
 def in_date_range(obj, week_days):
     output = []
+    today = datetime.datetime.now().date()
     for day in week_days:
+        classes = ['day', obj.status]
+        if day == today:
+            classes.append('today')
+        elif day < today:
+            classes.append('past')
         if day >= obj.start_date and day <= obj.end_date:
-            css_class = ''
             if day == obj.start_date:
-                css_class = 'first'
+                classes.append('first')
             elif day == obj.end_date:
-                css_class = 'last'
-            output.append('<td class="day %s %s"><span></span></td>' % (css_class, obj.status))
+                classes.append('last')
+            output.append('<td class="%s"><span></span></td>' % ' '.join(classes))
         else:
-            output.append('<td class="day %s"></td>' % obj.status)
+            output.append('<td class="%s"></td>' % ' '.join(classes))
             
     return ''.join(output)
     

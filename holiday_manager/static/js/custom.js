@@ -115,7 +115,7 @@ $(document).ready(function(){
         get_page($link.attr('href'));
     });
     
-    $('body').on('click', '.nav-tabs a', function(e) {
+    $('body').on('click', '.nav-tabs a, .tab-link', function(e) {
         e.preventDefault();
         var $link = $(this);
         $link.closest('.nav-tabs').find('li.active').removeClass('active');

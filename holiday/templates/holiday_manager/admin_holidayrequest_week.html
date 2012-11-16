@@ -31,31 +31,47 @@
 
 
 {% block tabcontent %}
-    <h5>{{ week_days.0|date:"F" }}</h5>
-    <table class="table table-striped holiday_week">
-        <tr>
-            <th></th>
-            {% for day in week_days %}
-                <th>{{ day|date:"D j" }}</th>
-            {% endfor %}
-        </tr>
+    <div class="cf calendar-wrap">
+        <div class="user-rows">
+            <div class="shade"></div>
             {% for obj in object_list %}
-                <tr>
-                    <td style="width: 15%">
-                        <img src="{% thumbnail obj.author.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
+                    <div class="user-row">
+                        <img src="{% thumbnail obj.author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
                         {{ obj.author }}
-                    </td>
-                    {% in_date_range obj week_days %}
-                </tr>
+                    </div>
             {% endfor %}
-    </table>
+        </div>
+        <div class="scroll-wrap">
+            <div class="shade"></div>
+            <div class="table-scroll">
+                <table class="table holiday_week">
+                    <tr>
+                        {% for day in week_days %}
+                            <th class="cal-day">
+                                <span class="date-month">{{ day|date:"N" }}</span>
+                                <span class="date-day">
+                                    {{ day|date:"D j" }}
+                                </span>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                        {% for obj in object_list %}
+                            <tr class="user-row">
+                                {% in_date_range obj week_days %}
+                            </tr>
+                        {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    
     
     <ul class="pager">
         <li class="previous">
-            <a href="{% url app:holiday_weekly  project=curr_project kind=list_kind %}?week={{ prev_week }}">&larr; Prev week</a>
+            <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ prev }}">&larr; Prev week</a>
         </li>
         <li class="next">
-            <a href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?week={{ next_week }}">Next week &rarr;</a>
+            <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ next }}">Next week &rarr;</a>
         </li>
     </ul>
 {% endblock %}

@@ -117,42 +117,6 @@ body {
     border-bottom: 1px solid #fff;
 }
 
-.holiday_week {
-    width: 5000px;
-    th {
-        text-align: center;
-    }
-    .day {
-        text-align: center;
-        padding: 20px 0;
-        vertical-align: middle;
-    }
-    .day span {
-        display: block;
-        width: 100%;
-        height: 15px;
-        background-color: #C9400A;
-        border-right: 1px solid #fff;
-        //background-image: -moz-linear-gradient(center top , #5BC0DE, #339BB9);
-        border-left: 1px solid #fff;
-        border-right: 1px solid #fff;
-    }
-    .day.first span {
-        border-radius: 10px 0 0 10px;
-        border-left: 0;
-    }
-    .day.last span {
-        border-radius: 0 10px 10px 0;
-        border-right: 0;
-    }
-    .day.pending {
-        opacity: .4;
-    }
-    .day.rejected span, .day.cancelled span {
-        background: red;
-        opacity: .4;
-    }
-}
 
 .user-pic {
     //width: 50px;
@@ -680,5 +644,152 @@ table form {
     h3 {
         //font-size: 16px;
         text-shadow: 1px 1px #fff;
+    }
+}
+
+.calendar-wrap {
+    overflow: hidden;
+}
+
+.user-rows {
+    padding-bottom: 500em;
+    margin-bottom: -500em;
+    float: left;
+    width: 20%;
+    padding-top: 63px;
+    border-right: 1px solid #ddd;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 100%;
+    position: relative;
+    .user-row {
+        height: 40px;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
+    .shade {
+        background: url(../img/shade-grey.png) top left repeat-y;
+        position: absolute;
+        right: -21px;
+        top: 0px;
+        width: 20px;
+        height: 100%;
+        z-index:1000;
+    }
+}
+
+.scroll-wrap {
+    padding-bottom: 500em;
+    margin-bottom: -500em;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-right: 1px solid #ddd;
+    width: 80%;
+    float: left;
+    position: relative;
+    .shade {
+        background: url(../img/shade-grey-rx.png) top left repeat-y;
+        position: absolute;
+        right: 0px;
+        z-index:1000;
+        top: 0px;
+        width: 20px;
+        height: 100%;
+    }
+}
+
+.table-scroll {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+    overflow-x: scroll;
+    padding-top: 10px;
+    table {
+        max-width: none;
+        width: 4000px;
+        th {
+            text-align: center;
+        }
+        .day {
+            border-right: 1px dashed #ddd;
+            height: 40px;
+            text-align: center;
+            padding: 10px 0;
+            vertical-align: middle;
+        }
+        .cal {
+            
+        }
+    }
+    .user-row {
+        height: 40px;
+    }
+    .cal-day {
+        width: 120px;
+        height: 40px;
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 0;
+        .date-month {
+            display: block;
+            background: #eee;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: normal;
+            text-shadow: 1px 1px 1px #fff;
+        }
+        .date-day {
+            display: block;
+            font-weight: normal;
+            font-size: 12px;
+            padding-top: 3px;
+        }
+    }
+}
+
+
+.holiday_week {
+    .day span {
+        display: block;
+        width: 100%;
+        height: 15px;
+        border-right: 1px solid #fff;
+         background-color: #DD514C;
+        background-image: linear-gradient(to bottom, #EE5F5B, #C43C35);
+        background-repeat: repeat-x;
+        border-left: 1px solid #fff;
+        border-right: 1px solid #fff;
+    }
+    .day.today {
+        //background: #FCF8E3;
+    }
+    .day.past {
+        //background: #FCF8E3;
+        background: #FCF8E3;
+    }
+    .day.first {
+        padding-left: 4px;
+        span {
+            border-radius: 10px 0 0 10px;
+            border-left: 0;
+        }
+    }
+    .day.last {
+        padding-right: 4px;
+        span {
+            border-radius: 0 10px 10px 0;
+            border-right: 0;
+        }
+    }
+    .day.pending span {
+        opacity: .4;
+    }
+    .day.rejected span, .day.cancelled span {
+        background: red;
+        opacity: .4;
     }
 }
