@@ -1,71 +1,61 @@
-{% extends 'holiday_manager/base_page.html' %}
+{% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
+
 {% load misc %}
 {% load thumbnail %}
+{% load webdesign %}
 
-{% block header %}
-    <header class="page-head row">
-        <div class="span10">
-            <h4 class="title title-icon title-icon-small"><i class="icon-inbox"></i> Holiday requests</h4>
-        </div>
-        <div class="btn-group span2">
-            <a href="{% url app:holiday_weekly curr_project %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
-            <a href="{% url app:holiday_list curr_project %}" class="btn"><i class="icon-list"></i> List</a>
-        </div>
-    </header>
+{% block tabheader %}
+    <i class="icon-inbox"></i>
+    <h3 class="">Holiday requests</h3>    
 {% endblock %}
 
-{% block pagecontent %}
+{% block subtabnav %}
+    <ul class="nav nav-tabs">
+        <li class="{% if list_kind == 'all' %}active{% endif %}">
+            <a href="{% url app:holiday_weekly curr_project %}">All</a>
+        </li>
+        <li class="{% if list_kind == 'pending' %}active{% endif %}">
+            <a href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Pending</a>
+        </li>
+        <li class="{% if list_kind == 'approved' %}active{% endif %}">
+            <a href="{% url app:holiday_weekly project=curr_project kind='approved' %}">Approved</a>
+        </li>
+        <li class="{% if list_kind == 'rejected' %}active{% endif %}">
+            <a href="{% url app:holiday_weekly project=curr_project kind='rejected' %}">Rejected</a>
+        </li>
+        <li class="{% if list_kind == 'expired' %}active{% endif %}">
+            <a href="{% url app:holiday_weekly project=curr_project kind='expired' %}">Expired</a>
+        </li>
+    </ul>
+{% endblock %}
 
-<ul class="nav nav-tabs">
-    <li class="{% if list_kind == 'all' %}active{% endif %}">
-        <a href="{% url app:holiday_weekly curr_project %}">All</a>
-    </li>
-    <li class="{% if list_kind == 'pending' %}active{% endif %}">
-        <a href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Pending</a>
-    </li>
-    <li class="{% if list_kind == 'approved' %}active{% endif %}">
-        <a href="{% url app:holiday_weekly project=curr_project kind='approved' %}">Approved</a>
-    </li>
-    <li class="{% if list_kind == 'rejected' %}active{% endif %}">
-        <a href="{% url app:holiday_weekly project=curr_project kind='rejected' %}">Rejected</a>
-    </li>
-    <li class="{% if list_kind == 'expired' %}active{% endif %}">
-        <a href="{% url app:holiday_weekly project=curr_project kind='expired' %}">Expired</a>
-    </li>
-</ul>
 
-<!--<p class="intro well well-small">-->
-<!--    Manage people in your staff. Invite them by email or import your GMail contacts. Assign people to groups-->
-<!--    with different holiday approval settings.-->
-<!--</p>-->
-
-<h5>{{ week_days.0|date:"F" }}</h5>
-
-<table class="table table-striped holiday_week">
-    <tr>
-        <th></th>
-        {% for day in week_days %}
-            <th>{{ day|date:"D j" }}</th>
-        {% endfor %}
-    </tr>
-        {% for obj in object_list %}
-            <tr>
-                <td style="width: 15%">
-                    <img src="{% thumbnail obj.author.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
-                    {{ obj.author }}
-                </td>
-                {% in_date_range obj week_days %}
-            </tr>
-        {% endfor %}
-</table>
-
-<ul class="pager">
-    <li class="previous">
-        <a href="{% url app:holiday_weekly  project=curr_project kind=list_kind %}?week={{ prev_week }}">&larr; Prev week</a>
-    </li>
-    <li class="next">
-        <a href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?week={{ next_week }}">Next week &rarr;</a>
-    </li>
-</ul>
-
+{% block tabcontent %}
+    <h5>{{ week_days.0|date:"F" }}</h5>
+    <table class="table table-striped holiday_week">
+        <tr>
+            <th></th>
+            {% for day in week_days %}
+                <th>{{ day|date:"D j" }}</th>
+            {% endfor %}
+        </tr>
+            {% for obj in object_list %}
+                <tr>
+                    <td style="width: 15%">
+                        <img src="{% thumbnail obj.author.google_pic|default:'profiles/missing_pic.gif' 50x50 %}">
+                        {{ obj.author }}
+                    </td>
+                    {% in_date_range obj week_days %}
+                </tr>
+            {% endfor %}
+    </table>
+    
+    <ul class="pager">
+        <li class="previous">
+            <a href="{% url app:holiday_weekly  project=curr_project kind=list_kind %}?week={{ prev_week }}">&larr; Prev week</a>
+        </li>
+        <li class="next">
+            <a href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?week={{ next_week }}">Next week &rarr;</a>
+        </li>
+    </ul>
 {% endblock %}

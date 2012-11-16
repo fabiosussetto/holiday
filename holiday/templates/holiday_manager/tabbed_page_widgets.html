@@ -1,29 +1,20 @@
 {% extends 'holiday_manager/base_page.html' %}
 {% load webdesign %}
 
-{% block header %}
-    <!--<header class="page-head row">-->
-    <!--    <div class="span10">-->
-    <!--        <h4 class="title title-icon title-icon-small"><i class="icon-user"></i> Edit user</h4>-->
-    <!--    </div>-->
-    <!--</header>-->
-{% endblock %}
-
 {% block pagecontent %}
     <div class="row">
         <div class="span8">
             <div class="widget">
                 <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Edit user profile</h3>
+                    <i class="icon-wrench"></i>
+                    <h3 class="">Edit project settings</h3>
                 </div>
                 <div class="widget-content">
-                    <form action="" method="post" class="">{% csrf_token %}
-                        {{ form.as_p }}
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
+                    {% block subtabnav %}{% endblock %}
+                    <div class="tab-content">
+                        {% block tabcontent %}{% endblock %}
+                    </div>
+                    <div id="tab-overlay"></div>
                 </div>
             </div>
         </div>
@@ -32,10 +23,11 @@
             <div class="widget">
                 <div class="widget-header">
                     <i class="icon-user"></i>
-                    <h3 class="">Help</h3>
+                    <h3 class="">Your current plan</h3>
                 </div>
                 <div class="widget-content">
-                    {% lorem %}
+                    {% lorem 1 p %}
+                    <button class="btn btn-success">Upgrade now</button>
                 </div>
             </div>
             

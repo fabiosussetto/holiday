@@ -4,7 +4,7 @@ from holiday_manager import models
 from holiday_manager.views import LoginRequiredViewMixin, FilteredListView
 from holiday_manager.views.base import ProjectViewMixin
 import datetime
-from holiday_manager.cal import days_of_week
+from holiday_manager.cal import days_of_week, date_range
 from holiday_manager import forms
 from django.shortcuts import redirect
 
@@ -25,31 +25,54 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
     model_kind_field = 'status'
 
-    def get(self, request, *args, **kwargs):
-        #self.project = models.Project.objects.get(slug=kwargs['project'])
-        print HolidayRequestWeek.__mro__
-        print 'HolidayRequestWeek'
-        curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
-        self.week_num = int(self.request.GET.get('week', curr_week))
-        self.week_days = list(days_of_week(curr_year, self.week_num))
-        self.prev_week = (self.week_days[0] - datetime.timedelta(days=1)).isocalendar()[1]
-        self.next_week = (self.week_days[-1] + datetime.timedelta(days=1)).isocalendar()[1]
-        return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
+    #def get(self, request, *args, **kwargs):
+    #    curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
+    #    self.week_num = int(self.request.GET.get('week', curr_week))
+    #    self.week_days = list(days_of_week(curr_year, self.week_num))
+    #    self.prev_week = (self.week_days[0] - datetime.timedelta(days=1)).isocalendar()[1]
+    #    self.next_week = (self.week_days[-1] + datetime.timedelta(days=1)).isocalendar()[1]
+    #    return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
         
+    #def get_context_data(self, **kwargs):
+    #    context = super(HolidayRequestWeek, self).get_context_data(**kwargs)
+    #    context.update({
+    #        'week_days': self.week_days,
+    #        'week_num': self.week_num,
+    #        'prev_week': self.prev_week,
+    #        'next_week': self.next_week,
+    #    })
+    #    return context
+    
+    #def get_queryset(self):
+    #    queryset = super(HolidayRequestWeek, self).get_queryset()
+    #    return queryset.date_range(self.week_days[0], self.week_days[-1])
+    
+    def get(self, request, *args, **kwargs):
+        #curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
+        today = datetime.datetime.now().date()
+        self.start = today - datetime.timedelta(days=15)
+        self.end = today + datetime.timedelta(days=15)
+        self.week_days = list(date_range(self.start, self.end))
+        #self.week_num = int(self.request.GET.get('week', curr_week))
+        #self.week_days = list(days_of_week(curr_year, self.week_num))
+        #self.prev_week = (self.week_days[0] - datetime.timedelta(days=1)).isocalendar()[1]
+        #self.next_week = (self.week_days[-1] + datetime.timedelta(days=1)).isocalendar()[1]
+        return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
+    
     def get_context_data(self, **kwargs):
         context = super(HolidayRequestWeek, self).get_context_data(**kwargs)
         context.update({
             'week_days': self.week_days,
-            'week_num': self.week_num,
-            'prev_week': self.prev_week,
-            'next_week': self.next_week,
-            #'curr_project': self.project
+            #'week_num': self.week_num,
+            #'prev_week': self.prev_week,
+            #'next_week': self.next_week,
         })
         return context
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        return queryset.date_range(self.week_days[0], self.week_days[-1])
+        
+        return queryset.date_range(self.start, self.end)
         
         
 # Holiday approvals

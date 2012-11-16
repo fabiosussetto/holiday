@@ -123,7 +123,7 @@ $(document).ready(function(){
         var $loader = $('#tab-overlay');
         var url = $link.attr('href');
         $loader.show();
-        $.get(url, function(template) {
+        $.get(url, {src: 'tab'}, function(template) {
             window.history.replaceState({}, document.title, url);
             $('.tab-content').html(template);
             $loader.hide();

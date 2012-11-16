@@ -123,7 +123,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social_auth.context_processors.social_auth_backends',
     #'social_auth.context_processors.social_auth_by_type_backends',
     'social_auth.context_processors.social_auth_login_redirect',
-    'holiday_manager.context_processors.django_settings'
+    'holiday_manager.context_processors.django_settings',
+    'holiday_manager.context_processors.ajax_partials'
 )
 
 ROOT_URLCONF = 'holiday.urls'
