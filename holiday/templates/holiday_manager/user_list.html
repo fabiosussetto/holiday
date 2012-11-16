@@ -23,70 +23,73 @@
 {% block pagecontent %}
 
 {% autopaginate object_list 10 %}
-    
-<table class="table table-hover table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>
-                <!--<div class="btn-group">-->
-                <!--    <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">-->
-                <!--    <i class="icon-cog"></i>-->
-                <!--    <span class="caret"></span>-->
-                <!--    </a>-->
-                <!--    <ul class="dropdown-menu">-->
-                <!--        <li><a href="#">Assign to group</a></li>-->
-                <!--        <li><a href="#">Delete</a></li>-->
-                <!--    </ul>-->
-                <!--</div>-->
-            </th>
-            <th>Name</th>
-            <th>Is active</th>
-            <th>Is staff</th>
-            <th>Approval group</th>
-            <th>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for object in object_list %}
-        <tr>
-            <td><input type="checkbox"></td>
-            <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
-            <td>
-                {{ object.is_active|yesno }}
-            </td>
-            <td>{{ object.is_staff|yesno}}</td>
-            <td>{{ object.approval_group.name }}</td>
-            <td class="action">
-                <div class="btn-group">
-                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="icon icon-cog"></i>
-                    Action
-                    <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="">Edit</a></li>
-                        {% if not object.is_active %}
-                        <li>
-                            <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
-                                <button type="submit" class="btn btn-mini">Resend invite</button>
-                            </form>
-                        </li>
-                        {% endif %}
-                        <li>
-                            <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
-                                <a class="" href="#">Delete</a>
-                                <!--<button type="submit" class="">Delete</button>-->
-                            <!--</form>-->
-                        </li>
-                    </ul>
-                </div>
-            </td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
 
+<div class="row">
+    
+    <table class="table table-hover table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    <!--<div class="btn-group">-->
+                    <!--    <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">-->
+                    <!--    <i class="icon-cog"></i>-->
+                    <!--    <span class="caret"></span>-->
+                    <!--    </a>-->
+                    <!--    <ul class="dropdown-menu">-->
+                    <!--        <li><a href="#">Assign to group</a></li>-->
+                    <!--        <li><a href="#">Delete</a></li>-->
+                    <!--    </ul>-->
+                    <!--</div>-->
+                </th>
+                <th>Name</th>
+                <th>Is active</th>
+                <th>Is staff</th>
+                <th>Approval group</th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
+                <td>
+                    {{ object.is_active|yesno }}
+                </td>
+                <td>{{ object.is_staff|yesno}}</td>
+                <td>{{ object.approval_group.name }}</td>
+                <td class="action">
+                    <div class="btn-group">
+                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="icon icon-cog"></i>
+                        Action
+                        <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="">Edit</a></li>
+                            {% if not object.is_active %}
+                            <li>
+                                <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
+                                    <button type="submit" class="btn btn-mini">Resend invite</button>
+                                </form>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
+                                    <a class="" href="#">Delete</a>
+                                    <!--<button type="submit" class="">Delete</button>-->
+                                <!--</form>-->
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+    
 {% paginate %}
 
 {% endblock %}

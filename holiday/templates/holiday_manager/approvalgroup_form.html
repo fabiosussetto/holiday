@@ -1,74 +1,106 @@
 {% extends 'holiday_manager/base_page.html' %}
+{% load webdesign %}
 
 {% block header %}
-    <header class="page-head row">
-        <div class="span7">
-            <h4 class="title title-icon title-icon-small"><i class="icon-group"></i> Add user group</h4>
-        </div>
-    </header>
+    <!--<header class="page-head row">-->
+    <!--    <div class="span7">-->
+    <!--        <h4 class="title title-icon title-icon-small"><i class="icon-group"></i> Add user group</h4>-->
+    <!--    </div>-->
+    <!--</header>-->
 {% endblock %}
 
 {% block pagecontent %}
-    
-    <p class="intro well well-small">
-        You can arrange your staff memebers into groups. For each group, you can specify different holidays approval rules.
-    </p>
-    
-    <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
-        <h4 class="title titleLineBottom">Main data</h4>
-        {% for field in form %}
-            {% include 'bootstrap_form.html' %}
-        {% endfor %}
-        
-        <h4 class="title titleLineBottom">Approval rules</h4>
-        {{ formset.non_form_errors }}
-        <div class="row">
-            <div class="span8 sortable-formset-container">
-                <ul id="rule-formset" class="sortable-formset myform">
-                    {% for ruleform in formset %}
-                        <li>
-                            <span class="position">{{ forloop.counter }}</span>
-                            <span class="handle"></span>
-                            {{ ruleform.errors }}
-                            {{ ruleform.id }}
-                            {{ ruleform.approver }}
-                            {{ ruleform.order }}
-                            {{ ruleform.DELETE }}
-                            Delete
-                        </li>
-                    {% endfor %}
-                </ul>
-                
-                <div id="empty-form-template" style="display: none;">
-                    <li>
-                        <span class="position"></span>
-                        <span class="handle"></span>
-                        {{ empty_form.id }}
-                        {{ empty_form.approver }}
-                        {{ empty_form.order }}
-                        {{ empty_form.DELETE }}
-                        Remove
-                    </li>
+    <div class="row">
+        <div class="span8">
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="icon-group"></i>
+                    <h3 class="">Add user group</h3>
                 </div>
-                
-                <a class="add-form btn btn" href="#"><i class="icon-plus"></i> Add another rule</a>
-                {{ formset.management_form }}
-            </div>
-            <div class="span4 form-help">
-                <p>
-                    <h4 class="thin"><i class="icon-question-sign"></i> Drag and drop your approval rules.</h4>
-                    <p>You can rearrange the order of the approvers from top (first approver to be notified) to bottom (last one).</p>
-                    <p>If you live the approver field blank, the rule will be ignored.</p>
-                </p>
-            </div>
-            <div class="span12">
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                    <button type="button" class="btn">Cancel</button>
-                </div>    
+                <div class="widget-content">
+                    <p class="intro well well-small">
+                        You can arrange your staff memebers into groups. For each group, you can specify different holidays approval rules.
+                    </p>
+                    
+                    <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
+                        <h4 class="title titleLineBottom">Main data</h4>
+                        {% for field in form %}
+                            {% include 'bootstrap_form.html' %}
+                        {% endfor %}
+                        
+                        <h4 class="title titleLineBottom">Approval rules</h4>
+                        {{ formset.non_form_errors }}
+                        <div class="sortable-formset-container">
+                            <ul id="rule-formset" class="sortable-formset myform">
+                                {% for ruleform in formset %}
+                                    <li>
+                                        <span class="position">{{ forloop.counter }}</span>
+                                        <span class="handle"></span>
+                                        {{ ruleform.errors }}
+                                        {{ ruleform.id }}
+                                        {{ ruleform.approver }}
+                                        {{ ruleform.order }}
+                                        {{ ruleform.DELETE }}
+                                        Delete
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            
+                            <div id="empty-form-template" style="display: none;">
+                                <li>
+                                    <span class="position"></span>
+                                    <span class="handle"></span>
+                                    {{ empty_form.id }}
+                                    {{ empty_form.approver }}
+                                    {{ empty_form.order }}
+                                    {{ empty_form.DELETE }}
+                                    Remove
+                                </li>
+                            </div>
+                            
+                            <a class="add-form btn btn" href="#"><i class="icon-plus"></i> Add another rule</a>
+                            {{ formset.management_form }}
+                        </div>
+                            <!--<div class="span4 form-help">-->
+                            <!--    <p>-->
+                            <!--        <h4 class="thin"><i class="icon-question-sign"></i> Drag and drop your approval rules.</h4>-->
+                            <!--        <p>You can rearrange the order of the approvers from top (first approver to be notified) to bottom (last one).</p>-->
+                            <!--        <p>If you live the approver field blank, the rule will be ignored.</p>-->
+                            <!--    </p>-->
+                            <!--</div>-->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn">Cancel</button>
+                        </div>    
+                    </form>
+                </div>
             </div>
         </div>
-    </form>
+        
+        <div class="span4">
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="icon-user"></i>
+                    <h3 class="">Help</h3>
+                </div>
+                <div class="widget-content">
+                    {% lorem 2 p random %}
+                </div>
+            </div>
+            
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="icon-user"></i>
+                    <h3 class="">Help</h3>
+                </div>
+                <div class="widget-content">
+                    <button class="btn btn-danger">Delete this user</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
 {% endblock %}
 
 {% block extra_css %}

@@ -86,26 +86,26 @@ body {
 }
 
 .nav-tabs {
-    margin-bottom: 0;
-    border-bottom: 0;
-    a {
-        text-shadow: 1px 1px 1px #fff;
-    }
-    & > li {
-        margin-bottom: 0;
-    }
-    & > li:hover a {
-        border-bottom: 0;
-    }
-    & > li.active {
-        position: relative;
-        bottom: -1px;
-        a {
-        }
-    }
-    a {
-        background: #eee;
-    }
+    //margin-bottom: 0;
+    //border-bottom: 0;
+    //a {
+    //    text-shadow: 1px 1px 1px #fff;
+    //}
+    //& > li {
+    //    margin-bottom: 0;
+    //}
+    //& > li:hover a {
+    //    border-bottom: 0;
+    //}
+    //& > li.active {
+    //    position: relative;
+    //    bottom: -1px;
+    //    a {
+    //    }
+    //}
+    //a {
+    //    background: #eee;
+    //}
 }
 
 .subnav {
@@ -191,7 +191,7 @@ table form {
 
 .page-head {
     border-bottom: 0;
-    margin-bottom: 20px;
+    margin-bottom: 0px !important;
     padding-bottom: 0;
     h4 {
         font-size: 26px;
@@ -356,7 +356,7 @@ table form {
 
 .login-screen {
     .boxedWrap {
-        background: #eee !important;
+        //background: #eee !important;
     }
 }
 
@@ -378,12 +378,6 @@ table form {
 .tab-content {
     position: relative;
     padding: 20px 15px 0 15px;
-    background: #FFF;
-    border: 1px solid #D5D5D5;
-    border-top: 0;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 0 5px 5px 5px;
 }
 
 #tab-overlay {
@@ -470,15 +464,22 @@ table form {
 
 .widget-content {
 	padding: 20px 15px 15px;
-	
 	background: #FFF;
-	
-	
 	border: 1px solid #D5D5D5;
-	
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
+}
+
+.widget-row {
+	background: #FFF;
+	border: 1px solid #D5D5D5;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
 }
 
 .widget-header+.widget-content {
@@ -672,4 +673,11 @@ table form {
 .table-bordered td {
     border: 0;
     border-top: 1px solid #DDDDDD;
+}
+
+.widget-header {
+    h3 {
+        //font-size: 16px;
+        text-shadow: 1px 1px #fff;
+    }
 }

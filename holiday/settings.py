@@ -153,6 +153,7 @@ INSTALLED_APPS = (
     'linaro_django_pagination',
     'invites',
     'holiday_manager',
+    'django.contrib.webdesign'
 )
 
 AUTHENTICATION_BACKENDS = (
