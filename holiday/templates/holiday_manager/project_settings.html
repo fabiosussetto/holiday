@@ -1,20 +1,9 @@
-{% extends 'holiday_manager/tabbed_page.html' %}
+{% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page_widgets.html" %}
 
 {% block tabtitle %}<i class="icon-user"></i> <i class="icon-wrench"></i> Settings{% endblock %}
 
 {% block subtabnav %}
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a href="{% url app:holiday_weekly curr_project %}">General</a>
-        </li>
-        <li class="{% if list_kind == 'pending' %}active{% endif %}">
-            <a href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Google Calendar</a>
-        </li>
-    </ul>
-    
-    <!--<p class="intro well well-small">-->
-    <!--    Change the generic settings of your project.-->
-    <!--</p>-->
+    {% include 'partials/project_settings_nav.html' %}
 {% endblock %}
 
 

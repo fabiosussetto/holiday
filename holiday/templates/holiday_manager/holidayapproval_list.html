@@ -1,10 +1,13 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
+{% load webdesign %}
 
-{% block content %}
+{% block pagecontent %}
+    
+<div class="row">
 
 <h4>You pending request approvals</h4>
 
-<table class="table table-striped">
+<table class="table table-hover table-striped table-bordered">
     <tr>
         <th>Requested by</th>
         <th>From</th>
@@ -29,5 +32,7 @@
         </tr>
     {% endfor %}
 </table>
+
+</div>
 
 {% endblock %}

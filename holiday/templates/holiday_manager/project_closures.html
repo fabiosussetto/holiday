@@ -1,0 +1,63 @@
+{% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page_widgets.html" %}
+
+{% block tabtitle %}<i class="icon-user"></i> <i class="icon-wrench"></i> Settings{% endblock %}
+
+{% block subtabnav %}
+    {% include 'partials/project_settings_nav.html' %}
+{% endblock %}
+
+
+{% block tabcontent %}
+    <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
+        <h4 class="title titleLineBottom">Closure days</h4>
+        {{ formset.non_form_errors }}
+        <div class="sortable-formset-container">
+            <ul id="rule-formset" class="sortable-formset myform">
+                {% for form in formset %}
+                    <li>
+                        {{ form.errors }}
+                        {{ form.id }}
+                        {{ form.start }}
+                        {{ form.end }}
+                        {{ form.DELETE }}
+                        Delete
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <div id="empty-form-template" style="display: none;">
+                <li>
+                    <span class="position"></span>
+                    <span class="handle"></span>
+                    {{ empty_form.id }}
+                    {{ empty_form.start }}
+                    {{ empty_form.end }}
+                    {{ empty_form.DELETE }}
+                    Remove
+                </li>
+            </div>
+            
+            <a class="add-form btn btn" href="#"><i class="icon-plus"></i> Add another period</a>
+            {{ formset.management_form }}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn">Cancel</button>
+        </div>    
+    </form>
+    
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+    <script>
+        $('.sortable-formset > li').formset({
+            prefix: '{{ formset.prefix }}',
+            formTemplate: $('#empty-form-template'),
+            fieldsetContainer: '.sortable-formset',
+            beforeRender: function(row, form_count) {
+                return row;
+            }
+        });
+    </script>
+{% endblock %}

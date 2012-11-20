@@ -1,11 +1,38 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends 'holiday_manager/base_page.html' %}
+{% load webdesign %}
 
-{% block content %}
-    <form action="" method="post">{% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save changes</button>
-            <button type="button" class="btn">Cancel</button>
+{% block pagecontent %}
+    <div class="row">
+        <div class="span8">
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="icon-inbox"></i>
+                    <h3 class="">Submit holiday request</h3>
+                </div>
+                <div class="widget-content">
+                    <form action="" method="post" class="ajax">{% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </form>
+        
+        <div class="span4">
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="icon-user"></i>
+                    <h3 class="">Help</h3>
+                </div>
+                <div class="widget-content">
+                    {% lorem 1 p %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
 {% endblock %}

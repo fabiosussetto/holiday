@@ -1,7 +1,7 @@
 from django.views import generic
 from holiday_manager import models, forms
 from holiday_manager.utils import redirect_to_referer
-from django.forms.models import inlineformset_factory
+from django.forms.models import inlineformset_factory, modelformset_factory
 from invites import forms as invite_forms
 from invites.models import User
 from holiday_manager.views import LoginRequiredViewMixin
@@ -154,6 +154,7 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     form_class = forms.EditProjectSettingsForm
     template_name = 'holiday_manager/project_settings.html'
     main_section = 'settings'
+    active_section = 'general'
     
     def get_form(self, form_class):
         social_user = self.request.user.social_auth.get(provider='google-oauth2')
@@ -169,6 +170,64 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     
     def get_object(self, queryset=None):
         return models.Project.objects.get(pk=self.curr_project.pk)
+        
+        
+class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
+    model = models.Project
+    form_class = forms.EditProjectSettingsForm
+    template_name = 'holiday_manager/project_closures.html'
+    main_section = 'settings'
+    active_section = 'closures'
+    object = None
+    
+    @transaction.commit_on_success
+    def post(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        if formset.is_valid():
+            formset.save()
+            messages.success(self.request, "Changes saved successfully")
+            return redirect(reverse('app:project_closures', kwargs={'project': self.curr_project.slug}))
+        else:
+            return self.form_invalid(formset=formset)
+            
+    def form_invalid(self, **kwargs):
+        return self.render_to_response(self.get_context_data(**kwargs))
+    
+    def get_context_data(self, **kwargs):
+        context = super(EditProjectClosures, self).get_context_data(**kwargs)
+        formset = kwargs.get('formset') or self.get_formset()
+        
+        # TODO: refactor this creating a ProjectFormsetMixin maybe, which sets curr project even for empty form
+        empty_form = formset.empty_form
+        empty_form.set_project(self.curr_project)
+        context.update({
+            'formset': formset,
+            'empty_form': empty_form # Small hack: each time this is called in the template, the form is recreated, so we can't set the project!
+        })
+        return context
+    
+    def formset_kwargs(self):
+        kwargs = {
+            #'formset': forms.ApprovalRulesFormset,
+            'form': forms.ClosurePeriodForm,
+            #'extra': 3
+        }
+        return kwargs
+    
+    def get_formset(self):
+        form_data = self.request.POST if self.request.method == 'POST' else None
+        formset_args = self.formset_kwargs()
+        formset_class = modelformset_factory(models.ClosurePeriod, can_delete=True, **formset_args)
+        formset = formset_class(data=form_data)
+        for subform in formset.forms:
+            subform.set_project(self.curr_project)
+        return formset
+    
+    def get_success_url(self):
+        return reverse('app:project_closures', kwargs={'project': self.curr_project.slug})
+    
+    def get_object(self, queryset=None):
+        return self.curr_project
     
     
 class UpgradePlan(ProjectViewMixin, generic.TemplateView):

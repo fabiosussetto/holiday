@@ -8,6 +8,7 @@ from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES
 import datetime
 from holiday_manager.google_calendar import GoogleCalendarApi
 from django.conf import settings
+#from holiday_manager.forms import JSONListField
 
 class ProjectManager(models.Manager):
 
@@ -50,6 +51,8 @@ class Project(models.Model):
             "Every user can customise this setting in his/her profile."       
             )
     )
+    
+    #weekly_closures = JSONListField()
     
     google_calendar_id = models.CharField(max_length=200, blank=True, null=True)
     
@@ -303,6 +306,13 @@ class NationalHoliday(models.Model):
     country_code = models.CharField(max_length=10)
     name = models.CharField(max_length=150)
     date = models.DateField()
+    
+    
+class ClosurePeriod(models.Model):
+    project = models.ForeignKey('Project')
+    start = models.DateField()
+    end = models.DateField()
+    name = models.CharField(max_length=150, null=True, blank=True)
         
 #class Settings(models.Model):
 #    

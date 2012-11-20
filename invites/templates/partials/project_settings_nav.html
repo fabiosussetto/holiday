@@ -1,0 +1,11 @@
+<ul class="nav nav-tabs">
+    <li class="{% if active_section == 'general' %}active{% endif %}">
+        <a href="{% url app:project_settings curr_project %}">General</a>
+    </li>
+    <li class="{% if active_section == 'closures' %}active{% endif %}">
+        <a href="{% url app:project_closures project=curr_project %}">Holidays and Closures</a>
+    </li>
+    <li class="{% if active_section == 'gcal' %}active{% endif %}">
+        <a href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Google Calendar</a>
+    </li>
+</ul>

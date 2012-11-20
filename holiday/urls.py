@@ -26,6 +26,7 @@ app_patterns = patterns('',
     url(r'^user/delete/(?P<pk>\d+)$', views.admin.DeleteUser.as_view(), name='user_delete'),
     
     url(r'^project/settings/$', views.admin.EditProjectSettings.as_view(), name='project_settings'),
+    url(r'^project/closures/$', views.admin.EditProjectClosures.as_view(), name='project_closures'),
     
     url(r'^group$', views.admin.ListApprovalGroup.as_view(), name='group_list'),
     url(r'^group/add$', views.admin.CreateApprovalGroup.as_view(), name='group_add'),
