@@ -87,8 +87,8 @@ class HolidayRequestQuerySet(models.query.QuerySet):
                 Q(start_date__range=(start_date, end_date))
                 | Q(end_date__range=(start_date, end_date))
             )
-
-        
+    
+    
 class HolidayRequestManager(models.Manager):
 
     def get_query_set(self): 
@@ -298,6 +298,11 @@ class ApprovalRule(models.Model):
         self.approver.is_approver = bool(count)
         self.approver.save()
         
+        
+class NationalHoliday(models.Model):
+    country_code = models.CharField(max_length=10)
+    name = models.CharField(max_length=150)
+    date = models.DateField()
         
 #class Settings(models.Model):
 #    
