@@ -6,7 +6,8 @@ PRETTY_TIMEZONE_CHOICES = []
 for tz in pytz.common_timezones:
     now = datetime.datetime.now(pytz.timezone(tz))
     PRETTY_TIMEZONE_CHOICES.append((tz, "(GMT%s) %s" % (now.strftime("%z"), tz)))
-
+    
+    
 def days_of_week(year, week):
     day = datetime.date(year, 2, 1)
     year, weekBase, dayBase = day.isocalendar()

@@ -174,7 +174,7 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
         
 class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
     model = models.Project
-    form_class = forms.EditProjectSettingsForm
+    form_class = forms.EditProjectClosuresForm
     template_name = 'holiday_manager/project_closures.html'
     main_section = 'settings'
     active_section = 'closures'
@@ -217,7 +217,8 @@ class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
     def get_formset(self):
         form_data = self.request.POST if self.request.method == 'POST' else None
         formset_args = self.formset_kwargs()
-        formset_class = modelformset_factory(models.ClosurePeriod, can_delete=True, **formset_args)
+        formset_class = inlineformset_factory(models.Project, models.ClosurePeriod, **formset_args)
+        #formset_class = modelformset_factory(models.ClosurePeriod, can_delete=True, **formset_args)
         formset = formset_class(data=form_data)
         for subform in formset.forms:
             subform.set_project(self.curr_project)

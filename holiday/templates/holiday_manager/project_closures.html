@@ -9,6 +9,9 @@
 
 {% block tabcontent %}
     <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
+        {{ form.closure_week_days.label }}
+        {{ form.closure_week_days }}
+        {{ form.closure_week_days.errors }}
         <h4 class="title titleLineBottom">Closure days</h4>
         {{ formset.non_form_errors }}
         <div class="sortable-formset-container">

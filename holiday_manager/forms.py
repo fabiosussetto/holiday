@@ -8,6 +8,19 @@ import collections
 #from django.forms import widgets
 #import jsonfield
 
+#WEEKDAYS = ((0, 'A'), (1, 'B'))
+
+DAY_CHOICES = (
+    (0, "Monday"),
+    (1, "Tuesday"),
+    (2, "Wednesday"),
+    (3, "Thursday"),
+    (4, "Friday"),
+    (5, "Saturday"),
+    (6, "Sunday")
+)
+
+
 class ProjectFormMixin(object):
     
     project = None
@@ -97,46 +110,31 @@ class EditProjectSettingsForm(forms.ModelForm):
         }
         
         
+class EditProjectClosuresForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = ('closure_week_days',)
+    
+    #week_day = forms.CharField(widget=forms.CheckboxSelectMultiple(choices=WEEKDAYS))
+    closure_week_days = forms.MultipleChoiceField(choices=DAY_CHOICES, widget=forms.SelectMultiple())
+    #week_day = forms.CharField(max_length=100)
+        
+        
 class ClosurePeriodForm(ProjectFormMixin, forms.ModelForm):
     class Meta:
         model = models.ClosurePeriod
         fields = ('start', 'end', 'name')
         
         
-#class JSONListWidget(widgets.MultiWidget):
-#    pass
-    
         
-#class JSONListField(fields.MultiValueField):
-#    widget = JSONListWidget
-    
-    
 
+class ListFormField(forms.TypedMultipleChoiceField):
     #def __init__(self, *args, **kwargs):
-    #    """
-    #    Have to pass a list of field types to the constructor, else we
-    #    won't get any data to our compress method.
-    #    """
-    #    all_fields = (
-    #        fields.CharField(),
-    #        fields.CharField(),
-    #        )
-    #    super(UserAutoCompleteField, self).__init__(all_fields, *args, **kwargs)
-
-    #def compress(self, data_list):
-    #    """
-    #    Takes the values from the MultiWidget and passes them as a
-    #    list to this function. This function needs to compress the
-    #    list into a single object to save.
-    #    """
-    #    if data_list:
-    #        return User.objects.get(id=data_list[0])
-    #    return None
-    
-    
-#class JSONListField(jsonfield.JSONField):
-#    widget = JSONListWidget
-#    
-#    def render(self, name, value, attrs=None):
-#        print value
-#        return super(JSONListField, self).render(name, value, attrs=attrs)
+    #    kwargs['choices'] = utils.DAY_CHOICES
+    #    kwargs.pop('max_length', None)
+    #    kwargs['widget'] = forms.widgets.SelectMultiple
+    #    super(WeekdayFormField, self).__init__(*args, **kwargs)
+        
+    def clean(self, value):
+        value = super(ListFormField, self).clean(value)
+        return ",".join([str(x) for x in value])
