@@ -59,15 +59,12 @@
     <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
     <script src="{{ STATIC_URL }}select2/select2.js"></script>
     <script>
-        //$("#id_weekly_closure_days").select2();
+        $("#id_weekly_closure_days").select2({width: '60%'});
         
         $('.sortable-formset > li').formset({
             prefix: '{{ formset.prefix }}',
             formTemplate: $('#empty-form-template'),
-            fieldsetContainer: '.sortable-formset',
-            beforeRender: function(row, form_count) {
-                return row;
-            }
+            fieldsetContainer: '.sortable-formset'
         });
     </script>
 {% endblock %}

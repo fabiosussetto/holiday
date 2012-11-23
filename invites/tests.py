@@ -2,8 +2,9 @@ from django.test import TestCase
 from holiday_manager.models import HolidayApproval, HolidayRequest, ApprovalGroup, ApprovalRule, Project
 from invites.models import User
 from invites.fixtures.factories import (
-    UserFactory, GroupFactory, ApprovalRuleFactory, HolidayRequestFactory, ProjectFactory )
+    UserFactory, GroupFactory, ApprovalRuleFactory, HolidayRequestFactory, ProjectFactory, ClosurePeriodFactory)
 import datetime
+import unittest
 
 def reload_entity(obj):
     return obj.__class__.objects.get(pk=obj.pk)
@@ -82,7 +83,7 @@ class ApprovalFlowTestCase(ApprovalFlowBaseScenario, TestCase):
         
         self.fe_user_1 = reload_entity(self.fe_user_1)
         
-        self.assertEqual(self.fe_user_1.days_off_left, initial_days_left - 2)
+        self.assertEqual(self.fe_user_1.days_off_left, initial_days_left - 3)
         
         
 class FirstApprovalRejectTestCase(ApprovalFlowBaseScenario, TestCase):
@@ -116,6 +117,130 @@ class LastApprovalRejectTestCase(ApprovalFlowBaseScenario, TestCase):
         
         submitted_req = HolidayRequest.objects.get(pk=submitted_req.pk)
         self.assertEqual(submitted_req.status, HolidayRequest.STATUS.rejected)
+        
+        
+        
+class ApprovalFlowTestCase(ApprovalFlowBaseScenario, TestCase):
+
+    def testSubmitRequest(self):
+        
+        submitted_req, approval_list = self.req.submit()
+        
+        initial_days_left = self.fe_user_1.days_off_left
+        
+        self.fe_approver_1 = reload_entity(self.fe_approver_1)
+        self.fe_approver_2 = reload_entity(self.fe_approver_2)
+        
+        self.assertEqual(self.fe_approver_1.pending_approvals, 1)
+        self.assertEqual(self.fe_approver_2.pending_approvals, 0)
+        
+        approvals_qs = HolidayApproval.objects.filter(request=submitted_req).order_by('order')
+        approvals = list(approvals_qs)
+        
+        self.assertEqual(len(approvals), 2)
+        self.assertEqual(approvals[0].status, HolidayApproval.STATUS.pending)
+        self.assertEqual(approvals[0].approver, self.fe_approver_1)
+        
+        self.assertEqual(approvals[1].status, HolidayApproval.STATUS.waiting)
+        self.assertEqual(approvals[1].approver, self.fe_approver_2)
+        
+        self.assertEqual(submitted_req.status, HolidayRequest.STATUS.pending)
+        
+        approvals[0].approve()
+        
+        self.fe_approver_1 = reload_entity(self.fe_approver_1)
+        self.fe_approver_2 = reload_entity(self.fe_approver_2)
+        
+        self.assertEqual(self.fe_approver_1.pending_approvals, 0)
+        self.assertEqual(self.fe_approver_2.pending_approvals, 1)
+        
+        self.assertEqual(self.fe_user_1.days_off_left, initial_days_left)
+        
+        submitted_req = reload_entity(submitted_req)
+        
+        self.assertEqual(submitted_req.status, HolidayRequest.STATUS.pending)
+        
+        new_approvals = list(approvals_qs.all())
+        self.assertEqual(new_approvals[0].status, HolidayApproval.STATUS.approved)
+        self.assertEqual(new_approvals[1].status, HolidayApproval.STATUS.pending)
+        
+        new_approvals[1].approve()
+        
+        submitted_req = reload_entity(submitted_req)
+        
+        self.assertEqual(submitted_req.status, HolidayRequest.STATUS.approved)
+        
+        self.fe_user_1 = reload_entity(self.fe_user_1)
+        
+        self.assertEqual(self.fe_user_1.days_off_left, initial_days_left - 3)
+        
+        
+class FirstApprovalRejectTestCase(ApprovalFlowBaseScenario, TestCase):
+
+    def testFirstApproverRejectRequest(self):
+        submitted_req, approval_list = self.req.submit()
+        
+        approvals_qs = HolidayApproval.objects.filter(request=submitted_req).order_by('order')
+        approvals = list(approvals_qs)
+        
+        approvals[0].reject()
+        new_approvals = list(approvals_qs.all())
+        
+        self.assertEqual(new_approvals[0].status, HolidayApproval.STATUS.rejected)
+        self.assertEqual(new_approvals[1].status, HolidayApproval.STATUS.pre_rejected)
+        
+        submitted_req = HolidayRequest.objects.get(pk=submitted_req.pk)
+        self.assertEqual(submitted_req.status, HolidayRequest.STATUS.rejected)
+        
+        
+class ClosurePeriodsTestCase(TestCase):
+    """
+    Test that we are taking into account the closure periods
+    and week days when we subtract the days off.
+    """
+
+    def testSpanCalculation(self):
+        self.project = ProjectFactory(
+            weekly_closure_days=[5, 6]
+        )
+        self.frontend_group = GroupFactory(name='Frontend team', project=self.project)
+        self.fe_approver_1 = UserFactory(first_name='Mark', last_name='Green', project=self.project)
+        self.fe_user_1 = UserFactory(first_name='John', last_name='Doe', approval_group=self.frontend_group, project=self.project)
+        
+        r1 = ApprovalRuleFactory(order=0, group=self.frontend_group, approver=self.fe_approver_1)
+        
+        # Set up some closure periods (dates are considered inclusive)
+        ClosurePeriodFactory(
+            project=self.project,
+            start=datetime.date(2012, 11, 6),
+            end=datetime.date(2012, 11, 7)
+        )
+        
+        ClosurePeriodFactory(
+            project=self.project,
+            start=datetime.date(2012, 11, 13),
+            end=datetime.date(2012, 11, 13)
+        )
+        
+        initial_days_left = self.fe_user_1.days_off_left
+        
+        # This request spans across a weekend (not to cosider),
+        # and also is within a closure period.
+        self.req = HolidayRequestFactory.build(
+            author=self.fe_user_1,
+            start_date=datetime.date(2012, 11, 5),
+            end_date=datetime.date(2012, 11, 13),
+            project=self.project
+        )
+        
+        self.assertEqual(self.req.effective_days_span, 4)
+        
+        submitted_req, approval_list = self.req.submit()
+        approval_list[0].approve()
+        
+        self.assertEqual(submitted_req.status, HolidayRequest.STATUS.approved)
+        
+        self.assertEqual(self.fe_user_1.days_off_left, initial_days_left - 4)
             
         
         

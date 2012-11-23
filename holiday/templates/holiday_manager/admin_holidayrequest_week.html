@@ -31,13 +31,18 @@
 
 
 {% block tabcontent %}
+    <form class="filter" method="get" action="">
+        {{ filter_form.as_p }}
+        <input type="submit" value="Apply filter" />
+    </form>
+    
     <div class="cf calendar-wrap">
         <div class="user-rows">
             <div class="shade"></div>
-            {% for obj in object_list %}
+            {% for author, _ in object_list %}
                     <div class="user-row">
-                        <img src="{% thumbnail obj.author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
-                        {{ obj.author }}
+                        <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                        {{ author }}
                     </div>
             {% endfor %}
         </div>
@@ -55,9 +60,9 @@
                             </th>
                         {% endfor %}
                     </tr>
-                        {% for obj in object_list %}
+                        {% for author, requests in object_list %}
                             <tr class="user-row">
-                                {% in_date_range obj week_days %}
+                                {% in_date_range requests week_days %}
                             </tr>
                         {% endfor %}
                 </table>
@@ -74,4 +79,45 @@
             <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ next }}">Next week &rarr;</a>
         </li>
     </ul>
+{% endblock %}
+
+
+{% block extra_js %}
+    <script>
+        $.fn.scrollTo = function( target, options, callback ){
+            if(typeof options == 'function' && arguments.length == 2){ callback = options; options = target; }
+            var settings = $.extend({
+              direction: 'vertical',
+              scrollTarget  : target,
+              offsetTop     : 50,
+              duration      : 500,
+              easing        : 'swing'
+            }, options);
+            return this.each(function(){
+              var scrollPane = $(this);
+              if (typeof settings.scrollTarget == "number") {
+                var scrollTarget = settings.scrollTarget;
+              } else {
+                var scrollTarget = $(settings.scrollTarget, scrollPane);
+                if (!scrollTarget.length) {
+                    return;
+                  }
+              }
+              if (settings.direction == 'vertical') {
+                var scrollY = (typeof scrollTarget == "number") ? scrollTarget : scrollTarget.offset().top + scrollPane.scrollTop() - parseInt(settings.offsetTop);
+                scrollPane.animate({scrollTop : scrollY }, parseInt(settings.duration), settings.easing, function(){
+                    if (typeof callback == 'function') { callback.call(this); }
+                  });
+              } else {
+                scrollPane.scrollLeft(0);
+                var scrollX = (typeof scrollTarget == "number") ? scrollTarget : scrollTarget.offset().left - 500;
+                    scrollPane.animate({scrollLeft : scrollX }, parseInt(settings.duration), settings.easing, function(){
+                    if (typeof callback == 'function') { callback.call(this); }
+                  });
+              }
+            });
+        }
+        
+        $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
+    </script>
 {% endblock %}

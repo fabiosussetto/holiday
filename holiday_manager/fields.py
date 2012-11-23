@@ -1,10 +1,9 @@
 from django.db import models
 from django import forms
+from django.core import exceptions
+from django.core import validators
+from django.utils.text import capfirst
 
-def validate_csv(data):
-    return True
-    #return all(map(lambda x:isinstance(x, int), data))
-    
 class ListFormField(forms.TypedMultipleChoiceField):
 
     def __init__(self, *args, **kwargs):
@@ -12,6 +11,8 @@ class ListFormField(forms.TypedMultipleChoiceField):
         
     def clean(self, value):
         value = super(ListFormField, self).clean(value)
+        if value is None:
+            return []
         return ",".join([str(x) for x in value])
     
 class ListField(models.CommaSeparatedIntegerField):
@@ -23,11 +24,10 @@ class ListField(models.CommaSeparatedIntegerField):
     __metaclass__ = models.SubfieldBase
     
     description = "CSV list Field"
-    default_validators = [validate_csv]
+    default_validators = []
     
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 200
-        #self.mchoices = kwargs['choices']
         super(ListField, self).__init__(*args, **kwargs)
         
     def validate(self, value, model_instance):
@@ -55,8 +55,12 @@ class ListField(models.CommaSeparatedIntegerField):
             raise exceptions.ValidationError(self.error_messages['blank'])
     
     def formfield(self, **kwargs):
-        kwargs['choices'] = self.choices
-        return ListFormField(**kwargs) 
+        defaults = {'required': not self.blank,
+                    'label': capfirst(self.verbose_name),
+                    'choices': self.choices,
+                    'help_text': self.help_text}
+        defaults.update(kwargs)
+        return ListFormField(**defaults) 
     
     def to_python(self, value):
         if isinstance(value, basestring):
@@ -64,9 +68,13 @@ class ListField(models.CommaSeparatedIntegerField):
                 value = [int(x) for x in value.split(',') if x]
             else:
                 value = []
+        elif value is None:
+            value = []
         return value
 
     def get_db_prep_value(self, value, connection=None, prepared=False):
+        if value is None:
+            return None
         return ",".join([str(x) for x in value])
     
     

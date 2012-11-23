@@ -8,6 +8,8 @@ from holiday_manager.cal import days_of_week, date_range
 from holiday_manager import forms
 from django.shortcuts import redirect
 import time
+import itertools
+from dateutil.relativedelta import relativedelta
 
 class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
@@ -26,63 +28,60 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
     model_kind_field = 'status'
 
-    #def get(self, request, *args, **kwargs):
-    #    curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
-    #    self.week_num = int(self.request.GET.get('week', curr_week))
-    #    self.week_days = list(days_of_week(curr_year, self.week_num))
-    #    self.prev_week = (self.week_days[0] - datetime.timedelta(days=1)).isocalendar()[1]
-    #    self.next_week = (self.week_days[-1] + datetime.timedelta(days=1)).isocalendar()[1]
-    #    return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
-        
-    #def get_context_data(self, **kwargs):
-    #    context = super(HolidayRequestWeek, self).get_context_data(**kwargs)
-    #    context.update({
-    #        'week_days': self.week_days,
-    #        'week_num': self.week_num,
-    #        'prev_week': self.prev_week,
-    #        'next_week': self.next_week,
-    #    })
-    #    return context
-    
-    #def get_queryset(self):
-    #    queryset = super(HolidayRequestWeek, self).get_queryset()
-    #    return queryset.date_range(self.week_days[0], self.week_days[-1])
-    
     def get(self, request, *args, **kwargs):
         #curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
         today = datetime.datetime.now().date()
         start = self.request.GET.get('start')
-        if start:
-            start = datetime.datetime.fromtimestamp(int(start))
+        self.filterform = forms.RequestFilterForm(self.request.GET)
+        
+        if self.filterform.is_empty():
+            if start:
+                start = datetime.datetime.fromtimestamp(int(start))
+                self.start = start
+                self.end = start + relativedelta(months=1)
+                
+                self.next = self.end + relativedelta(days=1)
+                self.prev = self.start - relativedelta(months=1)
+            else:
+                start = today
+                self.start = today - relativedelta(days=10)
+                self.end = today + relativedelta(months=2)
+                
+                self.next = self.end + relativedelta(days=1)
+                self.prev = today
         else:
-            start = today
+            print self.filterform.get_lookup_args()
+            self.start = self.filterform.cleaned_data['from_date']
+            self.end = self.filterform.cleaned_data['end_date']
             
-        self.start = start - datetime.timedelta(days=7)
-        self.end = start + datetime.timedelta(days=30)
         self.week_days = list(date_range(self.start, self.end))
-        #self.week_num = int(self.request.GET.get('week', curr_week))
-        #self.week_days = list(days_of_week(curr_year, self.week_num))
-        #self.prev_week = (self.week_days[0] - datetime.timedelta(days=1)).isocalendar()[1]
-        #self.next_week = (self.week_days[-1] + datetime.timedelta(days=1)).isocalendar()[1]
         return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super(HolidayRequestWeek, self).get_context_data(**kwargs)
-        next = self.end - datetime.timedelta(days=7)
-        prev = self.start - datetime.timedelta(days=7)
+        
+        # Group by author, we want one line in the calendar
+        # for each author.
+        groups = []
+        for author, requests in itertools.groupby(context['object_list'], lambda x: x.author):
+            groups.append((author, list(requests)))
+            
+        context['object_list'] = groups
+
         context.update({
             'week_days': self.week_days,
-            #'week_num': self.week_num,
-            'next': int(time.mktime(next.timetuple())),
-            'prev': int(time.mktime(prev.timetuple())),
-            #'next_week': self.next_week,
+            'next': int(time.mktime(self.next.timetuple())),
+            'prev': int(time.mktime(self.prev.timetuple())),
+            'filter_form': self.filterform
         })
         return context
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        
-        return queryset.date_range(self.start, self.end)
+        if self.filterform.is_valid():
+            queryset = self.filterform.filter(queryset)
+
+        return queryset.date_range(self.start, self.end).order_by('author')
         
         
 # Holiday approvals

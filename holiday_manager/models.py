@@ -5,11 +5,12 @@ from holiday_manager.utils import Choices
 from django.db.models import Q
 from django.db import transaction
 from django.conf import settings
-from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES
+from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES, date_range
 import datetime
 from holiday_manager.google_calendar import GoogleCalendarApi
 from django.conf import settings
 from holiday_manager.fields import ListField
+import itertools
 
 DAY_CHOICES = (
     (0, "Monday"),
@@ -45,7 +46,7 @@ class Project(models.Model):
     # Billing
     plan = models.CharField(max_length=20, choices=PLANS, default='free')
     plan_users = models.SmallIntegerField(default=3)
-    price_per_user = models.FloatField()
+    #price_per_user = models.FloatField()
     trial_start = models.DateField(blank=True, null=True)
     
     # Settings
@@ -73,8 +74,8 @@ class Project(models.Model):
     def __unicode__(self):
         return self.slug
         
-    def calculate_price(self):
-        return self.price_per_user * self.plan_users
+    #def calculate_price(self):
+    #    return self.price_per_user * self.plan_users
         
     def is_in_trial(self):
         return self.plan == Project.PLANS.free and datetime.datetime.now().date() >= self.trial_start
@@ -93,6 +94,13 @@ class Project(models.Model):
         from invites.models import User
         return User.objects.get(is_superuser=True, project=self)
         
+        
+class ClosurePeriod(models.Model):
+    project = models.ForeignKey('Project')
+    start = models.DateField()
+    end = models.DateField()
+    name = models.CharField(max_length=150, null=True, blank=True)
+    
 
 class HolidayRequestQuerySet(models.query.QuerySet):
 
@@ -141,6 +149,9 @@ class HolidayRequest(models.Model):
     class Meta:
         ordering = ('requested_on',)
     
+    def __unicode__(self):
+        return '%s - %s' % (self.start_date, self.end_date)
+    
     @transaction.commit_on_success
     def submit(self):
         self.save()
@@ -169,7 +180,7 @@ class HolidayRequest(models.Model):
     def approve(self):
         self.status = HolidayRequest.STATUS.approved
         self.save()
-        tot_days = (self.end_date - self.start_date).days
+        tot_days = self.effective_days_span
         if self.author.days_off_left < tot_days:
             raise HolidayRequest.NotEnoughDaysLeft()
             
@@ -187,6 +198,22 @@ class HolidayRequest(models.Model):
     @property        
     def is_cancellable(self):
         return self.status == HolidayRequest.STATUS.pending
+    
+    @property
+    def effective_days_span(self):
+        """
+        Tells how many days this request spans.
+        We add 1 because we want to consider start and end
+        inclusive. (from 2012-11-01 to 2012-11-03 = 3 days off).
+        Also, we want not to consider closure periods / weekdays
+        for the associated project
+        """
+        request_date_range = date_range(self.start_date, self.end_date)
+        closure_periods = self.project.closureperiod_set.all()
+        # Chain multiple date range generators
+        closure_dates = list(itertools.chain(*[date_range(period.start, period.end) for period in closure_periods]))
+        total = sum(1 for day in request_date_range if day.weekday() not in self.project.weekly_closure_days and day not in closure_dates)
+        return total
         
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -318,12 +345,6 @@ class NationalHoliday(models.Model):
     name = models.CharField(max_length=150)
     date = models.DateField()
     
-    
-class ClosurePeriod(models.Model):
-    project = models.ForeignKey('Project')
-    start = models.DateField()
-    end = models.DateField()
-    name = models.CharField(max_length=150, null=True, blank=True)
         
 #class Settings(models.Model):
 #    

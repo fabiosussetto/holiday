@@ -154,6 +154,7 @@ INSTALLED_APPS = (
     'linaro_django_pagination',
     'invites',
     'holiday_manager',
+    'datafilters',
     'django.contrib.webdesign'
 )
 

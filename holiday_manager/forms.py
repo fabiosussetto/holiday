@@ -5,6 +5,9 @@ from django.forms.extras import SelectDateWidget
 from django.forms.models import BaseInlineFormSet
 import collections
 
+from datafilters.filterform import FilterForm
+from datafilters.specs import DatePickFilterSpec
+
 class ProjectFormMixin(object):
     
     project = None
@@ -110,5 +113,6 @@ class ClosurePeriodForm(ProjectFormMixin, forms.ModelForm):
         fields = ('start', 'end', 'name')
         
         
-        
-
+class RequestFilterForm(FilterForm):
+    from_date = DatePickFilterSpec('start_date', label='From')
+    end_date = DatePickFilterSpec('end_date', label='To')

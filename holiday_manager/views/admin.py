@@ -162,7 +162,7 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
         gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token, auth_user=social_user)
         calendars = gapi.list_calendars()
         form = super(EditProjectSettings, self).get_form(form_class)
-        form.fields['google_calendar_id'].widget.choices = [(None, "Don't use Google Calendar")] + calendar_choices(calendars)
+        form.fields['google_calendar_id'].widget.choices = [('', "Don't use Google Calendar")] + calendar_choices(calendars)
         return form
     
     def get_success_url(self):
@@ -215,12 +215,6 @@ class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
             'extra': 1
         }
         return kwargs
-    
-    #def get_form_kwargs(self):
-    #    kwargs = super(EditProjectClosures, self).get_form_kwargs()
-    #    data = kwargs['data']
-    #    if not 'weekly_closure_days' in self.request.POST:
-    #    return kwargs
     
     def get_formset(self):
         self.object = self.curr_project

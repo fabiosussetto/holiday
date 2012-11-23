@@ -21,20 +21,26 @@ def topnav_active(context, section):
         return ''
 
 @register.simple_tag
-def in_date_range(obj, week_days):
+def in_date_range(requests, week_days):
     output = []
     today = datetime.datetime.now().date()
     for day in week_days:
-        classes = ['day', obj.status]
+        classes = ['day']
+        has = False
         if day == today:
             classes.append('today')
         elif day < today:
             classes.append('past')
-        if day >= obj.start_date and day <= obj.end_date:
-            if day == obj.start_date:
-                classes.append('first')
-            elif day == obj.end_date:
-                classes.append('last')
+            
+        for obj in requests:
+            if day >= obj.start_date and day <= obj.end_date:
+                has = True
+                classes.append(obj.status)
+                if day == obj.start_date:
+                    classes.append('first')
+                elif day == obj.end_date:
+                    classes.append('last')
+        if has:
             output.append('<td class="%s"><span></span></td>' % ' '.join(classes))
         else:
             output.append('<td class="%s"></td>' % ' '.join(classes))
