@@ -183,12 +183,15 @@ class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
     @transaction.commit_on_success
     def post(self, request, *args, **kwargs):
         formset = self.get_formset()
-        if formset.is_valid():
+        form = self.get_form(self.form_class)
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
             formset.save()
             messages.success(self.request, "Changes saved successfully")
             return redirect(reverse('app:project_closures', kwargs={'project': self.curr_project.slug}))
         else:
-            return self.form_invalid(formset=formset)
+            return self.form_invalid(formset=formset, form=form)
             
     def form_invalid(self, **kwargs):
         return self.render_to_response(self.get_context_data(**kwargs))
@@ -196,7 +199,6 @@ class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EditProjectClosures, self).get_context_data(**kwargs)
         formset = kwargs.get('formset') or self.get_formset()
-        
         # TODO: refactor this creating a ProjectFormsetMixin maybe, which sets curr project even for empty form
         empty_form = formset.empty_form
         empty_form.set_project(self.curr_project)
@@ -210,16 +212,22 @@ class EditProjectClosures(ProjectViewMixin, generic.UpdateView):
         kwargs = {
             #'formset': forms.ApprovalRulesFormset,
             'form': forms.ClosurePeriodForm,
-            #'extra': 3
+            'extra': 1
         }
         return kwargs
     
+    #def get_form_kwargs(self):
+    #    kwargs = super(EditProjectClosures, self).get_form_kwargs()
+    #    data = kwargs['data']
+    #    if not 'weekly_closure_days' in self.request.POST:
+    #    return kwargs
+    
     def get_formset(self):
+        self.object = self.curr_project
         form_data = self.request.POST if self.request.method == 'POST' else None
         formset_args = self.formset_kwargs()
         formset_class = inlineformset_factory(models.Project, models.ClosurePeriod, **formset_args)
-        #formset_class = modelformset_factory(models.ClosurePeriod, can_delete=True, **formset_args)
-        formset = formset_class(data=form_data)
+        formset = formset_class(data=form_data, instance=self.object)
         for subform in formset.forms:
             subform.set_project(self.curr_project)
         return formset

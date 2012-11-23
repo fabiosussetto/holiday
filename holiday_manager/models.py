@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 from django.conf import settings
 from holiday_manager.utils import Choices
 from django.db.models import Q
@@ -8,7 +9,17 @@ from holiday_manager.cal import PRETTY_TIMEZONE_CHOICES
 import datetime
 from holiday_manager.google_calendar import GoogleCalendarApi
 from django.conf import settings
-#from holiday_manager.forms import JSONListField
+from holiday_manager.fields import ListField
+
+DAY_CHOICES = (
+    (0, "Monday"),
+    (1, "Tuesday"),
+    (2, "Wednesday"),
+    (3, "Thursday"),
+    (4, "Friday"),
+    (5, "Saturday"),
+    (6, "Sunday")
+)
 
 class ProjectManager(models.Manager):
 
@@ -52,7 +63,7 @@ class Project(models.Model):
             )
     )
     
-    #weekly_closures = JSONListField()
+    weekly_closure_days = ListField(choices=DAY_CHOICES, blank=True, null=True)
     
     google_calendar_id = models.CharField(max_length=200, blank=True, null=True)
     
@@ -329,4 +340,3 @@ def on_subscription_start(sender, **kwargs):
     #if ipn_obj.custom == "Upgrade all users!":
         #Users.objects.update(paid=True)        
 subscription_signup.connect(on_subscription_start)
-    

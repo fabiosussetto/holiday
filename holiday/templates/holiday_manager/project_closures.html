@@ -8,10 +8,10 @@
 
 
 {% block tabcontent %}
-    <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
-        {{ form.closure_week_days.label }}
-        {{ form.closure_week_days }}
-        {{ form.closure_week_days.errors }}
+    <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajaxa">{% csrf_token %}
+        {{ form.weekly_closure_days.label }}
+        {{ form.weekly_closure_days }}
+        {{ form.weekly_closure_days.errors }}
         <h4 class="title titleLineBottom">Closure days</h4>
         {{ formset.non_form_errors }}
         <div class="sortable-formset-container">
@@ -51,9 +51,16 @@
     
 {% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}select2/select2.css">
+{% endblock %}
+
 {% block extra_js %}
     <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+    <script src="{{ STATIC_URL }}select2/select2.js"></script>
     <script>
+        //$("#id_weekly_closure_days").select2();
+        
         $('.sortable-formset > li').formset({
             prefix: '{{ formset.prefix }}',
             formTemplate: $('#empty-form-template'),
