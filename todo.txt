@@ -1,0 +1,14 @@
+Vista calendario
+
+- Considerare lista calendario?
+- Zoommare asse temporale (in modo da non dover scrollare in X)
+- Togliere immagini e assottigliare righe quando ci sono tante persone (opzione per espandere)
+- Raggruppare utenti per gruppo. Mettere in evidenza (primi?) i team leader
+
+- Drag and Drop per creare nuova richiesta
+
+- Dal calendario, approvare/respingere richieste. Considerare anche in bulk, selezionando gli utenti da sinistra.
+- Per ogni colonna, conteggio delle richieste per quel giorno
+
+Quando creo un closure period, verifico se ci sono già vacanze approvate per quel periodo, e mostro un warging con lista, lasciando
+all'admin il compito di risolvere eventuali problemi (tipo ridare giorni indietro)

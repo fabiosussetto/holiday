@@ -19,6 +19,21 @@ class HolidayRequestList(ProjectViewMixin, FilteredListView):
     kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
     model_kind_field = 'status'
     
+    def get_context_data(self, **kwargs):
+        context = super(HolidayRequestList, self).get_context_data(**kwargs)
+        context.update({
+            'filterform': self.filterform
+        })
+        return context
+    
+    def get_queryset(self):
+        queryset = super(HolidayRequestList, self).get_queryset()
+        self.filterform = forms.RequestFilterForm(self.request.GET)
+        if self.filterform.is_valid():
+            queryset = self.filterform.filter(queryset)
+
+        return queryset
+    
         
 class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
@@ -27,9 +42,10 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     
     kind_values = ('pending', 'approved', 'rejected', 'archived', 'expired')
     model_kind_field = 'status'
+    
+    filter_by_date = False
 
     def get(self, request, *args, **kwargs):
-        #curr_year, curr_week, _ = datetime.datetime.now().isocalendar()
         today = datetime.datetime.now().date()
         start = self.request.GET.get('start')
         self.filterform = forms.RequestFilterForm(self.request.GET)
@@ -50,10 +66,11 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
                 self.next = self.end + relativedelta(days=1)
                 self.prev = today
         else:
-            print self.filterform.get_lookup_args()
-            self.start = self.filterform.cleaned_data['from_date']
-            self.end = self.filterform.cleaned_data['end_date']
-            
+            if self.filterform.is_valid():
+                self.start = self.filterform.cleaned_data['from_date']
+                self.end = self.filterform.cleaned_data['end_date']
+                self.filter_by_date = True
+                            
         self.week_days = list(date_range(self.start, self.end))
         return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
     
@@ -70,16 +87,21 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
 
         context.update({
             'week_days': self.week_days,
-            'next': int(time.mktime(self.next.timetuple())),
-            'prev': int(time.mktime(self.prev.timetuple())),
             'filter_form': self.filterform
         })
+        
+        if not self.filter_by_date:
+            context.update({
+                'next': int(time.mktime(self.next.timetuple())),
+                'prev': int(time.mktime(self.prev.timetuple())),
+            })
+        
         return context
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        if self.filterform.is_valid():
-            queryset = self.filterform.filter(queryset)
+        #if self.filterform.is_valid():
+        #    queryset = self.filterform.filter(queryset)
 
         return queryset.date_range(self.start, self.end).order_by('author')
         

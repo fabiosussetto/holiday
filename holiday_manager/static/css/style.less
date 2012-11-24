@@ -17,6 +17,7 @@ body {
     zoom:1;
 }
 
+
 .navbar-inner {
     border-top: 3px solid #C9400A !important;
     //border-bottom: 1px solid #ccc !important;
@@ -32,6 +33,10 @@ body {
             //color: #C9400A;
         }
     }
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    background-image: none !important;
 }
 
 .title-icon-small {
@@ -708,9 +713,16 @@ table form {
     margin-bottom: 10px;
     overflow-x: scroll;
     padding-top: 10px;
+    position: relative;
+    #submit {
+        position: absolute;
+        display: none;
+        width: 150px;
+        text-align: center;
+    }
     table {
         max-width: none;
-        width: 4000px;
+        width: 5000px;
         th {
             text-align: center;
         }
@@ -723,6 +735,9 @@ table form {
         }
         .cal {
             
+        }
+        .highlighted {
+            //background: yellow;
         }
     }
     .user-row {
@@ -791,5 +806,27 @@ table form {
     .day.rejected span, .day.cancelled span {
         background: red;
         opacity: .4;
+    }
+}
+
+.holiday-calendar {
+    .tab-content {
+        padding-top: 0;
+    }
+}
+
+.widget-header {
+    position: relative;
+    nav {
+        position: absolute;
+        right: 5px;
+        top: 0px;
+    }
+}
+
+.submit-request {
+    #id_notes {
+        width: 90%;
+        height: 40px;
     }
 }

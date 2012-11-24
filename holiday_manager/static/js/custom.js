@@ -118,8 +118,15 @@ $(document).ready(function(){
     $('body').on('click', '.nav-tabs a, .tab-link', function(e) {
         e.preventDefault();
         var $link = $(this);
-        $link.closest('.nav-tabs').find('li.active').removeClass('active');
-        $link.closest('li').addClass('active');
+        
+        if ($link.siblings('.active').length) {
+            $link.siblings('.active').removeClass('active');
+            $link.addClass('active');
+        } else {
+            $link.closest('.nav-tabs').find('li.active').removeClass('active');
+            $link.closest('li').addClass('active');
+        }
+        
         var $loader = $('#tab-overlay');
         var url = $link.attr('href');
         $loader.show();

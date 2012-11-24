@@ -7,8 +7,9 @@
             <div class="widget">
                 <div class="widget-header">
                     {% block tabheader %}{% endblock %}
+                    {% block tabheadernav %}{% endblock %}
                 </div>
-                <div class="widget-content">
+                <div class="widget-content {% block widgetclass %}{% endblock %}">
                     {% block subtabnav %}{% endblock %}
                     <div class="tab-content">
                         {% block tabcontent %}{% endblock %}

@@ -1,30 +1,28 @@
-{% extends 'holiday_manager/base.html' %}
+{% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
 
-{% block content %}
+{% block tabheader %}
+    <i class="icon-inbox"></i>
+    <h3 class="">Holiday requests</h3>
+{% endblock %}
 
-<header class="row">
-    <h4 class="span10">Holiday requests list</h4>
-    <div class="btn-group span2">
-        <a href="{% url app:holiday_weekly project=curr_project %}" class="btn"><i class="icon-calendar"></i> Calendar</a>
-        <a href="{% url app:holiday_list project=curr_project %}" class="btn"><i class="icon-list"></i> List</a>
-    </div>
-</header>
+{% block subtabnav %}
+    {% include 'holiday_manager/elements/holiday_requests_tabs.html' %}
+{% endblock %}
 
-<ul class="nav nav-tabs">
-    <li class="{% if list_kind == 'pending' %}active{% endif %}">
-        <a href="{% url app:holiday_list kind='pending' project=curr_project %}">Pending</a>
-    </li>
-    <li class="{% if list_kind == 'approved' %}active{% endif %}">
-        <a href="{% url app:holiday_list kind='approved' project=curr_project %}">Approved</a>
-    </li>
-    <li class="{% if list_kind == 'rejected' %}active{% endif %}">
-        <a href="{% url app:holiday_list kind='rejected' project=curr_project %}">Rejected</a>
-    </li>
-    <li class="{% if list_kind == 'archived' %}active{% endif %}">
-        <a href="{% url app:holiday_list kind='archived' project=curr_project %}">Archived</a>
-    </li>
-</ul>
+{% block widgetclass %}holiday-calendar{% endblock %}
 
+{% block tabheadernav %}
+    {% include 'holiday_manager/elements/holiday_requests_header.html' %}
+{% endblock %}
+
+{% block tabcontent %}
+    
+<form class="filter form-inline" method="get" action="">
+    {{ filterform.from_date }}
+    {{ filterform.end_date }}
+    <button type="submit" class="btn">Filter</button>
+</form>
+    
 <table class="table table-striped">
     <tr>
         <th>Requested by</th>
@@ -46,4 +44,31 @@
     {% endfor %}
 </table>
 
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
+{% endblock %}
+
+{% block extra_js %}
+    <script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+    <script>
+        $("#id_from_date").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1,
+            onClose: function( selectedDate ) {
+                $("#id_end_date").datepicker( "option", "minDate", selectedDate );
+            }
+        });
+        $("#id_end_date").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1,
+            onClose: function( selectedDate ) {
+                $("#id_from_date").datepicker( "option", "maxDate", selectedDate );
+            }
+        });
+        
+    </script>
 {% endblock %}

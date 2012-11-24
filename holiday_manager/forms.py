@@ -48,9 +48,14 @@ class AddHolidayRequestForm(ProjectFormMixin, forms.ModelForm):
         model = models.HolidayRequest
         fields = ('start_date', 'end_date', 'notes')
         widgets = {
-            'start_date': SelectDateWidget(),
-            'end_date': SelectDateWidget()
+            #'start_date': forms.Cha,
+            #'end_date': SelectDateWidget()
         }
+        
+        
+class CheckHolidayRequestForm(forms.Form):
+    start_date = forms.DateField()
+    end_date = forms.DateField()
         
 
 class ApprovalGroupForm(forms.ModelForm):

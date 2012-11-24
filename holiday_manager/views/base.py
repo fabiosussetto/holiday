@@ -23,6 +23,7 @@ class ProjectViewMixin(object):
     curr_project = None
     main_section = None
     active_section = None
+    active_view = None
     
     def dispatch(self, request, *args, **kwargs):
         self.curr_project = models.Project.objects.get(slug=kwargs['project'])
@@ -39,7 +40,8 @@ class ProjectViewMixin(object):
         data = {
             'curr_project': self.curr_project,
             'active_section': self.active_section,
-            'main_section': self.main_section
+            'main_section': self.main_section,
+            'active_view': self.__class__.__name__.lower()
         }
         data.update(context)
         return super(ProjectViewMixin, self).render_to_response(data, **response_kwargs)

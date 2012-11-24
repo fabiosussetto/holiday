@@ -1,0 +1,17 @@
+<ul class="nav nav-tabs">
+    <li class="{% if list_kind == 'all' %}active{% endif %}">
+        <a href="{% url app:holiday_weekly curr_project %}">All</a>
+    </li>
+    <li class="{% if list_kind == 'pending' %}active{% endif %}">
+        <a href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Pending</a>
+    </li>
+    <li class="{% if list_kind == 'approved' %}active{% endif %}">
+        <a href="{% url app:holiday_weekly project=curr_project kind='approved' %}">Approved</a>
+    </li>
+    <li class="{% if list_kind == 'rejected' %}active{% endif %}">
+        <a href="{% url app:holiday_weekly project=curr_project kind='rejected' %}">Rejected</a>
+    </li>
+    <li class="{% if list_kind == 'expired' %}active{% endif %}">
+        <a href="{% url app:holiday_weekly project=curr_project kind='expired' %}">Expired</a>
+    </li>
+</ul>

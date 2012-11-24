@@ -1,41 +1,24 @@
 {% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
-
 {% load misc %}
 {% load thumbnail %}
 {% load webdesign %}
 
 {% block tabheader %}
     <i class="icon-inbox"></i>
-    <h3 class="">Holiday requests</h3>    
+    <h3 class="">Holiday requests</h3>
 {% endblock %}
 
 {% block subtabnav %}
-    <ul class="nav nav-tabs">
-        <li class="{% if list_kind == 'all' %}active{% endif %}">
-            <a href="{% url app:holiday_weekly curr_project %}">All</a>
-        </li>
-        <li class="{% if list_kind == 'pending' %}active{% endif %}">
-            <a href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Pending</a>
-        </li>
-        <li class="{% if list_kind == 'approved' %}active{% endif %}">
-            <a href="{% url app:holiday_weekly project=curr_project kind='approved' %}">Approved</a>
-        </li>
-        <li class="{% if list_kind == 'rejected' %}active{% endif %}">
-            <a href="{% url app:holiday_weekly project=curr_project kind='rejected' %}">Rejected</a>
-        </li>
-        <li class="{% if list_kind == 'expired' %}active{% endif %}">
-            <a href="{% url app:holiday_weekly project=curr_project kind='expired' %}">Expired</a>
-        </li>
-    </ul>
+    {% include 'holiday_manager/elements/holiday_requests_tabs.html' %}
 {% endblock %}
 
+{% block widgetclass %}holiday-calendar{% endblock %}
+
+{% block tabheadernav %}
+    {% include 'holiday_manager/elements/holiday_requests_header.html' %}
+{% endblock %}
 
 {% block tabcontent %}
-    <form class="filter" method="get" action="">
-        {{ filter_form.as_p }}
-        <input type="submit" value="Apply filter" />
-    </form>
-    
     <div class="cf calendar-wrap">
         <div class="user-rows">
             <div class="shade"></div>
@@ -66,10 +49,12 @@
                             </tr>
                         {% endfor %}
                 </table>
+                <div id="submit">
+                    <a class="btn">Submit request</a>
+                </div>
             </div>
         </div>
     </div>
-    
     
     <ul class="pager">
         <li class="previous">
@@ -80,7 +65,6 @@
         </li>
     </ul>
 {% endblock %}
-
 
 {% block extra_js %}
     <script>
@@ -111,13 +95,79 @@
               } else {
                 scrollPane.scrollLeft(0);
                 var scrollX = (typeof scrollTarget == "number") ? scrollTarget : scrollTarget.offset().left - 500;
-                    scrollPane.animate({scrollLeft : scrollX }, parseInt(settings.duration), settings.easing, function(){
-                    if (typeof callback == 'function') { callback.call(this); }
-                  });
+                scrollPane.scrollLeft(scrollX);
+                //scrollPane.animate({scrollLeft : scrollX }, parseInt(settings.duration), settings.easing, function(){
+                //    if (typeof callback == 'function') { callback.call(this); }
+                //});
               }
             });
         }
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
+        
+        var isMouseDown = false,
+            isHighlighted;
+            
+        function clear_selection() {
+            $('.table-scroll .highlighted').removeClass("highlighted").empty();
+            $('#submit').hide();
+        }
+        
+        var current_row = null;
+          $(".table-scroll td")
+            .mousedown(function () {
+              if (!isMouseDown) {
+                // first selected cell
+                $(this).addClass("selection-first");
+                clear_selection();
+              }
+            
+              isMouseDown = true;
+              current_row = $(this).parent();
+              $(this).removeClass("selection-first");
+              
+              $(this).toggleClass("highlighted");
+              isHighlighted = $(this).hasClass("highlighted");
+              if (isHighlighted) {
+                $(this).html('<span></span>');
+              }
+              return false; // prevent text selection
+            })
+            .mouseover(function () {
+              if (isMouseDown) {
+                if (isHighlighted) {
+                    $(this).html('<span></span>');
+                  }
+                $(this).toggleClass("highlighted", isHighlighted);
+              }
+              if (current_row && isHighlighted && current_row[0] != $(this).parent()[0]) {
+                //console.log('changed');
+              }
+              
+            })
+            .bind("selectstart", function () {
+              return false;
+            })
+        
+          $(document)
+            .mouseup(function () {
+              isMouseDown = false;
+              var scroll_offset = $('.table-scroll').scrollLeft();
+              var top = $('.highlighted').first().position().top + 12;
+              var hl_first_pos = $('.highlighted').first().position().left + scroll_offset;
+              var hl_last_pos = $('.highlighted').last().position().left + scroll_offset;
+              var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#submit').width() + $('.highlighted').first().width()) / 2;
+              $('#submit').css({
+                top: top,
+                left: left_pos
+              }).show();
+            });
+            
+            $(document).click(function(e) {
+                if (!$(e.target).is('.table-scroll td')) {
+                    clear_selection();
+                }
+            });
+        
     </script>
 {% endblock %}

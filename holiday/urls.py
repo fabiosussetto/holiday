@@ -10,6 +10,8 @@ app_patterns = patterns('',
     url(r'^$', views.user.Dashboard.as_view(), name='dashboard'),
     
     url(r'^holiday/submit-request$', views.user.AddHolidayRequest.as_view(), name='holiday_submit'),
+    url(r'^holiday/check-request$', views.user.CheckRequestAvailability.as_view(), name='check_request'),
+    
     url(r'^holiday/your-requests/(?P<kind>all|approved|archived)$', views.user.UserHolidayRequestList.as_view(), name='holiday_user_requests'),
     url(r'^holiday/cancel-request/(?P<pk>\d+)$', views.user.CancelRequest.as_view(), name='holiday_cancel'),
     

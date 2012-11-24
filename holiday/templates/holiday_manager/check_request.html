@@ -1,0 +1,27 @@
+{% if requests %}
+    <div class="alert">
+        There are already some requests for the choosen period
+    </div>
+    <table class="table table-striped">
+        <tr>
+        <th>Requested by</th>
+        <th>Requested on</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Status</th>
+    </tr>
+    {% for object in requests %}
+        <tr>
+            <td>{{ object.author }}</td>
+            <td>{{ object.requested_on }}</td>
+            <td>{{ object.start_date }}</td>
+            <td>{{ object.end_date }}</td>
+            <td>{{ object.status }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <div class="alert alert-success">
+        The chosen period is available.
+    </div>
+{% endif %}

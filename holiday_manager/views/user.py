@@ -6,7 +6,9 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render
 from holiday_manager import forms
 import datetime
-
+from holiday_manager.views.generic import JSONResponseMixin
+from django.utils import simplejson as json
+from django import http
         
 class Dashboard(ProjectViewMixin, generic.TemplateView):
     template_name = 'holiday_manager/dashboard.html'
@@ -40,6 +42,27 @@ class AddHolidayRequest(ProjectViewMixin, generic.CreateView):
         request, approvals = self.object.submit()
         self.object = request
         return super(AddHolidayRequest, self).form_valid(form)
+        
+        
+class CheckRequestAvailability(ProjectViewMixin, generic.TemplateView):
+
+    template_name = 'holiday_manager/check_request.html'
+
+    def post(self, request, *args, **kwargs):
+        form = forms.CheckHolidayRequestForm(data=request.POST)
+        if form.is_valid():
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            holiday_requests = models.HolidayRequest.objects.filter(project=self.curr_project).order_by('start_date').date_range(start_date, end_date)
+            context = {
+                'requests': holiday_requests
+            }
+            return self.render_to_response(context) 
+        else:
+            print 'FORM ERRORS'
+            return self.render_to_response() 
+        
+
 
 class UserHolidayRequestList(ProjectViewMixin, generic.ListView):
     model = models.HolidayRequest
