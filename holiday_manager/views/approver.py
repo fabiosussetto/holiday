@@ -10,6 +10,7 @@ from django.shortcuts import redirect
 import time
 import itertools
 from dateutil.relativedelta import relativedelta
+from django.db.models import Q
 
 class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
@@ -87,7 +88,8 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
 
         context.update({
             'week_days': self.week_days,
-            'filter_form': self.filterform
+            'filter_form': self.filterform,
+            'user_requests': models.HolidayRequest.objects.date_range(self.start, self.end).filter(author=self.request.user)
         })
         
         if not self.filter_by_date:
@@ -100,10 +102,7 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        #if self.filterform.is_valid():
-        #    queryset = self.filterform.filter(queryset)
-
-        return queryset.date_range(self.start, self.end).order_by('author')
+        return queryset.date_range(self.start, self.end).filter(~Q(author=self.request.user)).order_by('author')
         
         
 # Holiday approvals

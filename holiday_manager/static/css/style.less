@@ -717,12 +717,16 @@ table form {
     #submit {
         position: absolute;
         display: none;
-        width: 150px;
+        //padding: 5px 10px;
+        //width: 150px;
+        border: 1px solid #ddd;
+        background: #fff;
         text-align: center;
+        //box-shadow: 0 0 8px rgba(0, 0, 0, .2);
     }
     table {
         max-width: none;
-        width: 5000px;
+        width: 4500px;
         th {
             text-align: center;
         }
@@ -738,6 +742,29 @@ table form {
         }
         .highlighted {
             //background: yellow;
+        }
+        .selection-first {
+            padding-left: 4px;
+            span {
+                border-radius: 10px 0 0 10px;
+                border-left: 0;
+            }
+        }
+        .selection-last {
+            padding-right: 4px;
+            span {
+                border-radius: 0 10px 10px 0;
+                border-right: 0;
+            }
+        }
+        .selection-first.selection-last {
+            padding-left: 4px;
+            padding-right: 4px;
+            span {
+                border-radius: 10px 10px;
+                border-left: 0;
+                border-right: 0;
+            }
         }
     }
     .user-row {
@@ -768,7 +795,7 @@ table form {
 
 
 .holiday_week {
-    .day span {
+    .day.request span, .day.highlighted span {
         display: block;
         width: 100%;
         height: 15px;
@@ -824,9 +851,16 @@ table form {
     }
 }
 
-.submit-request {
-    #id_notes {
-        width: 90%;
-        height: 40px;
-    }
+#id_notes {
+    width: 90%;
+    height: 40px;
+}
+
+.modal-backdrop {
+    background: #fff;
+    opacity: .4;
+}
+
+.user-row.current-user, .user-row.current-user td {
+    border-bottom: 1px solid #aaa;
 }

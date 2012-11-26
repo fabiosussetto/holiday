@@ -24,7 +24,7 @@
 
 {% autopaginate object_list 10 %}
 
-<div class="row">
+<div class="row-fluid">
     
     <table class="table table-hover table-striped table-bordered">
         <thead>
@@ -42,6 +42,7 @@
                     <!--</div>-->
                 </th>
                 <th>Name</th>
+                <th>Days off</th>
                 <th>Is active</th>
                 <th>Is staff</th>
                 <th>Approval group</th>
@@ -54,6 +55,9 @@
             <tr>
                 <td><input type="checkbox"></td>
                 <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
+                <td>
+                    {{ object.days_off_left }}
+                </td>
                 <td>
                     {{ object.is_active|yesno }}
                 </td>

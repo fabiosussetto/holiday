@@ -48,19 +48,28 @@ class CheckRequestAvailability(ProjectViewMixin, generic.TemplateView):
 
     template_name = 'holiday_manager/check_request.html'
 
+    def get(self, request, *args, **kwargs):
+        date_format = '%Y-%m-%d'
+        initial = {
+            'start_date': datetime.datetime.strptime(request.GET['start_date'], date_format),
+            'end_date': datetime.datetime.strptime(request.GET['end_date'], date_format)
+        }
+        form = forms.AddHolidayRequestForm(initial=initial)
+        context = {
+            'form': form
+        }
+        return self.render_to_response(context) 
+    
     def post(self, request, *args, **kwargs):
-        form = forms.CheckHolidayRequestForm(data=request.POST)
+        self.template_name = 'holiday_manager/request_submitted.html'
+        form = forms.AddHolidayRequestForm(data=request.POST, project=self.curr_project)
+        form.instance.author = request.user
         if form.is_valid():
-            start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
-            holiday_requests = models.HolidayRequest.objects.filter(project=self.curr_project).order_by('start_date').date_range(start_date, end_date)
-            context = {
-                'requests': holiday_requests
-            }
-            return self.render_to_response(context) 
+            #form.save()
+            return self.render_to_response({}) 
         else:
             print 'FORM ERRORS'
-            return self.render_to_response() 
+            return self.render_to_response({}) 
         
 
 

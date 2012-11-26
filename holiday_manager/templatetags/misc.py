@@ -34,16 +34,12 @@ def in_date_range(requests, week_days):
             
         for obj in requests:
             if day >= obj.start_date and day <= obj.end_date:
-                has = True
-                classes.append(obj.status)
+                classes.extend(['request', obj.status])
                 if day == obj.start_date:
                     classes.append('first')
                 elif day == obj.end_date:
                     classes.append('last')
-        if has:
-            output.append('<td class="%s"><span></span></td>' % ' '.join(classes))
-        else:
-            output.append('<td class="%s"></td>' % ' '.join(classes))
+        output.append('<td data-date="%s" class="%s"><span></span></td>' % (day.strftime('%Y-%m-%d'), ' '.join(classes)))
             
     return ''.join(output)
     

@@ -53,9 +53,9 @@ class AddHolidayRequestForm(ProjectFormMixin, forms.ModelForm):
         }
         
         
-class CheckHolidayRequestForm(forms.Form):
-    start_date = forms.DateField()
-    end_date = forms.DateField()
+#class CheckHolidayRequestForm(forms.Form):
+#    start_date = forms.DateField()
+#    end_date = forms.DateField()
         
 
 class ApprovalGroupForm(forms.ModelForm):

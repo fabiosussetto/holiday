@@ -1,3 +1,5 @@
+{% comment %}
+
 {% if requests %}
     <div class="alert">
         There are already some requests for the choosen period
@@ -25,3 +27,25 @@
         The chosen period is available.
     </div>
 {% endif %}
+
+{% endcomment %}
+
+<form action="{% url app:check_request curr_project %}" method="post" class="" id="submit-request">{% csrf_token %}
+    {{ form.as_p }}
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success">Submit request</button>
+        <button type="button" class="btn">Cancel</button>
+    </div>
+</form>
+
+<script>
+    $('#submit-request').submit(function(e) {
+        e.preventDefault();
+        self = $(this);
+        $.post(self.attr('action'), self.serialize(), function(data) {
+            dialog2.data('dialog2').handle().html(data);
+            //console.log($('').data('dialog2'));
+        });
+    });
+</script>

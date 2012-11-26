@@ -22,6 +22,10 @@
     <div class="cf calendar-wrap">
         <div class="user-rows">
             <div class="shade"></div>
+            <div class="user-row current-user">
+                <img src="{% thumbnail request.user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                {{ request.user }}
+            </div>
             {% for author, _ in object_list %}
                     <div class="user-row">
                         <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
@@ -43,15 +47,22 @@
                             </th>
                         {% endfor %}
                     </tr>
+                        <tr class="user-row current-user">
+                            {% in_date_range user_requests week_days %}
+                        </tr>
                         {% for author, requests in object_list %}
                             <tr class="user-row">
                                 {% in_date_range requests week_days %}
                             </tr>
                         {% endfor %}
                 </table>
-                <div id="submit">
-                    <a class="btn">Submit request</a>
-                </div>
+                    <div class="popover bottom" id="submit">
+                        <div class="arrow"></div>
+                        <div class="popover-content">
+                          <a class="btn btn-success">Submit request</a>
+                          <a class="btn">Cancel</a>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -64,9 +75,24 @@
             <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ next }}">Next week &rarr;</a>
         </li>
     </ul>
+    
+    <div id="sample1-dialog" style="display: none">
+        <h1>Simple alert</h1>
+        <p>
+            It is always beneficial to acknowledge alerts of any kind.
+            You can close this alert if you agree. 
+            (Note: Normally a dialog box is not that penetrating)
+        </p>
+        <div class="form-actions">
+            <button class="btn-primary close-dialog">Understood</button>
+            <button class="btn-danger" onclick="alert('You might reconsider your click behaviour!')">I don't care</button>
+        </div>
+    </div>
+    
 {% endblock %}
 
 {% block extra_js %}
+    <script src="{{ STATIC_URL }}dialog2/jquery.dialog2.js"></script>
     <script>
         $.fn.scrollTo = function( target, options, callback ){
             if(typeof options == 'function' && arguments.length == 2){ callback = options; options = target; }
@@ -105,69 +131,88 @@
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
-        var isMouseDown = false,
-            isHighlighted;
-            
+        $("#submit a").click(function(event) {
+            event.preventDefault();
+            window.dialog2 = $('<div/>').dialog2({
+                title: "Submit request", 
+                content: '{% url app:check_request curr_project %}', 
+                id: "server-notice",
+                ajax: {
+                    data: {
+                        start_date: $('.highlighted').first().data('date'),
+                        end_date: $('.highlighted').last().data('date')
+                    }
+                }
+            });
+            $('#submit').hide();
+        });
+        
+        $('body').on("dialog2.closed", function() {
+            console.log('CLOSED');
+            clear_selection();
+        });
+        
         function clear_selection() {
-            $('.table-scroll .highlighted').removeClass("highlighted").empty();
+            $('.table-scroll .current-user .highlighted').removeClass("highlighted selection-first selection-last");
             $('#submit').hide();
         }
         
-        var current_row = null;
-          $(".table-scroll td")
-            .mousedown(function () {
-              if (!isMouseDown) {
-                // first selected cell
-                $(this).addClass("selection-first");
-                clear_selection();
-              }
-            
-              isMouseDown = true;
-              current_row = $(this).parent();
-              $(this).removeClass("selection-first");
-              
-              $(this).toggleClass("highlighted");
-              isHighlighted = $(this).hasClass("highlighted");
-              if (isHighlighted) {
-                $(this).html('<span></span>');
-              }
-              return false; // prevent text selection
-            })
-            .mouseover(function () {
-              if (isMouseDown) {
-                if (isHighlighted) {
-                    $(this).html('<span></span>');
-                  }
-                $(this).toggleClass("highlighted", isHighlighted);
-              }
-              if (current_row && isHighlighted && current_row[0] != $(this).parent()[0]) {
-                //console.log('changed');
-              }
-              
-            })
-            .bind("selectstart", function () {
-              return false;
-            })
-        
-          $(document)
-            .mouseup(function () {
-              isMouseDown = false;
-              var scroll_offset = $('.table-scroll').scrollLeft();
-              var top = $('.highlighted').first().position().top + 12;
-              var hl_first_pos = $('.highlighted').first().position().left + scroll_offset;
-              var hl_last_pos = $('.highlighted').last().position().left + scroll_offset;
-              var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#submit').width() + $('.highlighted').first().width()) / 2;
-              $('#submit').css({
-                top: top,
-                left: left_pos
-              }).show();
-            });
-            
-            $(document).click(function(e) {
-                if (!$(e.target).is('.table-scroll td')) {
-                    clear_selection();
+        var start, end;
+        var selecting, selected = false;
+        $(".table-scroll .current-user td").click(function(e) {
+            if (!selecting) {
+                if (selected) {
+                    selected = false;
+                    selecting = false;
+                    return clear_selection();
                 }
-            });
+                start = $(this);
+                $('.highlighted').removeClass('highlighted selection-first selection-last');
+                start.addClass('highlighted selection-first selection-last');
+            } else {
+                end = $(this);
+                var selected_tds = $('.current-user .highlighted');
+                if (!selected_tds.length) {
+                    return;
+                }
+                selected = true;
+                var scroll_offset = $('.table-scroll').scrollLeft();
+                var top = selected_tds.first().position().top + 35;
+                var hl_first_pos = selected_tds.first().position().left + scroll_offset;
+                var hl_last_pos = selected_tds.last().position().left + scroll_offset;
+                var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#submit').outerWidth() + selected_tds.first().outerWidth()) / 2;
+                $('#submit').css({
+                    top: top,
+                    left: left_pos
+                }).show();
+            }
+            selecting = !selecting;
+        })
+        .mouseenter(function(e) {
+            if (!selecting) {
+                return;
+            }
+            var self = $(this);
+            is_selected = self.hasClass("highlighted");
+            if (is_selected) {
+                $('.selection-last').removeClass('selection-last');
+                self.addClass('selection-last');
+                $('.selection-last').nextAll('.highlighted').removeClass('highlighted');
+            } else {
+                $('.selection-last').removeClass('selection-last');
+                self.toggleClass('highlighted selection-last');
+                $('.selection-first').nextUntil('.selection-last').removeClass('selection-last').addClass('highlighted');
+            }
+        });
+        
+        $(document).click(function(e) {
+            if (!$(e.target).is('.table-scroll td, #submit a')) {
+                if ($(e.target).has('.modal')) {
+                    return;
+                }
+                clear_selection();
+            }
+        });
         
     </script>
 {% endblock %}
