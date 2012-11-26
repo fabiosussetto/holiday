@@ -49,9 +49,10 @@
 
 <body class="{% block body_class %}{% endblock %}">
 
+{% include 'holiday_manager/elements/topbar.html' %}
+<div class="subnav"></div>
+
 <div class="boxedWrap">
-    {% include 'holiday_manager/elements/topbar.html' %}
-    <div class="subnav"></div>
     
     <!-- CONTAINER WRAPPER -->
     <div id="content" class="container-fluid">
