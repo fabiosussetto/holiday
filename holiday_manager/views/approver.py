@@ -62,7 +62,7 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
             else:
                 start = today
                 self.start = today - relativedelta(days=10)
-                self.end = today + relativedelta(months=2)
+                self.end = today + relativedelta(months=1)
                 
                 self.next = self.end + relativedelta(days=1)
                 self.prev = today

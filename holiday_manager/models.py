@@ -26,7 +26,7 @@ class ProjectManager(models.Manager):
 
     def create(self, instance):
         instance.trial_start = datetime.datetime.now()
-        instance.price_per_user = settings.PRICE_PER_USERS_FUNC(instance.plan_users)
+        #instance.price_per_user = settings.PRICE_PER_USERS_FUNC(instance.plan_users)
         instance.save()
         return instance
 
