@@ -51,26 +51,24 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
         start = self.request.GET.get('start')
         self.filterform = forms.RequestFilterForm(self.request.GET)
         
-        if self.filterform.is_empty():
-            if start:
-                start = datetime.datetime.fromtimestamp(int(start))
-                self.start = start
-                self.end = start + relativedelta(months=1)
-                
-                self.next = self.end + relativedelta(days=1)
-                self.prev = self.start - relativedelta(months=1)
-            else:
-                start = today
-                self.start = today - relativedelta(days=10)
-                self.end = today + relativedelta(months=1)
-                
-                self.next = self.end + relativedelta(days=1)
-                self.prev = today
+        if start:
+            start = datetime.datetime.fromtimestamp(int(start))
+            self.start = start
+            self.end = start + relativedelta(months=1)
+            
+            self.next = self.end + relativedelta(days=1)
+            self.prev = self.start - relativedelta(months=1)
         else:
-            if self.filterform.is_valid():
-                self.start = self.filterform.cleaned_data['from_date']
-                self.end = self.filterform.cleaned_data['end_date']
-                self.filter_by_date = True
+            start = today
+            self.start = today - relativedelta(days=10)
+            self.end = today + relativedelta(months=1)
+            
+            # debug
+            #self.start = datetime.date(2012, 11, 23)
+            #self.end = datetime.date(2012, 12, 1)
+            
+            self.next = self.end + relativedelta(days=1)
+            self.prev = today
                             
         self.week_days = list(date_range(self.start, self.end))
         return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
@@ -84,7 +82,11 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
         for author, requests in itertools.groupby(context['object_list'], lambda x: x.author):
             groups.append((author, list(requests)))
             
-        context['object_list'] = groups
+        team_groups = []
+        for team, members in itertools.groupby(groups, lambda x: x[0].approval_group):
+            team_groups.append((team, list(members)))
+            
+        context['object_list'] = team_groups
 
         context.update({
             'week_days': self.week_days,

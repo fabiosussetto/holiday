@@ -19,6 +19,10 @@
 {% endblock %}
 
 {% block tabcontent %}
+    <button class="btn" id="toggle-compact">Compact</button>
+    <button class="btn" id="filter-users">Filter</button>
+    <button class="btn" id="filter-clear">Clear</button>
+    
     <div class="cf calendar-wrap compact">
         <div class="user-rows">
             <div class="shade"></div>
@@ -26,10 +30,18 @@
                 <img src="{% thumbnail request.user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
                 {{ request.user }}
             </div>
-            {% for author, _ in object_list %}
-                    <div class="user-row">
-                        <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
-                        {{ author }}
+            {% for team, members in object_list %}
+                    <div class="team-row" data-target="{{ team.pk }}">
+                        {{ team }} <i class="icon-chevron-down"></i>
+                    </div>
+                    <div id="users-group-{{ team.pk }}">
+                    {% for author, _ in members %}
+                        <div class="user-row" id="user-side-{{ author.pk }}">
+                            <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                            <input type="checkbox" class="select-user" value="{{ author.pk }}" /> 
+                            {{ author }} 
+                        </div>
+                    {% endfor %}
                     </div>
             {% endfor %}
         </div>
@@ -47,14 +59,24 @@
                             </th>
                         {% endfor %}
                     </tr>
-                        <tr class="user-row current-user">
-                            {% in_date_range user_requests week_days %}
+                    <tr class="user-row current-user">
+                        {% in_date_range user_requests week_days %}
+                    </tr>
+                    
+                    {% for team, members in object_list %}
+                        <tr class="team-row">
+                            {% for day in week_days %}
+                                <td class="day"></td>
+                            {% endfor %}    
                         </tr>
-                        {% for author, requests in object_list %}
-                            <tr class="user-row">
-                                {% in_date_range requests week_days %}
-                            </tr>
-                        {% endfor %}
+                        <tbody id="days-group-{{ team.pk }}">
+                            {% for author, requests in members %}
+                                <tr class="user-row" id="user-{{ author.pk }}" data-user-id="{{ author.pk }}">
+                                    {% in_date_range requests week_days %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    {% endfor %}
                 </table>
                     <div class="popover bottom" id="submit">
                         <div class="arrow"></div>
@@ -148,8 +170,47 @@
         });
         
         $('body').on("dialog2.closed", function() {
-            console.log('CLOSED');
             clear_selection();
+        });
+        
+        $('.select-user').click(function(e) {
+            $(this).closest('.user-row').toggleClass('selected');
+        });
+        
+        $('#toggle-compact').click(function(e) {
+            e.preventDefault();
+            $('.calendar-wrap').toggleClass('compact');
+        });
+        
+        $('#filter-users').click(function(e) {
+            e.preventDefault();
+            var to_hide = [];
+            var self = $(this);
+            $('.user-row').hide();
+            $('.select-user:checked').each(function() {
+                //to_hide.push($('#user-' + self.val()));
+                $(this).closest('.user-row').show();
+                $('#user-' + $(this).val()).show();
+            });
+        });
+        
+        $('#filter-clear').click(function(e) {
+            e.preventDefault();
+            $('.user-row').show();
+            $('.select-user:checked').attr('checked', false);
+            //to_hide.each();
+        });
+        
+        $('.holiday_week').on('hover', 'tr', function() {
+            $(this).toggleClass('hover');
+            $('#user-side-' + $(this).data('user-id')).toggleClass('hover');
+        });
+        
+        $('.user-rows .team-row').click(function(e) {
+            e.preventDefault();
+            var group_id = $(this).data('target');
+            $('#users-group-' + group_id).toggle();
+            $('#days-group-' + group_id).toggle();
         });
         
         function clear_selection() {
@@ -159,51 +220,54 @@
         
         var start, end;
         var selecting, selected = false;
-        $(".table-scroll .current-user td").click(function(e) {
-            if (!selecting) {
-                if (selected) {
-                    selected = false;
-                    selecting = false;
-                    return clear_selection();
+        
+        $(".table-scroll").on({
+            click: function(e) {
+                if (!selecting) {
+                    if (selected) {
+                        selected = false;
+                        selecting = false;
+                        return clear_selection();
+                    }
+                    start = $(this);
+                    $('.highlighted').removeClass('highlighted selection-first selection-last');
+                    start.addClass('highlighted selection-first selection-last');
+                } else {
+                    end = $(this);
+                    var selected_tds = $('.current-user .highlighted');
+                    if (!selected_tds.length) {
+                        return;
+                    }
+                    selected = true;
+                    var scroll_offset = $('.table-scroll').scrollLeft();
+                    var top = selected_tds.first().position().top + 35;
+                    var hl_first_pos = selected_tds.first().position().left + scroll_offset;
+                    var hl_last_pos = selected_tds.last().position().left + scroll_offset;
+                    var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#submit').outerWidth() + selected_tds.first().outerWidth()) / 2;
+                    $('#submit').css({
+                        top: top,
+                        left: left_pos
+                    }).show();
                 }
-                start = $(this);
-                $('.highlighted').removeClass('highlighted selection-first selection-last');
-                start.addClass('highlighted selection-first selection-last');
-            } else {
-                end = $(this);
-                var selected_tds = $('.current-user .highlighted');
-                if (!selected_tds.length) {
+                selecting = !selecting;
+            },
+            mouseenter: function(e) {
+                if (!selecting) {
                     return;
                 }
-                selected = true;
-                var scroll_offset = $('.table-scroll').scrollLeft();
-                var top = selected_tds.first().position().top + 35;
-                var hl_first_pos = selected_tds.first().position().left + scroll_offset;
-                var hl_last_pos = selected_tds.last().position().left + scroll_offset;
-                var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#submit').outerWidth() + selected_tds.first().outerWidth()) / 2;
-                $('#submit').css({
-                    top: top,
-                    left: left_pos
-                }).show();
+                var self = $(this);
+                is_selected = self.hasClass("highlighted");
+                if (is_selected) {
+                    $('.selection-last').removeClass('selection-last');
+                    self.addClass('selection-last');
+                    $('.selection-last').nextAll('.highlighted').removeClass('highlighted');
+                } else {
+                    $('.selection-last').removeClass('selection-last');
+                    self.toggleClass('highlighted selection-last');
+                    $('.selection-first').nextUntil('.selection-last').removeClass('selection-last').addClass('highlighted');
+                }
             }
-            selecting = !selecting;
-        })
-        .mouseenter(function(e) {
-            if (!selecting) {
-                return;
-            }
-            var self = $(this);
-            is_selected = self.hasClass("highlighted");
-            if (is_selected) {
-                $('.selection-last').removeClass('selection-last');
-                self.addClass('selection-last');
-                $('.selection-last').nextAll('.highlighted').removeClass('highlighted');
-            } else {
-                $('.selection-last').removeClass('selection-last');
-                self.toggleClass('highlighted selection-last');
-                $('.selection-first').nextUntil('.selection-last').removeClass('selection-last').addClass('highlighted');
-            }
-        });
+        }, '.current-user td');
         
         $(document).click(function(e) {
             if (!$(e.target).is('.table-scroll td, #submit a')) {
