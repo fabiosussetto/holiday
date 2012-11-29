@@ -18,6 +18,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        #'NAME': 'holiday',                      # Or path to database file if using sqlite3.
         'NAME': 'holiday_dummy',                      # Or path to database file if using sqlite3.
         #'NAME': 'holiday',                      # Or path to database file if using sqlite3.
         'USER': 'root',                      # Not used with sqlite3.

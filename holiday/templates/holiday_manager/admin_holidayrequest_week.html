@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block subtabnav %}
-    {% include 'holiday_manager/elements/holiday_requests_tabs.html' %}
+    <!--{% include 'holiday_manager/elements/holiday_requests_tabs.html' %}-->
 {% endblock %}
 
 {% block widgetclass %}holiday-calendar{% endblock %}
@@ -19,9 +19,21 @@
 {% endblock %}
 
 {% block tabcontent %}
-    <button class="btn" id="toggle-compact">Compact</button>
-    <button class="btn" id="filter-users">Filter</button>
-    <button class="btn" id="filter-clear">Clear</button>
+    <div class="btn-toolbar">
+        <div class="btn-group">
+            <button class="btn" id="toggle-compact">Compact</button>
+        </div>
+        <div class="btn-group">
+            <button class="btn" id="filter-users">Filter</button>
+            <button class="btn" id="filter-clear">Clear</button>
+        </div>
+        <div class="btn-group" data-toggle="buttons-radio">
+            <button type="button" class="btn">All</button>
+            <button type="button" class="btn">Pending</button>
+            <button type="button" class="btn">Approved</button>
+            <button type="button" class="btn">Rejected</button>
+        </div>
+    </div>
     
     <div class="cf calendar-wrap compact">
         <div class="user-rows">
@@ -36,9 +48,8 @@
                     </div>
                     <div id="users-group-{{ team.pk }}">
                     {% for author, _ in members %}
-                        <div class="user-row" id="user-side-{{ author.pk }}">
+                        <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
                             <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
-                            <input type="checkbox" class="select-user" value="{{ author.pk }}" /> 
                             {{ author }} 
                         </div>
                     {% endfor %}
@@ -184,13 +195,11 @@
         
         $('#filter-users').click(function(e) {
             e.preventDefault();
-            var to_hide = [];
             var self = $(this);
             $('.user-row').hide();
-            $('.select-user:checked').each(function() {
-                //to_hide.push($('#user-' + self.val()));
-                $(this).closest('.user-row').show();
-                $('#user-' + $(this).val()).show();
+            $('.user-rows. .user-row.selected').each(function() {
+                $(this).show();
+                $('#user-' + $(this).data('user-id')).show();
             });
         });
         
