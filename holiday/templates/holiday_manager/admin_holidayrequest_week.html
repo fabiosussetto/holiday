@@ -96,6 +96,12 @@
                           <a class="btn">Cancel</a>
                         </div>
                     </div>
+                    <div class="popover bottom" id="request-data">
+                        <div class="arrow"></div>
+                        <div class="popover-content">
+                            <a class="btn">Edit</a>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -184,8 +190,8 @@
             clear_selection();
         });
         
-        $('.select-user').click(function(e) {
-            $(this).closest('.user-row').toggleClass('selected');
+        $('.user-rows .user-row').click(function(e) {
+            $(this).toggleClass('selected');
         });
         
         $('#toggle-compact').click(function(e) {
@@ -197,7 +203,7 @@
             e.preventDefault();
             var self = $(this);
             $('.user-row').hide();
-            $('.user-rows. .user-row.selected').each(function() {
+            $('.user-rows .user-row.selected').each(function() {
                 $(this).show();
                 $('#user-' + $(this).data('user-id')).show();
             });
@@ -207,7 +213,6 @@
             e.preventDefault();
             $('.user-row').show();
             $('.select-user:checked').attr('checked', false);
-            //to_hide.each();
         });
         
         $('.holiday_week').on('hover', 'tr', function() {
@@ -229,6 +234,42 @@
         
         var start, end;
         var selecting, selected = false;
+        
+        
+        var show_popup = function(selected_tds) {
+            if (!selected_tds.length) {
+                return;
+            }
+            var scroll_offset = $('.table-scroll').scrollLeft();
+            var top = selected_tds.first().position().top + 24;
+            var hl_first_pos = selected_tds.first().position().left + scroll_offset;
+            var hl_last_pos = selected_tds.last().position().left + scroll_offset;
+            var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#request-data').outerWidth() + selected_tds.first().outerWidth()) / 2;
+            $('#request-data').css({
+                top: top,
+                left: left_pos
+            }).show();
+        }
+        
+        var find_selection = function(td) {
+            // TODO: use native js to improve performances
+            if (td.hasClass('first')) {
+                var selection = td.nextUntil('.last +').add(td);
+            } else {
+                var first = td.prevUntil('.first');
+                if (first.length) {
+                    var selection = first.prev().add(td.nextUntil('.last +')).add(td);
+                } else {
+                    var selection = td.prev().add(td.nextUntil('.last +')).add(td);
+                }
+            }
+            return selection;
+        }
+        
+        $(".table-scroll").on('click', '.request', function() {
+            var self = $(this);
+            show_popup(find_selection(self));
+        });
         
         $(".table-scroll").on({
             click: function(e) {
