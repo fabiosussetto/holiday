@@ -151,6 +151,20 @@ class HolidayRequest(models.Model):
     
     def __unicode__(self):
         return '%s - %s' % (self.start_date, self.end_date)
+        
+        
+    def to_dict(self):
+        return {
+            'author': {
+                'name': str(self.author),
+                'pic': self.author.google_pic['thumb'].url if self.author.google_pic else None
+            },
+            'pk': self.pk,
+            'status': self.status,
+            'effective_days_span': self.effective_days_span,
+            'start_date': self.start_date.strftime('%a, %d %b'),
+            'end_date': self.end_date.strftime('%a, %d %b') 
+        }
     
     @transaction.commit_on_success
     def submit(self):

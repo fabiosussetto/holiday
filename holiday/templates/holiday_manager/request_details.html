@@ -1,0 +1,46 @@
+{% comment %}
+<form action="{% url app:check_request curr_project %}" method="post" class="" id="submit-request">{% csrf_token %}
+    {{ form.as_p }}
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success">Submit request</button>
+        <button type="button" class="btn">Cancel</button>
+    </div>
+</form>
+
+<script>
+    $('#submit-request').submit(function(e) {
+        e.preventDefault();
+        self = $(this);
+        $.post(self.attr('action'), self.serialize(), function(data) {
+            dialog2.data('dialog2').handle().html(data);
+            //console.log($('').data('dialog2'));
+        });
+    });
+</script>
+{% endcomment %}
+
+<p>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</p>
+<p>{{ holiday_request.start_date }} - {{ holiday_request.end_date }} ({{ holiday_request.effective_days_span }} effective days)</p>
+
+<table class="table table-striped">
+    <tr>
+        <th>Approver</th>
+        <th>Status</th>
+    </tr>
+    {% for approval in approvals %}
+        <tr>
+            <td>{{ approval.approver }}</td>
+            <td>{{ approval.status }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<form action="" method="post" class="" id="submit-request">{% csrf_token %}
+    <textarea style="width: 97%; height: 50px;"></textarea>
+    <div class="form-actions">
+        <input type="checkbox"> add a message
+        <button type="submit" class="btn btn-success">Approve</button>
+        <button type="button" class="btn btn-danger">Reject</button>
+    </div>
+</form>

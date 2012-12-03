@@ -96,12 +96,7 @@
                           <a class="btn">Cancel</a>
                         </div>
                     </div>
-                    <div class="popover bottom" id="request-data">
-                        <div class="arrow"></div>
-                        <div class="popover-content">
-                            <a class="btn">Edit</a>
-                        </div>
-                    </div>
+                    <div class="popover bottom" id="request-data"></div>
             </div>
         </div>
     </div>
@@ -115,23 +110,35 @@
         </li>
     </ul>
     
-    <div id="sample1-dialog" style="display: none">
-        <h1>Simple alert</h1>
-        <p>
-            It is always beneficial to acknowledge alerts of any kind.
-            You can close this alert if you agree. 
-            (Note: Normally a dialog box is not that penetrating)
-        </p>
-        <div class="form-actions">
-            <button class="btn-primary close-dialog">Understood</button>
-            <button class="btn-danger" onclick="alert('You might reconsider your click behaviour!')">I don't care</button>
+    <script id="template-popover" type="text/html">
+        <div class="arrow"></div>
+        <div class="popover-content">
+            <div class="pic">
+                <% if (author.pic) { %>
+                    <img src="<%= author.pic %>">
+                <% } else { %>
+                    <img src="{{ STATIC_URL }}img/missing_pic.gif">
+                <% } %>
+            </div>
+            <div class="info">
+                <p class="author"><%= author.name %></p>
+                <p class="dates"><%= start_date %> - <%= end_date %> (<%= effective_days_span %> days)</p>
+            </div>
+            <div class="toolbar">
+                <% if (status == 'pending') { %>
+                    <a href="" class="btn btn-mini btn-success">Approve</a>
+                    <a href="" class="btn btn-mini btn-danger">Reject</a>
+                <% } %>
+                <a href="" class="show-details">details...</a>
+            </div>
         </div>
-    </div>
+    </script>
     
 {% endblock %}
 
 {% block extra_js %}
     <script src="{{ STATIC_URL }}dialog2/jquery.dialog2.js"></script>
+    <script src="{{ STATIC_URL }}js/underscore-min.js"></script>
     <script>
         $.fn.scrollTo = function( target, options, callback ){
             if(typeof options == 'function' && arguments.length == 2){ callback = options; options = target; }
@@ -234,7 +241,17 @@
         
         var start, end;
         var selecting, selected = false;
+        var popover_template = _.template($('#template-popover').html());
+        var request_popover = $('#request-data');
         
+        request_popover.on('click', '.show-details', function(e) {
+            e.preventDefault();
+            request_obj = request_popover.data('request');
+            window.dialog2 = $('<div/>').dialog2({
+                title: "Request details", 
+                content: '{% url app:request_details curr_project %}?pk=' + request_obj.pk 
+            });
+        });
         
         var show_popup = function(selected_tds) {
             if (!selected_tds.length) {
@@ -245,7 +262,12 @@
             var hl_first_pos = selected_tds.first().position().left + scroll_offset;
             var hl_last_pos = selected_tds.last().position().left + scroll_offset;
             var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#request-data').outerWidth() + selected_tds.first().outerWidth()) / 2;
-            $('#request-data').css({
+            var request_obj = $(selected_tds[0]).data('request');
+            console.log(request_obj);
+            request_popover.data('request', request_obj);
+            request_popover.html(popover_template(request_obj));
+            
+            request_popover.css({
                 top: top,
                 left: left_pos
             }).show();
@@ -320,6 +342,10 @@
         }, '.current-user td');
         
         $(document).click(function(e) {
+            if (!$(e.target).is('.table-scroll td.request, .table-scroll td.request span')) {
+                request_popover.hide();
+            }
+        
             if (!$(e.target).is('.table-scroll td, #submit a')) {
                 if ($(e.target).has('.modal')) {
                     return;

@@ -295,3 +295,9 @@ PAYMILL_PRIVATE_TEST_KEY = '06919cb9f02d8f0c3d1d645c4b4ff373'
 PAYMILL_PLAN_SMALL_ID = 'offer_1b37112588ca9c4333dd'
 
 DATE_INPUT_FORMATS = ('%d/%m/%Y',)
+
+THUMBNAIL_ALIASES = {
+    'invites.User.google_pic': {
+        'thumb': {'size': (40, 40), 'crop': 'smart'},
+    },
+}

@@ -11,6 +11,7 @@ import time
 import itertools
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
@@ -105,6 +106,22 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
         return queryset.date_range(self.start, self.end).filter(~Q(author=self.request.user)).order_by('author')
+        
+        
+class RequestDetails(ProjectViewMixin, generic.DetailView):
+
+    template_name = 'holiday_manager/request_details.html'
+    context_object_name = 'holiday_request'
+
+    def get_object(self):
+        return get_object_or_404(models.HolidayRequest, pk=self.request.GET.get('pk'))
+
+    def get_context_data(self, **kwargs):
+        context = super(RequestDetails, self).get_context_data(**kwargs)
+        context.update({
+            'approvals': self.object.holidayapproval_set.all()
+        })
+        return context
         
         
 # Holiday approvals

@@ -1,8 +1,14 @@
 import datetime
 from django.template import Library, Node, TemplateSyntaxError
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.safestring import mark_safe
+from django.utils import simplejson
 
 register = Library()
+
+@register.filter
+def jsonify(obj):
+    return mark_safe(simplejson.dumps(obj))
 
 @register.simple_tag
 def profile_pic(user):
@@ -31,15 +37,18 @@ def in_date_range(requests, week_days):
             classes.append('today')
         elif day < today:
             classes.append('past')
-            
+        
+        request_json = None    
         for obj in requests:
             if day >= obj.start_date and day <= obj.end_date:
                 classes.extend(['request', obj.status])
                 if day == obj.start_date:
                     classes.append('first')
+                    request_json = simplejson.dumps(obj.to_dict())
                 elif day == obj.end_date:
                     classes.append('last')
-        output.append('<td data-date="%s" class="%s"><span></span></td>' % (day.strftime('%Y-%m-%d'), ' '.join(classes)))
+        output.append('<td data-request=\'%s\' data-date="%s" class="%s"><span></span></td>' % (
+                       request_json, day.strftime('%Y-%m-%d'), ' '.join(classes)))
             
     return ''.join(output)
     
