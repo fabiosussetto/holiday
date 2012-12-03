@@ -22,7 +22,7 @@
 
 {% block pagecontent %}
 
-{% autopaginate object_list 10 %}
+{% autopaginate object_list 100 %}
 
 <div class="row-fluid">
     
@@ -79,6 +79,9 @@
                                 </form>
                             </li>
                             {% endif %}
+                            <li>
+                                <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
+                            </li>
                             <li>
                                 <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
                                     <a class="" href="#">Delete</a>

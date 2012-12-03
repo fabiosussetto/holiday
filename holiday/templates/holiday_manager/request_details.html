@@ -14,13 +14,15 @@
     {% endfor %}
 </table>
 
-<form action="{{ request.get_full_path }}" method="post" class="" id="submit-request">{% csrf_token %}
+{% if next_approval.approver == request.user %}
+<form action="{% url app:request_details curr_project %}?pk={{ next_approval.pk }}" method="post" class="" id="submit-request">{% csrf_token %}
     {{ form.as_p }}
     <div class="form-actions">
         <button type="button" data-status="approved" class="submit btn btn-success">Approve</button>
         <button type="button" data-status="rejected" class="submit btn btn-danger">Reject</button>
     </div>
 </form>
+{% endif %}
 
 {% block extra_js %}
     <script>
@@ -30,7 +32,7 @@
                 e.preventDefault();
                 $('#id_status').val($(this).data('status'));
                 $.post(form.attr('action'), form.serialize(), function(resp) {
-                    console.log(resp);
+                    window.dialog2.dialog2("close");
                 })
             });
         

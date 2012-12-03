@@ -9,6 +9,8 @@ from holiday_manager import views
 app_patterns = patterns('',
     url(r'^$', views.user.Dashboard.as_view(), name='dashboard'),
     
+    url(r'^login_as/(?P<pk>\d+)/$', views.admin.LoginAs.as_view(), name='login_as'),
+    
     url(r'^holiday/submit-request$', views.user.AddHolidayRequest.as_view(), name='holiday_submit'),
     url(r'^holiday/check-request$', views.user.CheckRequestAvailability.as_view(), name='check_request'),
     url(r'^holiday/request-details/$', views.approver.RequestDetails.as_view(), name='request_details'),

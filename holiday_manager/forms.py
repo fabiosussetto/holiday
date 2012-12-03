@@ -95,8 +95,16 @@ class ApproveRequestForm(forms.ModelForm):
         }
         
     def save(self, commit=True):
+        print self.instance
         obj = super(ApproveRequestForm, self).save(commit=False)
-        print self.cleaned_data
+        new_status = self.cleaned_data['status']
+        if new_status == models.HolidayApproval.STATUS.approved:
+            obj.approve()
+        elif new_status == models.HolidayApproval.STATUS.rejected:
+            obj.reject()
+        else:
+            raise Exception("Unknow status: %s" % new_status)
+        return obj
 
         
 class EditProjectSettingsForm(forms.ModelForm):

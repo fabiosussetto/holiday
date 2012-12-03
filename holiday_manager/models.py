@@ -212,6 +212,10 @@ class HolidayRequest(models.Model):
     @property        
     def is_cancellable(self):
         return self.status == HolidayRequest.STATUS.pending
+        
+    def next_pending_approval(self):
+        return self.holidayapproval_set.filter(
+                status=HolidayApproval.STATUS.pending).order_by('order').get()
     
     @property
     def effective_days_span(self):
@@ -229,15 +233,15 @@ class HolidayRequest(models.Model):
         total = sum(1 for day in request_date_range if day.weekday() not in self.project.weekly_closure_days and day not in closure_dates)
         return total
         
-    def clean(self):
-        from django.core.exceptions import ValidationError
-        same_period_requests = HolidayRequest.objects.filter(
-            author=self.author,
-            status__in=(HolidayRequest.STATUS.pending, HolidayRequest.STATUS.approved)
-            ).date_range(self.start_date, self.end_date).count()
-        if same_period_requests:
-            raise ValidationError("You have already an approved or \
-                pending request for the specified period.")
+    #def clean(self):
+    #    from django.core.exceptions import ValidationError
+    #    same_period_requests = HolidayRequest.objects.filter(
+    #        author=self.author,
+    #        status__in=(HolidayRequest.STATUS.pending, HolidayRequest.STATUS.approved)
+    #        ).date_range(self.start_date, self.end_date).count()
+    #    if same_period_requests:
+    #        raise ValidationError("You have already an approved or \
+    #            pending request for the specified period.")
             
     def gcal_sync(self):
         calendar_id = self.project.google_calendar_id

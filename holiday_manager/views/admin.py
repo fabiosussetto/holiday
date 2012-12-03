@@ -13,6 +13,18 @@ from django.contrib import messages
 from paypal.standard.forms import PayPalPaymentsForm
 from holiday_manager.google_calendar import GoogleCalendarApi, calendar_choices
 from django.conf import settings
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import login, get_backends
+
+# Debug views
+class LoginAs(ProjectViewMixin, generic.View):
+
+    def get(self, request, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        backend = get_backends()[0]
+        user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
+        login(request, user)
+        return redirect(reverse('app:dashboard', kwargs={'project': self.curr_project.slug}))
 
 # User management
 

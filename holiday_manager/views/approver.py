@@ -120,9 +120,14 @@ class RequestDetails(ProjectViewMixin, generic.UpdateView):
     def get_context_data(self, **kwargs):
         context = super(RequestDetails, self).get_context_data(**kwargs)
         context.update({
-            'approvals': self.object.holidayapproval_set.all()
+            'approvals': self.object.holidayapproval_set.all(),
+            'next_approval': self.object.next_pending_approval()
         })
         return context
+        
+    def get_success_url(self):
+        # TODO: return a json response instead?
+        return reverse('app:dashboard', kwargs={'project': self.curr_project.slug})
     
         
 # Holiday approvals
