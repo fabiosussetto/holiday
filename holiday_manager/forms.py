@@ -89,7 +89,14 @@ class ApprovalRulesFormset(BaseInlineFormSet):
 class ApproveRequestForm(forms.ModelForm):
     class Meta:
         model = models.HolidayApproval
-        fields = ('notes',)
+        fields = ('notes', 'status')
+        widgets = {
+            'status': forms.HiddenInput()
+        }
+        
+    def save(self, commit=True):
+        obj = super(ApproveRequestForm, self).save(commit=False)
+        print self.cleaned_data
 
         
 class EditProjectSettingsForm(forms.ModelForm):

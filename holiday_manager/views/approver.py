@@ -108,10 +108,11 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
         return queryset.date_range(self.start, self.end).filter(~Q(author=self.request.user)).order_by('author')
         
         
-class RequestDetails(ProjectViewMixin, generic.DetailView):
+class RequestDetails(ProjectViewMixin, generic.UpdateView):
 
     template_name = 'holiday_manager/request_details.html'
     context_object_name = 'holiday_request'
+    form_class = forms.ApproveRequestForm
 
     def get_object(self):
         return get_object_or_404(models.HolidayRequest, pk=self.request.GET.get('pk'))
@@ -122,7 +123,7 @@ class RequestDetails(ProjectViewMixin, generic.DetailView):
             'approvals': self.object.holidayapproval_set.all()
         })
         return context
-        
+    
         
 # Holiday approvals
 
