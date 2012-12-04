@@ -22,6 +22,8 @@ app_patterns = patterns('',
     url(r'^holiday/list(?:/(?P<kind>%s))?$' % views.approver.HolidayRequestList.url_params(), views.approver.HolidayRequestList.as_view(), name='holiday_list'),
     url(r'^holiday/edit/(?P<pk>\d+)$', views.admin.EditHolidayRequest.as_view(), name='holiday_edit'),
     
+    url(r'^approval/(?P<pk>\d+)/process/$', views.approver.ProcessApprovalRequest.as_view(), name='approval_process'),
+    
     url(r'^approval/approvelist/$', views.approver.HolidayApprovalList.as_view(), name='approval_list'),
     url(r'^approval/approve/(?P<pk>\d+)$', views.approver.ApproveRequest.as_view(), name='approval_approve'),
     url(r'^approvals/approvals/reject/(?P<pk>\d+)$', views.approver.RejectApprovalRequest.as_view(), name='approval_reject'),

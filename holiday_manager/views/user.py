@@ -65,7 +65,7 @@ class CheckRequestAvailability(ProjectViewMixin, generic.TemplateView):
         form = forms.AddHolidayRequestForm(data=request.POST, project=self.curr_project)
         form.instance.author = request.user
         if form.is_valid():
-            #form.save()
+            form.save()
             return self.render_to_response({}) 
         else:
             print 'FORM ERRORS'

@@ -1,5 +1,6 @@
 <p>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</p>
 <p>{{ holiday_request.start_date }} - {{ holiday_request.end_date }} ({{ holiday_request.effective_days_span }} effective days)</p>
+<p>Status: {{ holiday_request.status }}</p>
 
 <table class="table table-striped">
     <tr>
@@ -15,7 +16,7 @@
 </table>
 
 {% if next_approval.approver == request.user %}
-<form action="{% url app:request_details curr_project %}?pk={{ next_approval.pk }}" method="post" class="" id="submit-request">{% csrf_token %}
+<form action="{% url app:approval_process pk=next_approval.pk project=curr_project %}" method="post" class="" id="submit-request">{% csrf_token %}
     {{ form.as_p }}
     <div class="form-actions">
         <button type="button" data-status="approved" class="submit btn btn-success">Approve</button>

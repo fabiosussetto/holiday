@@ -214,8 +214,11 @@ class HolidayRequest(models.Model):
         return self.status == HolidayRequest.STATUS.pending
         
     def next_pending_approval(self):
-        return self.holidayapproval_set.filter(
+        try:
+            return self.holidayapproval_set.filter(
                 status=HolidayApproval.STATUS.pending).order_by('order').get()
+        except HolidayApproval.DoesNotExist:
+            return None
     
     @property
     def effective_days_span(self):

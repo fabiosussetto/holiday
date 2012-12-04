@@ -129,6 +129,19 @@ class RequestDetails(ProjectViewMixin, generic.UpdateView):
         # TODO: return a json response instead?
         return reverse('app:dashboard', kwargs={'project': self.curr_project.slug})
     
+
+class ProcessApprovalRequest(ProjectViewMixin, generic.UpdateView):
+    model = models.HolidayApproval
+    form_class = forms.ApproveRequestForm
+    
+    def get_success_url(self):
+        return reverse('app:approval_list', kwargs={'project': self.curr_project.slug})
+    
+    #def form_valid(self, form):
+    #    self.object = form.save(commit=False)
+    #    self.object.approve()
+    #    return super(ApproveRequest, self).form_valid(form)
+        
         
 # Holiday approvals
 
