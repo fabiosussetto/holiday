@@ -43,17 +43,7 @@
                 {{ request.user }}
             </div>
             {% for team, members in object_list %}
-                    <div class="team-row" data-target="{{ team.pk }}">
-                        {{ team }} <i class="icon-chevron-down"></i>
-                    </div>
-                    <div id="users-group-{{ team.pk }}">
-                    {% for author, _ in members %}
-                        <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
-                            <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
-                            {{ author }} 
-                        </div>
-                    {% endfor %}
-                    </div>
+                {% include 'holiday_manager/elements/calendar_user.html' %}
             {% endfor %}
         </div>
         <div class="scroll-wrap">
@@ -82,9 +72,7 @@
                         </tr>
                         <tbody id="days-group-{{ team.pk }}">
                             {% for author, requests in members %}
-                                <tr class="user-row" id="user-{{ author.pk }}" data-user-id="{{ author.pk }}">
-                                    {% in_date_range requests week_days %}
-                                </tr>
+                                {% include 'holiday_manager/elements/calendar_days.html' %}
                             {% endfor %}
                         </tbody>
                     {% endfor %}
@@ -139,6 +127,8 @@
 {% block extra_js %}
     <script src="{{ STATIC_URL }}dialog2/jquery.dialog2.js"></script>
     <script src="{{ STATIC_URL }}js/underscore-min.js"></script>
+    <script src="{{ STATIC_URL }}js/backbone-min.js"></script>
+    <script src="{{ STATIC_URL }}js/calendar.js"></script>
     <script>
         $.fn.scrollTo = function( target, options, callback ){
             if(typeof options == 'function' && arguments.length == 2){ callback = options; options = target; }

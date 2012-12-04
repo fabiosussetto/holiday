@@ -1,0 +1,5 @@
+{% load misc %}
+
+<tr class="user-row" id="user-{{ author.pk }}" data-user-id="{{ author.pk }}">
+    {% in_date_range requests week_days %}
+</tr>
