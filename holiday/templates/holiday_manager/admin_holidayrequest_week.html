@@ -92,8 +92,8 @@
                     <div class="popover bottom" id="submit">
                         <div class="arrow"></div>
                         <div class="popover-content">
-                          <a class="btn btn-success">Submit request</a>
-                          <a class="btn">Cancel</a>
+                          <a class="btn btn-success new-request">Submit request</a>
+                          <a class="btn cancel">Cancel</a>
                         </div>
                     </div>
                     <div class="popover bottom" id="request-data"></div>
@@ -177,7 +177,7 @@
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
-        $("#submit a").click(function(event) {
+        $("#submit .new-request").click(function(event) {
             event.preventDefault();
             window.dialog2 = $('<div/>').dialog2({
                 title: "Submit request", 
@@ -191,6 +191,10 @@
                 }
             });
             $('#submit').hide();
+        });
+        
+        $("#submit .cancel").click(function(event) {
+            clear_selection();
         });
         
         $('body').on("dialog2.closed", function() {
@@ -293,6 +297,8 @@
             show_popup(find_selection(self));
         });
         
+        var start_index = null;
+        
         $(".table-scroll").on({
             click: function(e) {
                 if (!selecting) {
@@ -328,6 +334,9 @@
                     return;
                 }
                 var self = $(this);
+                if (self.index() < start.index()) {
+                    return;
+                }
                 is_selected = self.hasClass("highlighted");
                 if (is_selected) {
                     $('.selection-last').removeClass('selection-last');
