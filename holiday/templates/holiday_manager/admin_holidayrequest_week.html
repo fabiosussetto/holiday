@@ -241,6 +241,8 @@
         function clear_selection() {
             $('.table-scroll .current-user .highlighted').removeClass("highlighted selection-first selection-last");
             $('#submit').hide();
+            selecting = false;
+            selected = false;
         }
         
         var start, end;
