@@ -64,7 +64,7 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
             self.start = today - relativedelta(days=10)
             self.end = today + relativedelta(months=1)
             
-            # debug
+            # debug FF performances
             #self.start = datetime.date(2012, 11, 23)
             #self.end = datetime.date(2012, 12, 1)
             
@@ -92,12 +92,15 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
         context.update({
             'week_days': self.week_days,
             'filter_form': self.filterform,
-            'user_requests': models.HolidayRequest.objects.date_range(self.start, self.end).filter(author=self.request.user)
+            'user_requests': models.HolidayRequest.objects.date_range(self.start, self.end).filter(author=self.request.user),
+            'other_groups': models.ApprovalGroup.objects.exclude(id=self.request.user.approval_group.pk)
         })
         
         if not self.filter_by_date:
             context.update({
-                'next': int(time.mktime(self.next.timetuple())),
+                'start': int(time.mktime(self.start.timetuple())),
+                'end': int(time.mktime(self.end.timetuple())),
+                'next': int(time.mktime(self.end.timetuple())),
                 'prev': int(time.mktime(self.prev.timetuple())),
             })
         
@@ -105,11 +108,35 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
+        queryset = queryset.filter(author__approval_group=self.request.user.approval_group)
         return queryset.date_range(self.start, self.end).filter(~Q(author=self.request.user)).order_by('author')
         
         
+class GroupHolidays(ProjectViewMixin, generic.DetailView):
+    template_name = 'holiday_manager/group_ajax.html'
+    model = models.ApprovalGroup
+    
+    def get(self, request, *args, **kwargs):
+        self.start = datetime.datetime.fromtimestamp(int(request.GET.get('start')))
+        self.end = datetime.datetime.fromtimestamp(int(request.GET.get('end')))
+        return super(GroupHolidays, self).get(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super(GroupHolidays, self).get_context_data(**kwargs)
+        queryset = models.HolidayRequest.objects.filter(author__approval_group=self.object)
+        queryset = queryset.date_range(self.start, self.end).order_by('author')
+        
+        groups = []
+        for author, requests in itertools.groupby(queryset, lambda x: x.author):
+            groups.append((author, list(requests)))
+        context.update({
+            'object_list': groups,
+            'week_days': list(date_range(self.start, self.end))
+        })
+        return context
+        
+        
 class RequestDetails(ProjectViewMixin, generic.UpdateView):
-
     template_name = 'holiday_manager/request_details.html'
     context_object_name = 'holiday_request'
     form_class = forms.ApproveRequestForm

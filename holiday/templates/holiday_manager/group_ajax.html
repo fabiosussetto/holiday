@@ -1,0 +1,20 @@
+<div id="data-users">
+    {% for author, _ in object_list %}
+        <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
+            {{ author }} 
+        </div>
+    {% endfor %}
+</div>
+
+<div id="data-requests">
+    <table>
+    <tr class="team-row">
+        {% for day in week_days %}
+            <td class="day"></td>
+        {% endfor %}    
+    </tr>
+    {% for author, requests in object_list %}
+        {% include 'holiday_manager/elements/calendar_days.html' %}
+    {% endfor %}
+    </table>
+</div>

@@ -45,6 +45,11 @@
             {% for team, members in object_list %}
                 {% include 'holiday_manager/elements/calendar_user.html' %}
             {% endfor %}
+            {% for team in other_groups %}
+                <div id="team-row-{{ team.pk }}" class="team-row load-group" href="{% url app:group_ajax project=curr_project pk=team.pk %}?start={{ start }}&end={{ end }}" data-target="{{ team.pk }}">
+                    {{ team }} <i class="icon-chevron-down"></i>
+                </div>
+            {% endfor %}
         </div>
         <div class="scroll-wrap">
             <div class="shade"></div>
@@ -75,6 +80,11 @@
                                 {% include 'holiday_manager/elements/calendar_days.html' %}
                             {% endfor %}
                         </tbody>
+                        {% for team in other_groups %}
+                            <tbody id="days-group-{{ team.pk }}">
+                                <tr class="user-row"></tr>
+                            </tbody>
+                        {% endfor %}
                     {% endfor %}
                 </table>
                     <div class="popover bottom" id="submit">
@@ -165,6 +175,17 @@
             });
         }
         
+        $('.load-group').click(function(e){
+            e.preventDefault();
+            var self = $(this);
+            $.get($(this).attr('href'), function(resp) {
+                var data = $('<div />').html(resp);
+                $('#team-row-' + self.data('target')).after(data.find('#data-users').html());
+                console.log(data.find('#data-requests').html());
+                $('#days-group-' + self.data('target')).empty().html(data.find('#data-requests').html());
+            });
+        });
+        
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
         $("#submit .new-request").click(function(event) {
@@ -224,8 +245,8 @@
         $('.user-rows .team-row').click(function(e) {
             e.preventDefault();
             var group_id = $(this).data('target');
-            $('#users-group-' + group_id).toggle();
-            $('#days-group-' + group_id).toggle();
+            //$('#users-group-' + group_id).toggle();
+            //$('#days-group-' + group_id).toggle();
         });
         
         function clear_selection() {
