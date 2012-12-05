@@ -1,9 +1,11 @@
 <div id="data-users">
-    {% for author, _ in object_list %}
-        <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
-            {{ author }} 
-        </div>
-    {% endfor %}
+    <div id="users-group-{{ object.pk }}">
+        {% for author, _ in object_list %}
+            <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
+                {{ author }} 
+            </div>
+        {% endfor %}
+    </div>
 </div>
 
 <div id="data-requests">

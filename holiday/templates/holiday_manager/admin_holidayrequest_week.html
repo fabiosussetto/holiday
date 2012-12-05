@@ -175,17 +175,6 @@
             });
         }
         
-        $('.load-group').click(function(e){
-            e.preventDefault();
-            var self = $(this);
-            $.get($(this).attr('href'), function(resp) {
-                var data = $('<div />').html(resp);
-                $('#team-row-' + self.data('target')).after(data.find('#data-users').html());
-                console.log(data.find('#data-requests').html());
-                $('#days-group-' + self.data('target')).empty().html(data.find('#data-requests').html());
-            });
-        });
-        
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
         $("#submit .new-request").click(function(event) {
@@ -244,9 +233,19 @@
         
         $('.user-rows .team-row').click(function(e) {
             e.preventDefault();
+            var self = $(this);
+            if (!self.hasClass('loaded')) {
+                $.get($(this).attr('href'), function(resp) {
+                    var data = $('<div />').html(resp);
+                    $('#team-row-' + self.data('target')).after(data.find('#data-users').html());
+                    $('#days-group-' + self.data('target')).empty().html(data.find('#data-requests').html());
+                    self.addClass('loaded');
+                });
+                return;
+            }
             var group_id = $(this).data('target');
-            //$('#users-group-' + group_id).toggle();
-            //$('#days-group-' + group_id).toggle();
+            $('#users-group-' + group_id).toggle();
+            $('#days-group-' + group_id).toggle();
         });
         
         function clear_selection() {

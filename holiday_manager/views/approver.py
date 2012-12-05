@@ -88,12 +88,16 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
             team_groups.append((team, list(members)))
             
         context['object_list'] = team_groups
+        
+        other_groups = []
+        if self.request.user.approval_group:
+            other_groups = models.ApprovalGroup.objects.exclude(id=self.request.user.approval_group.pk)
 
         context.update({
             'week_days': self.week_days,
             'filter_form': self.filterform,
             'user_requests': models.HolidayRequest.objects.date_range(self.start, self.end).filter(author=self.request.user),
-            'other_groups': models.ApprovalGroup.objects.exclude(id=self.request.user.approval_group.pk)
+            'other_groups': other_groups
         })
         
         if not self.filter_by_date:
@@ -108,7 +112,8 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
-        queryset = queryset.filter(author__approval_group=self.request.user.approval_group)
+        if self.request.user.approval_group:
+            queryset = queryset.filter(author__approval_group=self.request.user.approval_group)
         return queryset.date_range(self.start, self.end).filter(~Q(author=self.request.user)).order_by('author')
         
         
