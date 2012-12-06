@@ -88,13 +88,23 @@ var SelectionPopupView = Backbone.View.extend({
     events: {
         'click .new-request': function(e) {
             e.preventDefault();
-            $('#myModal').modal({
+            console.log(this.parent.selection.last);
+            modal = new Modal($('#myModal'), {
+                backdrop: true,
                 remote: this.$el.data('url'),
                 remote_data: {
                     start_date: this.parent.selection.first.data('date'),
                     end_date: this.parent.selection.last.data('date')
-                }
+                }    
             });
+            modal.show();
+            //$('#myModal').modal({
+            //    remote: this.$el.data('url'),
+            //    remote_data: {
+            //        start_date: this.parent.selection.first.data('date'),
+            //        end_date: this.parent.selection.last.data('date')
+            //    }
+            //});
             //window.dialog2 = $('<div/>').dialog2({
             //    title: "Submit request", 
             //    content: this.$el.data('url'), 
@@ -160,7 +170,7 @@ var CalendarView  = Backbone.View.extend({
                 this.clear_selection();
                 this.popup_view.hide();
                 // first click, selection starts
-                this.selection.first = this.selection.last = $(e.target);
+                this.selection.first = this.selection.last = curr_td;
                 this.selection.first.addClass('highlighted selection-first selection-last');
                 this.selection_active = true;
                 return;
@@ -172,7 +182,7 @@ var CalendarView  = Backbone.View.extend({
             }
             
             this.selection_active = false;
-            this.selection.last = $(e.target);
+            this.selection.last = curr_td;
             var selected_tds = $('#current-user-row .highlighted');
             if (!selected_tds.length) {
                 return;

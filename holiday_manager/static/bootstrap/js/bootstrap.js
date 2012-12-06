@@ -753,23 +753,29 @@
   var Modal = function (element, options) {
     this.options = options
     this.$element = $(element)
-      .delegate('[data-dismiss="modal"]', 'click.dismiss.modal', $.proxy(this.hide, this))
-    if (this.options.remote) {
-        var self = this;
-        $.get(this.options.remote, this.options.remote_data, function(data) {
-            self.$element.find('.modal-body').html(data);
-        });
-        //this.$element.find('.modal-body').load(this.options.remote, this.options.remote_data)
-    }
+      .delegate('[data-dismiss="modal"]', 'click.dismiss.modal', $.proxy(this.hide, this));
   }
 
   Modal.prototype = {
 
       constructor: Modal
-
-    , toggle: function () {
+      
+    , load: function () {
+        if (this.options.remote) {
+            var self = this;
+            $.ajax({
+                data: this.options.remote_data,
+                url: this.options.remote,
+                cache: false,
+                success: function(data) {
+                    self.$element.find('.modal-body').html(data);
+                }
+            });
+        }      
+    },
+    toggle: function () {
         return this[!this.isShown ? 'show' : 'hide']()
-      }
+    }
 
     , show: function () {
         var that = this
@@ -811,6 +817,8 @@
             that.$element.trigger('shown')
 
         })
+        
+        this.load();
       }
 
     , hide: function (e) {
@@ -921,7 +929,8 @@
         }
       }
   }
-
+    
+    window.Modal = Modal;
 
  /* MODAL PLUGIN DEFINITION
   * ======================= */
