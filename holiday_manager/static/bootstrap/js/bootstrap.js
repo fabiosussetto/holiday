@@ -754,7 +754,13 @@
     this.options = options
     this.$element = $(element)
       .delegate('[data-dismiss="modal"]', 'click.dismiss.modal', $.proxy(this.hide, this))
-    this.options.remote && this.$element.find('.modal-body').load(this.options.remote)
+    if (this.options.remote) {
+        var self = this;
+        $.get(this.options.remote, this.options.remote_data, function(data) {
+            self.$element.find('.modal-body').html(data);
+        });
+        //this.$element.find('.modal-body').load(this.options.remote, this.options.remote_data)
+    }
   }
 
   Modal.prototype = {
@@ -933,6 +939,7 @@
 
   $.fn.modal.defaults = {
       backdrop: true
+    , remote_data: {}
     , keyboard: true
     , show: true
   }

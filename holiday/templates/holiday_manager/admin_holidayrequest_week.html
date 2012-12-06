@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block tabcontent %}
-    <div class="btn-toolbar">
+    <div class="btn-toolbar cal-toolbar well">
         <div class="btn-group">
             <button class="btn" id="toggle-compact">Compact</button>
         </div>
@@ -28,10 +28,11 @@
             <button class="btn" id="filter-clear">Clear</button>
         </div>
         <div class="btn-group" data-toggle="buttons-radio">
-            <button type="button" class="btn">All</button>
-            <button type="button" class="btn">Pending</button>
-            <button type="button" class="btn">Approved</button>
-            <button type="button" class="btn">Rejected</button>
+            <a class="btn ajax" href="{% url app:holiday_weekly curr_project %}">All</a>
+            <a class="btn ajax" href="{% url app:holiday_weekly project=curr_project kind='pending' %}">Pending</a>
+            <a class="btn ajax" href="{% url app:holiday_weekly project=curr_project kind='approved' %}">Approved</a>
+            <a class="btn ajax" href="{% url app:holiday_weekly project=curr_project kind='rejected' %}">Rejected</a>
+            <a class="btn ajax" href="{% url app:holiday_weekly project=curr_project kind='expired' %}">Expired</a>
         </div>
     </div>
     
@@ -60,12 +61,15 @@
                             <th class="cal-day">
                                 <span class="date-month">{{ day|date:"N" }}</span>
                                 <span class="date-day">
-                                    {{ day|date:"D j" }}
+                                    {{ day|date:"j" }}
+                                </span>
+                                <span class="date-day-name">
+                                    {{ day|date:"D" }}
                                 </span>
                             </th>
                         {% endfor %}
                     </tr>
-                    <tr class="user-row current-user">
+                    <tr class="user-row" id="current-user-row">
                         {% in_date_range user_requests week_days %}
                     </tr>
                     
@@ -87,7 +91,7 @@
                         {% endfor %}
                     {% endfor %}
                 </table>
-                    <div class="popover bottom" id="submit">
+                    <div class="popover bottom" id="submit" data-url="{% url app:check_request curr_project %}">
                         <div class="arrow"></div>
                         <div class="popover-content">
                           <a class="btn btn-success new-request">Submit request</a>
@@ -95,6 +99,19 @@
                         </div>
                     </div>
                     <div class="popover bottom" id="request-data"></div>
+            </div>
+        </div>
+        <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Modal header</h3>
+            </div>
+            <div class="modal-body">
+            <p>One fine body…</p>
+            </div>
+            <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
@@ -188,25 +205,22 @@
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
-        $("#submit .new-request").click(function(event) {
-            event.preventDefault();
-            window.dialog2 = $('<div/>').dialog2({
-                title: "Submit request", 
-                content: '{% url app:check_request curr_project %}', 
-                id: "server-notice",
-                ajax: {
-                    data: {
-                        start_date: $('.highlighted').first().data('date'),
-                        end_date: $('.highlighted').last().data('date')
-                    }
-                }
-            });
-            $('#submit').hide();
-        });
+        //$("#submit .new-request").click(function(event) {
+        //    event.preventDefault();
+        //    window.dialog2 = $('<div/>').dialog2({
+        //        title: "Submit request", 
+        //        content: '{% url app:check_request curr_project %}', 
+        //        id: "server-notice",
+        //        ajax: {
+        //            data: {
+        //                start_date: $('.highlighted').first().data('date'),
+        //                end_date: $('.highlighted').last().data('date')
+        //            }
+        //        }
+        //    });
+        //    $('#submit').hide();
+        //});
         
-        $("#submit .cancel").click(function(event) {
-            clear_selection();
-        });
         
         $('body').on("dialog2.closed", function() {
             clear_selection();
@@ -249,15 +263,6 @@
             //$('#days-group-' + group_id).toggle();
         });
         
-        function clear_selection() {
-            $('.table-scroll .current-user .highlighted').removeClass("highlighted selection-first selection-last");
-            $('#submit').hide();
-            selecting = false;
-            selected = false;
-        }
-        
-        var start, end;
-        var selecting, selected = false;
         var popover_template = _.template($('#template-popover').html());
         var request_popover = $('#request-data');
         
@@ -280,7 +285,6 @@
             var hl_last_pos = selected_tds.last().position().left + scroll_offset;
             var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#request-data').outerWidth() + selected_tds.first().outerWidth()) / 2;
             var request_obj = $(selected_tds[0]).data('request');
-            console.log(request_obj);
             request_popover.data('request', request_obj);
             request_popover.html(popover_template(request_obj));
             
@@ -310,58 +314,7 @@
             show_popup(find_selection(self));
         });
         
-        var start_index = null;
-        
-        $(".table-scroll").on({
-            click: function(e) {
-                if (!selecting) {
-                    if (selected) {
-                        selected = false;
-                        selecting = false;
-                        return clear_selection();
-                    }
-                    start = $(this);
-                    $('.highlighted').removeClass('highlighted selection-first selection-last');
-                    start.addClass('highlighted selection-first selection-last');
-                } else {
-                    end = $(this);
-                    var selected_tds = $('.current-user .highlighted');
-                    if (!selected_tds.length) {
-                        return;
-                    }
-                    selected = true;
-                    var scroll_offset = $('.table-scroll').scrollLeft();
-                    var top = selected_tds.first().position().top + 35;
-                    var hl_first_pos = selected_tds.first().position().left + scroll_offset;
-                    var hl_last_pos = selected_tds.last().position().left + scroll_offset;
-                    var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#submit').outerWidth() + selected_tds.first().outerWidth()) / 2;
-                    $('#submit').css({
-                        top: top,
-                        left: left_pos
-                    }).show();
-                }
-                selecting = !selecting;
-            },
-            mouseenter: function(e) {
-                if (!selecting) {
-                    return;
-                }
-                var self = $(this);
-                if (self.index() < start.index()) {
-                    return;
-                }
-                is_selected = self.hasClass("highlighted");
-                if (is_selected) {
-                    $('.selection-last').removeClass('selection-last');
-                    self.addClass('selection-last');
-                    $('.selection-last').nextAll('.highlighted').removeClass('highlighted');
-                } else {
-                    $('.selection-last').removeClass('selection-last');
-                    self.toggleClass('highlighted selection-last');
-                    $('.selection-first').nextUntil('.selection-last').removeClass('selection-last').addClass('highlighted');
-                }
-            }
-        }, '.current-user td');
+        calendar_view = new CalendarView({el: $('.scroll-wrap')}).render();
         
         $(document).click(function(e) {
             if (!$(e.target).is('.table-scroll td.request, .table-scroll td.request span')) {
