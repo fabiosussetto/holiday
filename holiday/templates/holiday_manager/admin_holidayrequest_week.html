@@ -101,7 +101,7 @@
                     <div class="popover bottom" id="request-data"></div>
             </div>
         </div>
-        <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div id="myModal" class="modal hide fade" role="dialog">
             <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="myModalLabel">Modal header</h3>
@@ -193,23 +193,6 @@
         }
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
-        
-        //$("#submit .new-request").click(function(event) {
-        //    event.preventDefault();
-        //    window.dialog2 = $('<div/>').dialog2({
-        //        title: "Submit request", 
-        //        content: '{% url app:check_request curr_project %}', 
-        //        id: "server-notice",
-        //        ajax: {
-        //            data: {
-        //                start_date: $('.highlighted').first().data('date'),
-        //                end_date: $('.highlighted').last().data('date')
-        //            }
-        //        }
-        //    });
-        //    $('#submit').hide();
-        //});
-        
         
         $('body').on("dialog2.closed", function() {
             clear_selection();
