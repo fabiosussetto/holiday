@@ -760,18 +760,29 @@
 
       constructor: Modal
       
-    , load: function () {
-        if (this.options.remote) {
-            var self = this;
-            $.ajax({
-                data: this.options.remote_data,
-                url: this.options.remote,
-                cache: false,
-                success: function(data) {
-                    self.$element.find('.modal-body').html(data);
-                }
-            });
+    , load: function (options) {
+        var options = $.extend(this.options, options || {});
+        var self = this;
+        if (!options.ajax.success) {
+            options.ajax.success = function(data) {
+                var fragments = self.parseBody(data);
+                self.$element.find('.modal-header').html(fragments.header);
+                self.$element.find('.modal-body').html(fragments.body);
+                self.$element.find('.modal-footer').html(fragments.footer);
+            }
+        }
+        if (options.ajax) {
+            $.ajax(options.ajax);
         }      
+    },
+    parseBody: function(raw_html) {
+        var html = $('<div />').html(raw_html);
+        var data = {
+            header: html.find('#modal-header'),
+            body: html.find('#modal-body'),
+            footer: html.find('#modal-footer')
+        }
+        return data;
     },
     toggle: function () {
         return this[!this.isShown ? 'show' : 'hide']()

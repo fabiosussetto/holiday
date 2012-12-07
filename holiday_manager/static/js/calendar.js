@@ -89,13 +89,35 @@ var SelectionPopupView = Backbone.View.extend({
         'click .new-request': function(e) {
             e.preventDefault();
             console.log(this.parent.selection.last);
+            var self = this;
             modal = new Modal($('#myModal'), {
                 backdrop: true,
-                remote: this.$el.data('url'),
-                remote_data: {
-                    start_date: this.parent.selection.first.data('date'),
-                    end_date: this.parent.selection.last.data('date')
-                }    
+                ajax: {
+                    url: this.$el.data('url'),
+                    data: {
+                        start_date: this.parent.selection.first.data('date'),
+                        end_date: this.parent.selection.last.data('date')
+                    }
+                },
+            });
+            modal.$element.on('hide', function() {
+                self.parent.clear_selection();
+            });
+            modal.$element.on('click', '.submit', function(e) {
+                e.preventDefault();
+                var form = modal.$element.find('form');
+                modal.load({
+                    ajax: {
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize()
+                    }
+                });
+            });
+            modal.$element.on('click', '.done', function(e) {
+                e.preventDefault();
+                modal.hide();
+                get_page(modal.$element.data('page-url'));
             });
             modal.show();
             //$('#myModal').modal({
@@ -218,6 +240,3 @@ var CalendarView  = Backbone.View.extend({
     render: function() {
     }
 });
-
-
-

@@ -70,7 +70,7 @@ $(document).ready(function() {
 $(document).ready(function(){
     var $loader = $('#content-overlay');
     
-    var get_page = function(url) {
+    window.get_page = function(url) {
         $loader.show();
         $.get(url, function(template) {
             window.history.replaceState({}, document.title, url);
