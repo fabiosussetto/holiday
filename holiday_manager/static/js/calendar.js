@@ -1,82 +1,3 @@
-/* Simple JavaScript Inheritance
- * By John Resig http://ejohn.org/
- * MIT Licensed.
- */
-// Inspired by base2 and Prototype
-(function(){
-  var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
-  // The base Class implementation (does nothing)
-  this.Class = function(){};
-  
-  // Create a new Class that inherits from this class
-  Class.extend = function(prop) {
-    var _super = this.prototype;
-    
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    initializing = true;
-    var prototype = new this();
-    initializing = false;
-    
-    // Copy the properties over onto the new prototype
-    for (var name in prop) {
-      // Check if we're overwriting an existing function
-      prototype[name] = typeof prop[name] == "function" && 
-        typeof _super[name] == "function" && fnTest.test(prop[name]) ?
-        (function(name, fn){
-          return function() {
-            var tmp = this._super;
-            
-            // Add a new ._super() method that is the same method
-            // but on the super-class
-            this._super = _super[name];
-            
-            // The method only need to be bound temporarily, so we
-            // remove it when we're done executing
-            var ret = fn.apply(this, arguments);        
-            this._super = tmp;
-            
-            return ret;
-          };
-        })(name, prop[name]) :
-        prop[name];
-    }
-    
-    // The dummy class constructor
-    function Class() {
-      // All construction is actually done in the init method
-      if ( !initializing && this.init )
-        this.init.apply(this, arguments);
-    }
-    
-    // Populate our constructed prototype object
-    Class.prototype = prototype;
-    
-    // Enforce the constructor to be what we expect
-    Class.prototype.constructor = Class;
-
-    // And make this class extendable
-    Class.extend = arguments.callee;
-    
-    return Class;
-  };
-})();
-
-var Selection = Class.extend({
-    start_elem: null,
-    end_elem: null,
-    init: function(start, end){
-        this.start_elem = start;
-        this.end_elem = end;
-    },
-    start: function(elem) {
-        this.start_elem = elem;
-    },
-    update: function() {
-    
-    }
-});
-
 var UserListView = Backbone.View.extend({
     events: {
     },
@@ -84,11 +5,72 @@ var UserListView = Backbone.View.extend({
     }
 });
 
-var SelectionPopupView = Backbone.View.extend({
+var BasePopupView = Backbone.View.extend({
+    initialize: function(options) {
+        this.parent = options.parent;
+    },
+    place: function(selection, viewport, show) {
+        show = show || true;
+        var scroll_offset = viewport.scrollLeft();
+        var first_pos = selection.first.position();
+        var last_pos = selection.last.position();
+        var first_x = first_pos.left + scroll_offset;
+        var last_x = last_pos.left + scroll_offset;
+        
+        var left = first_x + (last_x - first_x - this.$el.outerWidth() + selection.first.outerWidth()) / 2;
+        this.$el.css({
+            top: first_pos.top + 28,
+            left: left
+        });
+        if (show) {
+            this.show();
+        }
+    },
+    show: function () {
+        this.$el.show();
+    },
+    hide: function () {
+        this.$el.hide();
+    }
+});
+
+
+var InfoPopupView = BasePopupView.extend({
+    template: _.template($('#template-popover').html()),
+    events: {
+        'click .request-details': function(e) {
+            e.preventDefault();
+            request_obj = request_popover.data('request');
+            var self = this;
+            modal = new Modal($('#myModal'), {
+                backdrop: true,
+                ajax: {
+                    url: this.$el.data('url'),
+                    data: {
+                        start_date: this.parent.selection.first.data('date'),
+                        end_date: this.parent.selection.last.data('date')
+                    }
+                },
+            });
+            modal.show();
+            this.hide();
+        },
+        'click .cancel': function(e) {
+            e.preventDefault();
+            this.hide();
+        }
+    },
+    render: function(requested_data) {
+        this.$el.html(this.template(requested_data));
+        return this;
+    }
+});
+
+
+var SelectionPopupView = BasePopupView.extend({
     events: {
         'click .new-request': function(e) {
             e.preventDefault();
-            console.log(this.parent.selection.last);
             var self = this;
             modal = new Modal($('#myModal'), {
                 backdrop: true,
@@ -120,24 +102,6 @@ var SelectionPopupView = Backbone.View.extend({
                 get_page(modal.$element.data('page-url'));
             });
             modal.show();
-            //$('#myModal').modal({
-            //    remote: this.$el.data('url'),
-            //    remote_data: {
-            //        start_date: this.parent.selection.first.data('date'),
-            //        end_date: this.parent.selection.last.data('date')
-            //    }
-            //});
-            //window.dialog2 = $('<div/>').dialog2({
-            //    title: "Submit request", 
-            //    content: this.$el.data('url'), 
-            //    id: "server-notice",
-            //    ajax: {
-            //        data: {
-            //            start_date: this.parent.selection.first.data('date'),
-            //            end_date: this.parent.selection.last.data('date')
-            //        }
-            //    }
-            //});
             this.hide();
         },
         'click .cancel': function(e) {
@@ -145,33 +109,7 @@ var SelectionPopupView = Backbone.View.extend({
             this.trigger('cancel_selection');
             this.hide();
         }
-    },
-    initialize: function(options) {
-        this.parent = options.parent;
-    },
-    place: function(selection, viewport, show) {
-        show = show || true;
-        var scroll_offset = viewport.scrollLeft();
-        var first_pos = selection.first.position();
-        var last_pos = selection.last.position();
-        var first_x = first_pos.left + scroll_offset;
-        var last_x = last_pos.left + scroll_offset;
-        
-        var left = first_x + (last_x - first_x - this.$el.outerWidth() + selection.first.outerWidth()) / 2;
-        this.$el.css({
-            top: first_pos.top + 28,
-            left: left
-        });
-        if (show) {
-            this.show();
-        }
-    },
-    show: function () {
-        this.$el.show();
-    },
-    hide: function () {
-        this.$el.hide();
-    },
+    }
 });
 
 var CalendarView  = Backbone.View.extend({
@@ -179,12 +117,17 @@ var CalendarView  = Backbone.View.extend({
     selection: {first: null, last: null},
     viewport: $('.table-scroll'),
     initialize: function(options) {
-        this.popup_view = new SelectionPopupView({el: $('#submit'), parent: this})
+        this.popup_view = new SelectionPopupView({el: $('#submit'), parent: this});
         this.popup_view.on('cancel_selection', this.clear_selection);
+        
+        this.info_popup_view = new InfoPopupView({el: $('#request-data'), parent: this});
     },
     events: {
         'click #current-user-row td': function(e) {
             var curr_td = $(e.currentTarget);
+            if (curr_td.hasClass('request')) {
+                return;
+            }
             if (!this.selection_active && curr_td.hasClass("highlighted")) {
                 return;
             }
@@ -231,12 +174,33 @@ var CalendarView  = Backbone.View.extend({
                 this.selection.last = curr_td;
                 this.selection.first.nextUntil('.selection-last').removeClass('selection-last').addClass('highlighted');
             }
+        },
+        'click .request': function(e) {
+            var selection = this.find_selection($(e.currentTarget));
+            var request_obj = $(selection[0]).data('request');
+            var selection = {first: $(selection[0]), last: $(selection[selection.length - 1])}
+            this.info_popup_view.render(request_obj).place(selection, this.viewport);
         }
     },
     clear_selection: function() {
         $('#current-user-row .highlighted').removeClass("highlighted selection-first selection-last");
         this.selection = {first: null, last: null}
     },
+    find_selection: function(td) {
+        // TODO: use native js to improve performances
+        if (td.hasClass('first')) {
+            var selection = td.nextUntil('.last +').add(td);
+        } else {
+            var first = td.prevUntil('.first');
+            if (first.length) {
+                var selection = first.prev().add(td.nextUntil('.last +')).add(td);
+            } else {
+                var selection = td.prev().add(td.nextUntil('.last +')).add(td);
+            }
+        }
+        return selection;
+    },
     render: function() {
+        return this;
     }
 });

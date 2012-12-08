@@ -79,7 +79,7 @@
                                 <td class="day"></td>
                             {% endfor %}    
                         </tr>
-                        <tbody id="days-group-{{ team.pk }}">
+                        <tbody id="days-group-{{ team.pk }}" class="request-days">
                             {% for author, requests in members %}
                                 {% include 'holiday_manager/elements/calendar_days.html' %}
                             {% endfor %}
@@ -91,14 +91,14 @@
                         {% endfor %}
                     {% endfor %}
                 </table>
-                    <div class="popover bottom" id="submit" data-url="{% url app:check_request curr_project %}">
-                        <div class="arrow"></div>
-                        <div class="popover-content">
-                          <a class="btn btn-success new-request">Submit request</a>
-                          <a class="btn cancel">Cancel</a>
-                        </div>
+                <div class="popover bottom" id="submit" data-url="{% url app:check_request curr_project %}">
+                    <div class="arrow"></div>
+                    <div class="popover-content">
+                      <a class="btn btn-success new-request">Submit request</a>
+                      <a class="btn cancel">Cancel</a>
                     </div>
-                    <div class="popover bottom" id="request-data"></div>
+                </div>
+                <div class="popover bottom" id="request-data"></div>
             </div>
         </div>
         <div id="myModal" class="modal hide fade" role="dialog" data-page-url="{{ request.path }}">
@@ -155,6 +155,11 @@
     <script src="{{ STATIC_URL }}dialog2/jquery.dialog2.js"></script>
     <script src="{{ STATIC_URL }}js/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/backbone-min.js"></script>
+    <script>
+        var app_urls = {
+            requestDedatils: '{% url app:request_details curr_project %}'
+        };
+    </script>
     <script src="{{ STATIC_URL }}js/calendar.js"></script>
     <script>
         $.fn.scrollTo = function( target, options, callback ){
@@ -194,9 +199,6 @@
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
-        $('body').on("dialog2.closed", function() {
-            clear_selection();
-        });
         
         $('.user-rows .user-row').click(function(e) {
             $(this).toggleClass('selected');
@@ -245,69 +247,18 @@
             $('#days-group-' + group_id).toggle();
         });
         
-        var popover_template = _.template($('#template-popover').html());
-        var request_popover = $('#request-data');
-        
-        request_popover.on('click', '.show-details', function(e) {
-            e.preventDefault();
-            request_obj = request_popover.data('request');
-            window.dialog2 = $('<div/>').dialog2({
-                title: "Request details", 
-                content: '{% url app:request_details curr_project %}?pk=' + request_obj.pk 
-            });
-        });
-        
-        var show_popup = function(selected_tds) {
-            if (!selected_tds.length) {
-                return;
-            }
-            var scroll_offset = $('.table-scroll').scrollLeft();
-            var top = selected_tds.first().position().top + 24;
-            var hl_first_pos = selected_tds.first().position().left + scroll_offset;
-            var hl_last_pos = selected_tds.last().position().left + scroll_offset;
-            var left_pos = hl_first_pos + (hl_last_pos - hl_first_pos - $('#request-data').outerWidth() + selected_tds.first().outerWidth()) / 2;
-            var request_obj = $(selected_tds[0]).data('request');
-            request_popover.data('request', request_obj);
-            request_popover.html(popover_template(request_obj));
-            
-            request_popover.css({
-                top: top,
-                left: left_pos
-            }).show();
-        }
-        
-        var find_selection = function(td) {
-            // TODO: use native js to improve performances
-            if (td.hasClass('first')) {
-                var selection = td.nextUntil('.last +').add(td);
-            } else {
-                var first = td.prevUntil('.first');
-                if (first.length) {
-                    var selection = first.prev().add(td.nextUntil('.last +')).add(td);
-                } else {
-                    var selection = td.prev().add(td.nextUntil('.last +')).add(td);
-                }
-            }
-            return selection;
-        }
-        
-        $(".table-scroll").on('click', '.request', function() {
-            var self = $(this);
-            show_popup(find_selection(self));
-        });
-        
         calendar_view = new CalendarView({el: $('.scroll-wrap')}).render();
         
         $(document).click(function(e) {
             if (!$(e.target).is('.table-scroll td.request, .table-scroll td.request span')) {
-                request_popover.hide();
+                //request_popover.hide();
             }
         
             if (!$(e.target).is('.table-scroll td, #submit a')) {
                 if ($(e.target).has('.modal')) {
                     return;
                 }
-                clear_selection();
+                //clear_selection();
             }
         });
         
