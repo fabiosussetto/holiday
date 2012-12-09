@@ -24,6 +24,7 @@ class ProjectViewMixin(object):
     main_section = None
     active_section = None
     active_view = None
+    success_message = "Changes has been successfully saved."
     
     def dispatch(self, request, *args, **kwargs):
         self.curr_project = models.Project.objects.get(slug=kwargs['project'])
@@ -54,7 +55,8 @@ class ProjectViewMixin(object):
         
     def form_valid(self, form):
         res = super(ProjectViewMixin, self).form_valid(form)
-        messages.success(self.request, "Changes has been successfully saved.")
+        if self.success_message:
+            messages.success(self.request, self.success_message)
         return res
 
     def form_invalid(self, form):

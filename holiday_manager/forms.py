@@ -86,7 +86,7 @@ class ApprovalRulesFormset(BaseInlineFormSet):
             pass
     
 
-class ApproveRequestForm(forms.ModelForm):
+class ProcessRequestForm(forms.ModelForm):
     class Meta:
         model = models.HolidayApproval
         fields = ('notes', 'status')
@@ -95,8 +95,10 @@ class ApproveRequestForm(forms.ModelForm):
         }
         
     def save(self, commit=True):
-        print self.instance
-        obj = super(ApproveRequestForm, self).save(commit=False)
+        obj = super(ProcessRequestForm, self).save(commit=False)
+        return obj
+        
+        
         new_status = self.cleaned_data['status']
         if new_status == models.HolidayApproval.STATUS.approved:
             obj.approve()

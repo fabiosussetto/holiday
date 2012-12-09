@@ -38,30 +38,42 @@ var BasePopupView = Backbone.View.extend({
 var InfoPopupView = BasePopupView.extend({
     template: _.template($('#template-popover').html()),
     events: {
-        'click .request-details': function(e) {
+        'click .show-details': function(e) {
             e.preventDefault();
-            request_obj = request_popover.data('request');
             var self = this;
             modal = new Modal($('#myModal'), {
                 backdrop: true,
                 ajax: {
-                    url: this.$el.data('url'),
+                    url: app_urls.request_details,
                     data: {
-                        start_date: this.parent.selection.first.data('date'),
-                        end_date: this.parent.selection.last.data('date')
+                        pk: this.requested_data.pk
                     }
                 },
             });
+            modal.$element.on('click', '.submit', function(e) {
+                e.preventDefault();
+                var form = modal.$element.find('form');
+                var button = $(e.target);
+                modal.$element.find('#id_status').val(button.data('status'));
+                modal.load({
+                    ajax: {
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function() {
+                            modal.hide();
+                            get_page(modal.$element.data('page-url'));
+                        }
+                    }
+                });
+            });
             modal.show();
-            this.hide();
-        },
-        'click .cancel': function(e) {
-            e.preventDefault();
             this.hide();
         }
     },
     render: function(requested_data) {
-        this.$el.html(this.template(requested_data));
+        this.requested_data = requested_data;
+        this.$el.html(this.template(this.requested_data));
         return this;
     }
 });
@@ -95,6 +107,8 @@ var SelectionPopupView = BasePopupView.extend({
                         data: form.serialize()
                     }
                 });
+            }).on('click', '.cancel', function(e) {
+                modal.hide();
             });
             modal.$element.on('click', '.done', function(e) {
                 e.preventDefault();

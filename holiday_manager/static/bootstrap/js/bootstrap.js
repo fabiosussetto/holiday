@@ -755,7 +755,6 @@
     this.$element = $(element)
       .delegate('[data-dismiss="modal"]', 'click.dismiss.modal', $.proxy(this.hide, this));
   }
-
   Modal.prototype = {
 
       constructor: Modal

@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from paypal.standard.forms import PayPalPaymentsForm
 
+def home(request):
+    return render(request, 'public/home.html')
+
 def subscribe(request):
     paypal_dict = {
         "cmd": "_xclick-subscriptions",

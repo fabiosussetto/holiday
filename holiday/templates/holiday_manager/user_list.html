@@ -1,102 +1,101 @@
-{% extends 'holiday_manager/base_page.html' %}
+{% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
 {% load pagination_tags %}
 
-{% block header %}
-    <header class="page-head row">
-        <div class="span7">
-            <h4 class="title title-icon title-icon-small"><i class="icon-group"></i> Your staff</h4>
-        </div>
-        <form class="span5 pull-right">
-            <div class="btn-group span2">
-                <a class="btn btn-success ajax" href="{% url app:invites:invite curr_project %}">Add +</a>
-                <a href="{% url app:holiday_list curr_project %}" class="btn"><i class="icon-list"></i> List</a>
-            </div>
-            <div class="input-append row">
-                <input class="span2" id="appendedInputButtons" type="text">
-                <button class="btn" type="button">Search</button>
-                <!--<button class="btn" type="button">Options</button>-->
-            </div>
-        </form>
-    </header>    
+{% block tabheader %}
+    <i class="icon-user"></i>
+    <h3 class="">Your Staff</h3>
 {% endblock %}
 
-{% block pagecontent %}
+{% block widgetclass %}staff-view{% endblock %}
 
-{% autopaginate object_list 100 %}
+{% block tabcontent %}
 
-<div class="row-fluid">
-    
-    <table class="table table-hover table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>
-                    <!--<div class="btn-group">-->
-                    <!--    <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">-->
-                    <!--    <i class="icon-cog"></i>-->
-                    <!--    <span class="caret"></span>-->
-                    <!--    </a>-->
-                    <!--    <ul class="dropdown-menu">-->
-                    <!--        <li><a href="#">Assign to group</a></li>-->
-                    <!--        <li><a href="#">Delete</a></li>-->
-                    <!--    </ul>-->
-                    <!--</div>-->
-                </th>
-                <th>Name</th>
-                <th>Days off</th>
-                <th>Is active</th>
-                <th>Is staff</th>
-                <th>Approval group</th>
-                <th>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for object in object_list %}
-            <tr>
-                <td><input type="checkbox"></td>
-                <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
-                <td>
-                    {{ object.days_off_left }}
-                </td>
-                <td>
-                    {{ object.is_active|yesno }}
-                </td>
-                <td>{{ object.is_staff|yesno}}</td>
-                <td>{{ object.approval_group.name }}</td>
-                <td class="action">
-                    <div class="btn-group">
-                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="icon icon-cog"></i>
-                        Action
-                        <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="">Edit</a></li>
-                            {% if not object.is_active %}
-                            <li>
-                                <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
-                                    <button type="submit" class="btn btn-mini">Resend invite</button>
-                                </form>
-                            </li>
-                            {% endif %}
-                            <li>
-                                <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
-                            </li>
-                            <li>
-                                <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
-                                    <a class="" href="#">Delete</a>
-                                    <!--<button type="submit" class="">Delete</button>-->
-                                <!--</form>-->
-                            </li>
-                        </ul>
+{% autopaginate object_list 30 %}
+
+<ul class="user-list">
+    {% for object in object_list %}
+        <li class="row">
+            <div class="pic">
+                <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
+                <div class="wrap">
+                    <img src="http://flickholdr.com/60/60/{{ forloop.counter }}">
+                </div>
+                <div class="percentage">
+                    <div class="progress">
+                        <div class="bar" style="width: 60%;"></div>
                     </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
+                </div>
+            </div>
+            <div class="info">
+                <p class="name">{{ object }}</p>
+                <p class="team">{{ object.approval_group.name }}</p>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+
+{% comment %}
+<table class="table table-hover table-striped">
+    <thead>
+        <tr>
+            <th>
+            </th>
+            <th>Name</th>
+            <th>Days off</th>
+            <th>Is active</th>
+            <th>Is staff</th>
+            <th>Approval group</th>
+            <th>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for object in object_list %}
+        <tr>
+            <td><input type="checkbox"></td>
+            <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
+            <td>
+                {{ object.days_off_left }}
+            </td>
+            <td>
+                {{ object.is_active|yesno }}
+            </td>
+            <td>{{ object.is_staff|yesno}}</td>
+            <td>{{ object.approval_group.name }}</td>
+            <td class="action">
+                <div class="btn-group">
+                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="icon icon-cog"></i>
+                    Action
+                    <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="">Edit</a></li>
+                        {% if not object.is_active %}
+                        <li>
+                            <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
+                                <button type="submit" class="btn btn-mini">Resend invite</button>
+                            </form>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
+                        </li>
+                        <li>
+                            <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
+                                <a class="" href="#">Delete</a>
+                                <!--<button type="submit" class="">Delete</button>-->
+                            <!--</form>-->
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
     
 {% paginate %}
+{% endcomment %}
 
 {% endblock %}

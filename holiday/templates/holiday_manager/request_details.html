@@ -1,41 +1,36 @@
-<p>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</p>
-<p>{{ holiday_request.start_date }} - {{ holiday_request.end_date }} ({{ holiday_request.effective_days_span }} effective days)</p>
-<p>Status: {{ holiday_request.status }}</p>
+<div id="modal-header">
+    <h3>Holiday request details</h3>
+</div>
 
-<table class="table table-striped">
-    <tr>
-        <th>Approver</th>
-        <th>Status</th>
-    </tr>
-    {% for approval in approvals %}
+<div id="modal-body">
+    <p>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</p>
+    <p>{{ holiday_request.start_date }} - {{ holiday_request.end_date }} ({{ holiday_request.effective_days_span }} effective days)</p>
+    <p>Status: {{ holiday_request.status }}</p>
+    
+    <table class="table table-striped">
         <tr>
-            <td>{{ approval.approver }}</td>
-            <td>{{ approval.status }}</td>
+            <th>Approver</th>
+            <th>Status</th>
         </tr>
-    {% endfor %}
-</table>
+        {% for approval in approvals %}
+            <tr>
+                <td>{{ approval.approver }}</td>
+                <td>{{ approval.status }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+    {% if next_approval.approver == request.user %}
+    <form action="{% url app:approval_process pk=next_approval.pk project=curr_project %}" method="post" class="" id="submit-request">{% csrf_token %}
+        {{ form.as_p }}
+    </form>
+    {% endif %}
+</div>
 
-{% if next_approval.approver == request.user %}
-<form action="{% url app:approval_process pk=next_approval.pk project=curr_project %}" method="post" class="" id="submit-request">{% csrf_token %}
-    {{ form.as_p }}
-    <div class="form-actions">
+
+<div id="modal-footer">
+    {% if next_approval.approver == request.user %}
         <button type="button" data-status="approved" class="submit btn btn-success">Approve</button>
         <button type="button" data-status="rejected" class="submit btn btn-danger">Reject</button>
-    </div>
-</form>
-{% endif %}
-
-{% block extra_js %}
-    <script>
-        var form = $('#submit-request');
-        form.submit(function(e) { return false; })
-            .find('.submit').click(function(e) {
-                e.preventDefault();
-                $('#id_status').val($(this).data('status'));
-                $.post(form.attr('action'), form.serialize(), function(resp) {
-                    window.dialog2.dialog2("close");
-                })
-            });
-        
-    </script>
-{% endblock %}
+    {% endif %}
+</div>

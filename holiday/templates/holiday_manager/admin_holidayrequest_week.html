@@ -144,7 +144,7 @@
                     <a href="" class="btn btn-mini btn-success">Approve</a>
                     <a href="" class="btn btn-mini btn-danger">Reject</a>
                 <% } %>
-                <a href="" class="show-details">details...</a>
+                <a href="#" class="show-details">details...</a>
             </div>
         </div>
     </script>
@@ -157,7 +157,7 @@
     <script src="{{ STATIC_URL }}js/backbone-min.js"></script>
     <script>
         var app_urls = {
-            requestDedatils: '{% url app:request_details curr_project %}'
+            request_details: '{% url app:request_details curr_project %}'
         };
     </script>
     <script src="{{ STATIC_URL }}js/calendar.js"></script>
@@ -250,16 +250,11 @@
         calendar_view = new CalendarView({el: $('.scroll-wrap')}).render();
         
         $(document).click(function(e) {
-            if (!$(e.target).is('.table-scroll td.request, .table-scroll td.request span')) {
-                //request_popover.hide();
+            var target = $(e.target);
+            if (target.is('.request, .request span') || target.closest('#request-data').length) {
+                return;
             }
-        
-            if (!$(e.target).is('.table-scroll td, #submit a')) {
-                if ($(e.target).has('.modal')) {
-                    return;
-                }
-                //clear_selection();
-            }
+            calendar_view.info_popup_view.hide();
         });
         
     </script>

@@ -27,8 +27,8 @@ app_patterns = patterns('',
     url(r'^approval/(?P<pk>\d+)/process/$', views.approver.ProcessApprovalRequest.as_view(), name='approval_process'),
     
     url(r'^approval/approvelist/$', views.approver.HolidayApprovalList.as_view(), name='approval_list'),
-    url(r'^approval/approve/(?P<pk>\d+)$', views.approver.ApproveRequest.as_view(), name='approval_approve'),
-    url(r'^approvals/approvals/reject/(?P<pk>\d+)$', views.approver.RejectApprovalRequest.as_view(), name='approval_reject'),
+    #url(r'^approval/approve/(?P<pk>\d+)$', views.approver.ApproveRequest.as_view(), name='approval_approve'),
+    #url(r'^approvals/approvals/reject/(?P<pk>\d+)$', views.approver.RejectApprovalRequest.as_view(), name='approval_reject'),
     
     url(r'^user/list$', views.admin.UserList.as_view(), name='user_list'),
     url(r'^user/edit/(?P<pk>\d+)$', views.admin.EditUser.as_view(), name='user_edit'),
@@ -48,7 +48,7 @@ app_patterns = patterns('',
 )
 
 urlpatterns = patterns('',
-    url(r'^$', views.base.home, name='home'),
+    url(r'^$', views.public.home, name='home'),
     url(r'^subscribe/$', views.public.subscribe, name='subscribe'),
     url(r'^project/register$', views.base.CreateProject.as_view(), name='project_register'),
     (r'^app/(?P<project>[a-zA-Z0-9-]+)/', include(app_patterns, namespace='app')),

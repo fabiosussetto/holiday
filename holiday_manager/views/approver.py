@@ -12,6 +12,7 @@ import itertools
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.contrib import messages
 
 class HolidayRequestList(ProjectViewMixin, FilteredListView):
     model = models.HolidayRequest
@@ -144,7 +145,7 @@ class GroupHolidays(ProjectViewMixin, generic.DetailView):
 class RequestDetails(ProjectViewMixin, generic.UpdateView):
     template_name = 'holiday_manager/request_details.html'
     context_object_name = 'holiday_request'
-    form_class = forms.ApproveRequestForm
+    form_class = forms.ProcessRequestForm
 
     def get_object(self):
         return get_object_or_404(models.HolidayRequest, pk=self.request.GET.get('pk'))
@@ -164,15 +165,20 @@ class RequestDetails(ProjectViewMixin, generic.UpdateView):
 
 class ProcessApprovalRequest(ProjectViewMixin, generic.UpdateView):
     model = models.HolidayApproval
-    form_class = forms.ApproveRequestForm
+    form_class = forms.ProcessRequestForm
+    success_message = False
     
     def get_success_url(self):
-        return reverse('app:approval_list', kwargs={'project': self.curr_project.slug})
+        # TODO: return an empty response here, no need to render anything
+        return '/'
     
-    #def form_valid(self, form):
-    #    self.object = form.save(commit=False)
-    #    self.object.approve()
-    #    return super(ApproveRequest, self).form_valid(form)
+    def form_valid(self, form):
+        self.object = form.save()
+        if form.cleaned_data['status'] == models.HolidayApproval.STATUS.approved:
+            messages.success(self.request, "The request has been approved.")
+        else:
+            messages.warning(self.request, "The request has been rejected.")
+        return super(ProcessApprovalRequest, self).form_valid(form)
         
         
 # Holiday approvals
@@ -189,27 +195,27 @@ class HolidayApprovalList(ProjectViewMixin, generic.ListView):
         ).order_by('order')
         
         
-class ApproveRequest(ProjectViewMixin, generic.UpdateView):
-    model = models.HolidayApproval
-    form_class = forms.ApproveRequestForm
-    
-    def get_success_url(self):
-        return reverse('app:approval_list', kwargs={'project': self.curr_project.slug})
-    
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.approve()
-        return super(ApproveRequest, self).form_valid(form)
-        
-        
-class RejectApprovalRequest(ProjectViewMixin, generic.UpdateView):
-    model = models.HolidayApproval
-    
-    def get_success_url(self):
-        return reverse('approval_list')
-        
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.reject()
-        return redirect(self.get_success_url())
-        
+#class ApproveRequest(ProjectViewMixin, generic.UpdateView):
+#    model = models.HolidayApproval
+#    form_class = forms.ApproveRequestForm
+#    
+#    def get_success_url(self):
+#        return reverse('app:approval_list', kwargs={'project': self.curr_project.slug})
+#    
+#    def form_valid(self, form):
+#        self.object = form.save(commit=False)
+#        self.object.approve()
+#        return super(ApproveRequest, self).form_valid(form)
+#        
+#        
+#class RejectApprovalRequest(ProjectViewMixin, generic.UpdateView):
+#    model = models.HolidayApproval
+#    
+#    def get_success_url(self):
+#        return reverse('approval_list')
+#        
+#    def post(self, request, *args, **kwargs):
+#        self.object = self.get_object()
+#        self.object.reject()
+#        return redirect(self.get_success_url())
+#        
