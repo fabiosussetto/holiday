@@ -4,19 +4,15 @@
 {% block pagecontent %}
     <div class="row-fluid">
         <div class="span12">
-            <div class="widget">
-                <div class="widget-header">
-                    {% block tabheader %}{% endblock %}
-                    {% block tabheadernav %}{% endblock %}
-                </div>
-                <div class="widget-content {% block widgetclass %}{% endblock %}">
-                    {% block subtabnav %}{% endblock %}
-                    <div class="tab-content">
-                        {% block tabcontent %}{% endblock %}
-                    </div>
-                    <div id="tab-overlay"></div>
-                </div>
+            <div class="tab-header cf">
+                {% block tabheader %}{% endblock %}
             </div>
+            {% block tabheadernav %}{% endblock %}
+            {% block subtabnav %}{% endblock %}
+            <div class="tab-content">
+                {% block tabcontent %}{% endblock %}
+            </div>
+            <div id="tab-overlay"></div>
         </div>
     </div>
 {% endblock %}

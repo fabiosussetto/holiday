@@ -2,8 +2,24 @@
 {% load pagination_tags %}
 
 {% block tabheader %}
-    <i class="icon-user"></i>
     <h3 class="">Your Staff</h3>
+    <nav>
+        <ul>
+            <li>
+                <div class="btn-group">
+                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                        With selected... <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Assign to team...</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <a href="#" class="btn btn-success">Add a new member</a>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}
 
 {% block widgetclass %}staff-view{% endblock %}
@@ -12,9 +28,9 @@
 
 {% autopaginate object_list 30 %}
 
-<ul class="user-list">
+<ul class="user-list cf">
     {% for object in object_list %}
-        <li class="row">
+        <li class="row cf">
             <div class="pic">
                 <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
                 <div class="wrap">
@@ -29,10 +45,40 @@
             <div class="info">
                 <p class="name">{{ object }}</p>
                 <p class="team">{{ object.approval_group.name }}</p>
+                <div class="actions">
+                    <div class="btn-group">
+                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="icon icon-cog"></i>
+                        Actions
+                        <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="ajax">Edit</a></li>
+                            {% if not object.is_active %}
+                            <li>
+                                <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
+                                    <button type="submit" class="btn btn-mini">Resend invite</button>
+                                </form>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
+                            </li>
+                            <li>
+                                <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
+                                    <a class="" href="#">Delete</a>
+                                    <!--<button type="submit" class="">Delete</button>-->
+                                <!--</form>-->
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </li>
     {% endfor %}
 </ul>
+
+{% paginate %}
 
 {% comment %}
 <table class="table table-hover table-striped">
