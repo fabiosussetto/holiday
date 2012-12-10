@@ -64,7 +64,9 @@
             {% if user.is_authenticated %}
             <div class="user-menu pull-right dropdown">
                 <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    {% comment %}
                     <img class="user-pic" src="{% thumbnail user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                    {% endcomment %}
                     <span class="username">{{ user }}</span>
                     <span class="caret"></span>
                 </a>

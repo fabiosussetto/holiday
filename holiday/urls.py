@@ -32,6 +32,7 @@ app_patterns = patterns('',
     
     url(r'^user/list$', views.admin.UserList.as_view(), name='user_list'),
     url(r'^user/edit/(?P<pk>\d+)$', views.admin.EditUser.as_view(), name='user_edit'),
+    url(r'^user/details/(?P<pk>\d+)$', views.admin.ViewUser.as_view(), name='user_detail'),
     url(r'^user/delete/(?P<pk>\d+)$', views.admin.DeleteUser.as_view(), name='user_delete'),
     
     url(r'^project/settings/$', views.admin.EditProjectSettings.as_view(), name='project_settings'),

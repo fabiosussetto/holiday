@@ -29,7 +29,7 @@ class LoginAs(ProjectViewMixin, generic.View):
 # User management
 
 class UserList(ProjectViewMixin, generic.ListView):
-    model = User
+    model = models.ApprovalGroup
     template_name = 'holiday_manager/user_list.html'
     main_section = 'users'
     #paginate_by = 5
@@ -43,6 +43,12 @@ class EditUser(ProjectViewMixin, generic.UpdateView):
     
     def get_success_url(self):
         return reverse('app:user_edit', kwargs={'pk': self.object.pk, 'project': self.curr_project.slug})
+        
+        
+class ViewUser(ProjectViewMixin, generic.DetailView):
+    model = User
+    template_name = 'holiday_manager/view_user.html'
+    main_section = 'users'
 
         
 class DeleteUser(ProjectViewMixin, generic.DeleteView):

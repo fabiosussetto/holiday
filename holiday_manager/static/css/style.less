@@ -1007,55 +1007,146 @@ table form {
 }
 
 
-.user-list {
-    .cf;
-    margin: 0;
-    & > li {
-        .cf;
-        float: left;
-        width: 200px;
-        list-style: none;
-        margin: 5px 20px;
-        padding: 10px;
-        &:hover {
-            border-radius: 3px;
-            box-shadow: 0px 1px 3px rgba(0, 0, 0, .3);
-            background: #eee;
-            .actions {
-                display: block;
+.staff-view {
+    .tab-header {
+        border-bottom: 0;
+    }
+}
+
+.user-group {
+    margin-bottom: 15px;
+    .group-header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        h3 {
+            font-size: 15px;
+            padding-left: 10px;
+            float: left;
+            margin: 0;
+            span {
+                font-size: 14px;
+                color: #999;
+                font-weight: normal;
+            }
+        }
+        & > ul {
+            float: left;
+            margin: 0;
+            margin-left: 20px;
+            margin-top: 6px;
+            display: none;
+            li {
+                list-style: none;
+                float: left;
+                margin: 0 10px;
+                border-right: 1px solid #eee;
+                padding-right: 15px;
+                a {
+                    color: #999;
+                }
+                &:last-child {
+                    border-right: 0;
+                }
             }
         }
     }
-    .pic {
-        float: left;
-        margin-right: 10px;
-        height: 68px;
-        .wrap {
-            background: url(../img/missing_pic.gif) no-repeat;
-            background-size: 60px 60px;
-            width: 60px;
-            height: 60px;
-        }
-        img {
-            width: 60px;
+    a.show-all {
+        width: 200px;
+        padding: 3px 0;
+        margin: 0 auto;
+        font-size: 11px;
+        display: block;
+        line-height: 14px;
+    }
+    .group-footer {
+        background: #eee;
+        padding: 6px;
+        display: none;
+        margin: 10px 0;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, .1) inset;
+    }
+    &:hover {
+        .group-header ul {
             display: block;
         }
     }
-    .info {
-        float: left;
-        p {
-            margin-bottom: 3px;
+    .user-list {
+        .cf;
+        &.collapsed {
+            height: 100px;
+            overflow: hidden;
         }
-    }
-    .progress {
-        height: 4px;
-        margin-top: 2px;
-    }
-    .team {
-        color: #999;
-        font-size: 12px;
-    }
-    .actions {
-        display: none;
+        &.expanded {
+            & > li:hover {
+                border-radius: 3px;
+                box-shadow: 0px 1px 3px rgba(0, 0, 0, .3);
+                background: #fff;
+                background: #eee;
+                .actions {
+                    display: block;
+                }
+                .check {
+                    display: block;
+                }
+            }
+            & > li.selected {
+                border-radius: 3px;
+                box-shadow: 0px 1px 3px rgba(0, 0, 0, .3);
+                background: #fff;
+                background: #eee;
+                .check {
+                    display: block;
+                }
+            }
+        }
+        margin: 0;
+        & > li {
+            .cf;
+            float: left;
+            width: 200px;
+            list-style: none;
+            margin: 5px 20px;
+            padding: 10px;
+            position: relative;
+        }
+        .check {
+            position: absolute;
+            top: 0px;
+            right: 5px;
+            display: none;
+        }
+        .pic {
+            float: left;
+            margin-right: 10px;
+            height: 68px;
+            .wrap {
+                background: url(../img/missing_pic.gif) no-repeat;
+                background-size: 60px 60px;
+                width: 60px;
+                height: 60px;
+            }
+            img {
+                width: 60px;
+                display: block;
+            }
+        }
+        .info {
+            float: left;
+            p {
+                margin-bottom: 3px;
+            }
+        }
+        .progress {
+            height: 4px;
+            margin-top: 2px;
+        }
+        .team {
+            color: #999;
+            font-size: 12px;
+        }
+        .actions {
+            display: none;
+        }
     }
 }

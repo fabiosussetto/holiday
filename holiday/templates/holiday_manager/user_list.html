@@ -22,126 +22,119 @@
     </nav>
 {% endblock %}
 
-{% block widgetclass %}staff-view{% endblock %}
+{% block body_class %}staff-view{% endblock %}
 
 {% block tabcontent %}
 
-{% autopaginate object_list 30 %}
-
-<ul class="user-list cf">
-    {% for object in object_list %}
-        <li class="row cf">
-            <div class="pic">
-                <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
-                <div class="wrap">
-                    <img src="http://flickholdr.com/60/60/{{ forloop.counter }}">
-                </div>
-                <div class="percentage">
-                    <div class="progress">
-                        <div class="bar" style="width: 60%;"></div>
+{% for team in object_list %}
+<div class="user-group cf">
+    <div class="group-header cf">
+        <h3 class="show-all">{{ team }} <span>({{ team.user_set.count }})</span></h3>
+        <ul class="cf">
+            <li><a href="#" class="clear-selection">Edit group settings</a></li>
+            <li><a href="#" class="clear-selection">Clear selection</a></li>
+        </ul>
+    </div>
+    <ul class="user-list cf collapsed">
+        {% for object in team.user_set.all %}
+            <li class="row cf">
+                <div class="check"><input type="checkbox" /></div>
+                <div class="pic">
+                    <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
+                    <div class="wrap">
+                        <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
+                    </div>
+                    <div class="percentage">
+                        <div class="progress">
+                            <div class="bar" style="width: 60%;"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="info">
-                <p class="name">{{ object }}</p>
-                <p class="team">{{ object.approval_group.name }}</p>
-                <div class="actions">
-                    <div class="btn-group">
-                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="icon icon-cog"></i>
-                        Actions
-                        <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="ajax">Edit</a></li>
-                            {% if not object.is_active %}
-                            <li>
-                                <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
-                                    <button type="submit" class="btn btn-mini">Resend invite</button>
-                                </form>
-                            </li>
-                            {% endif %}
-                            <li>
-                                <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
-                            </li>
-                            <li>
-                                <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
-                                    <a class="" href="#">Delete</a>
-                                    <!--<button type="submit" class="">Delete</button>-->
-                                <!--</form>-->
-                            </li>
-                        </ul>
+                <div class="info">
+                    <p class="name">{{ object }}</p>
+                    <p class="team">{{ object.approval_group.name }}</p>
+                    <div class="actions">
+                        <div class="btn-group">
+                            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="icon icon-cog"></i>
+                            Actions
+                            <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">Detail</a></li>
+                                <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="ajax">Edit</a></li>
+                                {% if not object.is_active %}
+                                <li>
+                                    <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
+                                        <button type="submit" class="btn btn-mini">Resend invite</button>
+                                    </form>
+                                </li>
+                                {% endif %}
+                                <li>
+                                    <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
+                                </li>
+                                <li>
+                                    <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
+                                        <a class="" href="#">Delete</a>
+                                        <!--<button type="submit" class="">Delete</button>-->
+                                    <!--</form>-->
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </li>
-    {% endfor %}
-</ul>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="group-footer">
+        <a class="show-all btn">Show all</a>
+    </div>
+</div>
+{% endfor %}
 
-{% paginate %}
 
-{% comment %}
-<table class="table table-hover table-striped">
-    <thead>
-        <tr>
-            <th>
-            </th>
-            <th>Name</th>
-            <th>Days off</th>
-            <th>Is active</th>
-            <th>Is staff</th>
-            <th>Approval group</th>
-            <th>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for object in object_list %}
-        <tr>
-            <td><input type="checkbox"></td>
-            <td><a class="ajax" href="{% url app:user_edit project=curr_project pk=object.pk %}">{{ object }}</a></td>
-            <td>
-                {{ object.days_off_left }}
-            </td>
-            <td>
-                {{ object.is_active|yesno }}
-            </td>
-            <td>{{ object.is_staff|yesno}}</td>
-            <td>{{ object.approval_group.name }}</td>
-            <td class="action">
-                <div class="btn-group">
-                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="icon icon-cog"></i>
-                    Action
-                    <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="">Edit</a></li>
-                        {% if not object.is_active %}
-                        <li>
-                            <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
-                                <button type="submit" class="btn btn-mini">Resend invite</button>
-                            </form>
-                        </li>
-                        {% endif %}
-                        <li>
-                            <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
-                        </li>
-                        <li>
-                            <!--<form action="{% url app:user_delete pk=object.pk project=curr_project %}" method="post">{% csrf_token %}-->
-                                <a class="" href="#">Delete</a>
-                                <!--<button type="submit" class="">Delete</button>-->
-                            <!--</form>-->
-                        </li>
-                    </ul>
-                </div>
-            </td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-    
-{% paginate %}
-{% endcomment %}
+<div id="myModal" class="modal hide fade" role="dialog">
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Modal header</h3>
+    </div>
+    <div class="modal-body">
+    <p>One fine body…</p>
+    </div>
+    <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary">Save changes</button>
+    </div>
+</div>
 
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $('.show-all').click(function(e) {
+            e.preventDefault();
+            $(this).parent().siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
+        });
+         $('.user-group h3').click(function(e) {
+            $(this).siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
+        });
+        $('.check :checkbox').click(function(e) {
+            $(this).closest('li').toggleClass('selected');
+        });
+        $('.user-group').hover(function(e) {
+            $(this).find('.group-footer').slideToggle('fast');
+        });
+        
+        $('.user-details').click(function(e) {
+            e.preventDefault();
+            modal = new Modal($('#myModal'), {
+                backdrop: true,
+                ajax: {
+                    url: $(this).attr('href'),
+                }
+            });
+            modal.show();
+        });
+        
+    </script>
 {% endblock %}
