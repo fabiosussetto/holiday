@@ -49,6 +49,13 @@ class ViewUser(ProjectViewMixin, generic.DetailView):
     model = User
     template_name = 'holiday_manager/view_user.html'
     main_section = 'users'
+    
+    def get_context_data(self, **kwargs):
+        context = super(ViewUser, self).get_context_data(**kwargs)
+        context.update({
+            'last_requests': self.object.holidayrequest_set.all()[:5]
+        })
+        return context
 
         
 class DeleteUser(ProjectViewMixin, generic.DeleteView):

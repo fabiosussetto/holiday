@@ -403,4 +403,3 @@ class User(models.Model):
         self.paymill_client_id = data['id']
         self.save()
         
-        

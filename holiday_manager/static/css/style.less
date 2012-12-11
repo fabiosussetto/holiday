@@ -1010,6 +1010,14 @@ table form {
 .staff-view {
     .tab-header {
         border-bottom: 0;
+        h3 {
+            float: left;
+        }
+        .search {
+            float: left;
+            margin-top: 12px;
+            margin-left: 25px;
+        }
     }
 }
 
@@ -1148,5 +1156,38 @@ table form {
         .actions {
             display: none;
         }
+    }
+}
+
+.user-detail-view {
+    .modal-header h3 {
+        font-size: 20px;
+        span {
+            color: #999;
+            font-size: 18px;
+            margin-left: 5px;
+        }
+    }
+    .pic {
+        width: 70px;
+        margin-right: 20px;
+        float: right;
+    }
+    .info {
+        float: left;
+        dl {
+            margin-top: 0;
+        }
+        dt, dd {
+            margin-bottom: 8px;
+        }
+        dt {
+            width: 80px;
+        }
+        dd {
+            margin-left: 95px;
+        }
+    }
+    .last-requests {
     }
 }

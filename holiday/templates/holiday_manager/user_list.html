@@ -3,6 +3,10 @@
 
 {% block tabheader %}
     <h3 class="">Your Staff</h3>
+    <form class="search form-inline">
+        <input type="text" class="">
+        <button type="submit" class="btn">Search</button>
+    </form>
     <nav>
         <ul>
             <li>
@@ -16,7 +20,8 @@
                 </div>
             </li>
             <li>
-                <a href="#" class="btn btn-success">Add a new member</a>
+                <a href="#" class="btn btn-primary">Add a new member</a>
+                <a href="#" class="btn">Create new group...</a>
             </li>
         </ul>
     </nav>
@@ -42,7 +47,9 @@
                 <div class="pic">
                     <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
                     <div class="wrap">
-                        <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
+                        <a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">
+                            <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
+                        </a>
                     </div>
                     <div class="percentage">
                         <div class="progress">
@@ -87,13 +94,13 @@
         {% endfor %}
     </ul>
     <div class="group-footer">
-        <a class="show-all btn">Show all</a>
+        <a class="show-all collapsed btn" data-text-less="Show less" data-text-more="Show all">Show all</a>
     </div>
 </div>
 {% endfor %}
 
 
-<div id="myModal" class="modal hide fade" role="dialog">
+<div id="myModal" class="modal hide fade user-detail-view" role="dialog">
     <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
     <h3 id="myModalLabel">Modal header</h3>
@@ -112,8 +119,11 @@
 {% block extra_js %}
     <script>
         $('.show-all').click(function(e) {
+            var $this = $(this);
             e.preventDefault();
-            $(this).parent().siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
+            $this.toggleClass('collapsed');
+            $this.parent().siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
+            $this.text($this.hasClass('collapsed') ? $this.data('text-more') : $this.data('text-less'));
         });
          $('.user-group h3').click(function(e) {
             $(this).siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
