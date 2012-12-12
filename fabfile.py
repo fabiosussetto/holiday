@@ -4,16 +4,22 @@ from fabric.api import task, run, cd, env, local, hosts, settings, puts
 from contextlib import contextmanager as _contextmanager
 from fabric.context_managers import prefix
 
-REPO_URI = 'git@bynd.beanstalkapp.com:/novartis_moderator.git'
+REPO_URI = 'git@github.com:fabiosussetto/holiday.git'
     
 ENV_SETTINGS = {
     'dev': {
         'host': 'ec2-107-22-28-227.compute-1.amazonaws.com',
         'code_dir': '/home/ubuntu/holiday',
         'branch': 'master',
-        'settings_template': 'dev_settings.py.template'
+        'settings_template': 'dev_settings.py.template',
+        'main_app_dir': 'holiday'
     }
 }
+
+@task
+def set_hosts(target_env):
+    env.hosts = [ENV_SETTINGS[target_env]['host']]
+
 
 @_contextmanager
 def virtualenv():
@@ -40,8 +46,8 @@ def bootstrap_project():
 
 def git_pull():
     with cd(env.remote_workdir):
-        run("git pull origin %s" % ENV_SETTINGS['branch'])
-        run("git checkout %s" % ENV_SETTINGS['branch'])
+        run("git pull origin %s" % env.git_branch)
+        run("git checkout %s" % env.git_branch)
     
 def pip_install():
     '''
@@ -84,19 +90,21 @@ def delete_pyc():
         
         
 def select_settings():
-    with cd(env.remote_workdir):
+    with cd(env.main_app_dir):
         settings_filename = env.settings_template.split('.template')[0]
         puts("Copying settings file template to %s" % settings_filename)
         run("find . -maxdepth 1 -type f -iname '*_settings.py' -delete")
-        run("cp env_settings/%s %s" % (env.settings_template, settings_filename))
+        run("cp %s/%s %s" % (env.main_app_dir, env.settings_template, settings_filename))
         
 @task
-def deploy(env):
+def deploy(target_env):
     # Specify fabric evn settings, according to the Jenkins Job name
-    env.hosts = [ENV_SETTINGS[env]['host']]
+    env.hosts = [ENV_SETTINGS[target_env]['host']]
+    env.git_branch = ENV_SETTINGS[target_env]['branch']
     env.user = 'ubuntu'
-    env.remote_workdir = ENV_SETTINGS[env]['code_dir']
-    env.settings_template = ENV_SETTINGS[env]['settings_template']
+    env.remote_workdir = ENV_SETTINGS[target_env]['code_dir']
+    env.main_app_dir = os.path.join(env.remote_workdir, ENV_SETTINGS[target_env]['main_app_dir'])
+    env.settings_template = ENV_SETTINGS[target_env]['settings_template']
     
     # Virtualenv variables
     env.virtualenv_dir = os.path.join(env.remote_workdir, 'virtualenv')
