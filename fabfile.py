@@ -5,6 +5,7 @@ from fabric.api import task, run, cd, env, local, hosts, settings, puts
 from contextlib import contextmanager as _contextmanager
 from fabric.context_managers import prefix
 
+REPO_URI = 'git@bynd.beanstalkapp.com:/novartis_moderator.git'
     
 ENV_SETTINGS = {
     'dev': {
@@ -14,17 +15,6 @@ ENV_SETTINGS = {
         'settings_template': 'dev_settings.py.template'
     }
 }
-
-code_dir = ENV_SETTINGS['code_dir']
-REPO_URI = 'git@bynd.beanstalkapp.com:/novartis_moderator.git'
-
-# Specify fabric evn settings, according to the Jenkins Job name
-env.hosts = [ENV_SETTINGS['host']]
-env.user = 'ubuntu'
-env.remote_workdir = code_dir
-
-# Virtualenv variables
-env.virtualenv_dir = os.path.join(code_dir, 'virtualenv')
 
 @_contextmanager
 def virtualenv():
@@ -102,7 +92,17 @@ def select_settings():
         run("cp env_settings/%s %s" % (ENV_SETTINGS['settings_template'], settings_filename))
         
 @task
-def deploy():
+def deploy(env):
+    code_dir = ENV_SETTINGS['code_dir']
+    
+    # Specify fabric evn settings, according to the Jenkins Job name
+    env.hosts = [ENV_SETTINGS['host']]
+    env.user = 'ubuntu'
+    env.remote_workdir = code_dir
+    
+    # Virtualenv variables
+    env.virtualenv_dir = os.path.join(code_dir, 'virtualenv')
+    
     bootstrap_project()
     git_pull()
     delete_pyc()
