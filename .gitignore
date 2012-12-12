@@ -50,4 +50,5 @@ virtualenv/
 /*_settings.py
 
 # Ignore django collected static files
-/static/
+/holiday/static/
+/holiday/media/
