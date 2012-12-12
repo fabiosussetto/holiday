@@ -116,4 +116,4 @@ def deploy(target_env):
     select_settings()
     migrate()
     collect_static()
-    crontab_update()
+    #crontab_update()
