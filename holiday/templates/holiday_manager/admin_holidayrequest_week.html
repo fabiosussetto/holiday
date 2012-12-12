@@ -4,8 +4,21 @@
 {% load webdesign %}
 
 {% block tabheader %}
-    <i class="icon-inbox"></i>
     <h3 class="">Holiday requests</h3>
+    <nav>
+        <ul>
+            <li>
+                <div class="btn-group">
+                    <a class="btn tab-link {% if active_view == 'holidayrequestweek' %}active{% endif %}" href="{% url app:holiday_weekly project=curr_project %}">
+                        <i class="icon-calendar"></i> Calendar view
+                    </a>
+                    <a class="btn tab-link {% if active_view == 'holidayrequestlist' %}active{% endif %}" href="{% url app:holiday_list project=curr_project %}">
+                        <i class="icon-list-alt"></i> List view
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}
 
 {% block subtabnav %}
@@ -15,14 +28,10 @@
 {% block widgetclass %}holiday-calendar{% endblock %}
 
 {% block tabheadernav %}
-    {% include 'holiday_manager/elements/holiday_requests_header.html' %}
 {% endblock %}
 
 {% block tabcontent %}
     <div class="btn-toolbar cal-toolbar well">
-        <div class="btn-group">
-            <button class="btn" id="toggle-compact">Compact</button>
-        </div>
         <div class="btn-group">
             <button class="btn" id="filter-users">Filter</button>
             <button class="btn" id="filter-clear">Clear</button>
@@ -40,7 +49,8 @@
         <div class="user-rows">
             <div class="shade"></div>
             <div class="user-row current-user">
-                <img src="{% thumbnail request.user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+                <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
+                <!--<img src="{% thumbnail request.user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">-->
                 {{ request.user }}
             </div>
             {% for team, members in object_list %}
@@ -58,7 +68,7 @@
                 <table class="table holiday_week">
                     <tr>
                         {% for day in week_days %}
-                            <th class="cal-day">
+                            <th class="cal-day {% if day.weekday == 0 %}monday{% endif %}">
                                 <span class="date-month">{{ day|date:"N" }}</span>
                                 <span class="date-day">
                                     {{ day|date:"j" }}
@@ -200,10 +210,6 @@
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
         
-        $('.user-rows .user-row').click(function(e) {
-            $(this).toggleClass('selected');
-        });
-        
         $('#toggle-compact').click(function(e) {
             e.preventDefault();
             $('.calendar-wrap').toggleClass('compact');
@@ -230,24 +236,8 @@
             $('#user-side-' + $(this).data('user-id')).toggleClass('hover');
         });
         
-        $('.user-rows .team-row').click(function(e) {
-            e.preventDefault();
-            var self = $(this);
-            if (!self.hasClass('loaded')) {
-                $.get($(this).attr('href'), function(resp) {
-                    var data = $('<div />').html(resp);
-                    $('#team-row-' + self.data('target')).after(data.find('#data-users').html());
-                    $('#days-group-' + self.data('target')).empty().html(data.find('#data-requests').html());
-                    self.addClass('loaded');
-                });
-                return;
-            }
-            var group_id = $(this).data('target');
-            $('#users-group-' + group_id).toggle();
-            $('#days-group-' + group_id).toggle();
-        });
-        
         calendar_view = new CalendarView({el: $('.scroll-wrap')}).render();
+        users_view = new UserRowsView({el: $('.user-rows')}).render();
         
         $(document).click(function(e) {
             var target = $(e.target);

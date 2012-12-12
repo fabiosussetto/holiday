@@ -679,6 +679,7 @@ table form {
 
 .calendar-wrap {
     overflow: hidden;
+    margin-top: 20px;
 }
 
 .user-rows {
@@ -686,8 +687,8 @@ table form {
     margin-bottom: -500em;
     float: left;
     width: 15%;
-    padding-top: 83px;
-    border-right: 1px solid #ddd;
+    padding-top: 74px;
+    //border-right: 1px solid #ddd;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -695,30 +696,38 @@ table form {
     position: relative;
     .user-row {
         height: 30px;
-        padding: 10px 0px;
+        padding: 10px 5px;
         margin-right: 10px;
         border-bottom: 1px solid #eee;
         font-size: 12px;
+        &:last-child {
+            border-bottom: 0;
+        }
         img {
             width: 35px;
+            margin-right: 5px;
         }
         &.selected {
-            background: url(../img/checkmark.png) right center no-repeat;
+            background: url(../public/img/checkmark.png) right center no-repeat;
         }
         &.hover {
             //background: #eee;
             font-weight: bold;
         }
     }
+    .current-user {
+        border-bottom: 0;
+    }
     .team-row {
         height: 20px;
         padding: 10px 0;
+        border-top: 1px solid #eee;
         border-bottom: 1px solid #eee;
         font-weight: bold;
         cursor: pointer;
     }
     .shade {
-        background: url(../img/shade-grey.png) top left repeat-y;
+        background: url(../public/img/shade-grey.png) top left repeat-y;
         position: absolute;
         right: -21px;
         top: 0px;
@@ -729,17 +738,18 @@ table form {
 }
 
 .scroll-wrap {
-    padding-bottom: 500em;
-    margin-bottom: -500em;
+    //padding-bottom: 500em;
+    //margin-bottom: -500em;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    border-right: 1px solid #ddd;
     width: 85%;
     float: left;
     position: relative;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     .shade {
-        background: url(../img/shade-grey-rx.png) top left repeat-y;
+        background: url(../public/img/shade-grey-rx.png) top left repeat-y;
         position: absolute;
         right: 0px;
         z-index:1000;
@@ -750,10 +760,7 @@ table form {
 }
 
 .table-scroll {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
     overflow-x: scroll;
-    padding-top: 10px;
     position: relative;
     #submit {
         position: absolute;
@@ -772,6 +779,7 @@ table form {
     table {
         max-width: none;
         width: 2000px;
+        margin-bottom: 0;
         tbody {
             border: 0;
         }
@@ -873,10 +881,16 @@ table form {
     }
     .day.today {
         //background: #FCF8E3;
+        //border-left: 1px solid red;
     }
     .day.past {
-        //background: #FCF8E3;
-        background: #FCF8E3;
+        background: #FCF8E3 !important;
+    }
+    .day.monday {
+        border-left: 1px solid #ddd;
+    }
+    .day.weekend {
+        background: url(../img/stripe.png);
     }
     .day.first {
         padding-left: 4px;
@@ -930,8 +944,8 @@ table form {
     top: 50%;
 }
 
-#current-user-row, #current-user-row td {
-    border-bottom: 1px solid #aaa;
+#current-user-row td {
+    //border-bottom: 1px solid #aaa;
 }
 
 .compact {
@@ -949,6 +963,9 @@ table form {
     .cal-day {
         height: 15px;
     }
+    .cal-day.monday {
+        border-left: 1px solid #ddd;
+    }
     table {
         .day {
             height: 20px;
@@ -960,9 +977,9 @@ table form {
     }
     .user-row {
         height: 20px;
-        padding: 5px 0;
+        padding: 5px;
         img {
-            display: none;
+            width: 20px;
         }
     }
 }

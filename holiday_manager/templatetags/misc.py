@@ -37,6 +37,10 @@ def in_date_range(requests, week_days):
             classes.append('today')
         elif day < today:
             classes.append('past')
+        if day.weekday() == 0:
+            classes.append('monday')
+        if day.weekday() in (5, 6):
+            classes.append('weekend')
         
         request_json = None    
         for obj in requests:

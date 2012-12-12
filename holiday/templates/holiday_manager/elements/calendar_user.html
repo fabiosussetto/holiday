@@ -1,12 +1,13 @@
 {% load thumbnail %}
 
-<div class="team-row" data-target="{{ team.pk }}">
+<div class="team-row loaded" data-target="{{ team.pk }}">
     {{ team }} <i class="icon-chevron-down"></i>
 </div>
 <div id="users-group-{{ team.pk }}">
 {% for author, _ in members %}
     <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
-        <img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">
+        <!--<img src="{% thumbnail author.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">-->
+        <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
         {{ author }} 
     </div>
 {% endfor %}

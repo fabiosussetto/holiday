@@ -218,3 +218,29 @@ var CalendarView  = Backbone.View.extend({
         return this;
     }
 });
+
+var UserRowsView = Backbone.View.extend({
+    events: {
+        'click .user-row': function(e) {
+            var el = $(e.target);
+            el.toggleClass('selected');
+        },
+        'click .team-row': function(e) {
+            e.preventDefault();
+            var target = $(e.target);
+            if (!target.hasClass('loaded')) {
+                $.get(target.attr('href'), function(resp) {
+                    var data = $('<div />').html(resp);
+                    $('#team-row-' + target.data('target')).after(data.find('#data-users').html());
+                    $('#days-group-' + target.data('target')).empty().html(data.find('#data-requests').html());
+                    target.addClass('loaded');
+                });
+                return;
+            }
+            var group_id = target.data('target');
+            console.log(group_id);
+            $('#users-group-' + group_id).toggle();
+            $('#days-group-' + group_id).toggle();
+        }
+    }
+});
