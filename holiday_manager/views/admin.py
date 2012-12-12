@@ -15,6 +15,7 @@ from holiday_manager.google_calendar import GoogleCalendarApi, calendar_choices
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import login, get_backends
+from social_auth.db.django_models import UserSocialAuth 
 
 # Debug views
 class LoginAs(ProjectViewMixin, generic.View):
@@ -32,7 +33,10 @@ class UserList(ProjectViewMixin, generic.ListView):
     model = models.ApprovalGroup
     template_name = 'holiday_manager/user_list.html'
     main_section = 'users'
-    #paginate_by = 5
+    
+    def get_queryset(self, **kwargs):
+        queryset = super(UserList, self).get_queryset(**kwargs)
+        return queryset.prefetch_related('user_set__approval_group')
     
     
 class EditUser(ProjectViewMixin, generic.UpdateView):
@@ -182,12 +186,15 @@ class EditProjectSettings(ProjectViewMixin, generic.UpdateView):
     active_section = 'general'
     
     def get_form(self, form_class):
-        social_user = self.request.user.social_auth.get(provider='google-oauth2')
-        access_token = social_user.extra_data['access_token']
-        gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token, auth_user=social_user)
-        calendars = gapi.list_calendars()
         form = super(EditProjectSettings, self).get_form(form_class)
-        form.fields['google_calendar_id'].widget.choices = [('', "Don't use Google Calendar")] + calendar_choices(calendars)
+        try:
+            social_user = self.request.user.social_auth.get(provider='google-oauth2')
+            access_token = social_user.extra_data['access_token']
+            gapi = GoogleCalendarApi(api_key=settings.GOOGLE_API_KEY, access_token=access_token, auth_user=social_user)
+            calendars = gapi.list_calendars()
+            form.fields['google_calendar_id'].widget.choices = [('', "Don't use Google Calendar")] + calendar_choices(calendars)
+        except UserSocialAuth.DoesNotExist:
+            pass
         return form
     
     def get_success_url(self):

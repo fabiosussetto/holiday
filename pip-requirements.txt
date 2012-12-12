@@ -1,9 +1,11 @@
 DateUtils==0.5.2
 Django==1.4.2
+Fabric==1.5.1
 MySQL-python==1.2.4b5
 PIL==1.1.7
 South==0.7.6
 boto==2.6.0
+datafilters==0.3.1
 django-debug-toolbar==0.9.4
 django-paypal==0.1.2
 django-social-auth==0.7.7
@@ -16,8 +18,11 @@ linaro-django-pagination==2.0.2
 logilab-astng==0.24.1
 logilab-common==0.58.1
 oauth2==1.5.211
+paramiko==1.9.0
+pycrypto==2.6
 pylint==0.26.0
 python-dateutil==2.1
+python-faker==0.2.4
 python-openid==2.2.5
 pytz==2012h
 requests==0.14.2

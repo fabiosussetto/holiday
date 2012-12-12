@@ -50,7 +50,6 @@
             <div class="shade"></div>
             <div class="user-row current-user">
                 <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
-                <!--<img src="{% thumbnail request.user.google_pic|default:'profiles/missing_pic.gif' 40x40 %}">-->
                 {{ request.user }}
             </div>
             {% for team, members in object_list %}

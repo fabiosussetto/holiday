@@ -2,6 +2,7 @@
 import os
 import django
 import sys
+import importlib
 
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
@@ -194,14 +195,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_auth.backends.pipeline.user.update_user_details'
 )
 
-THUMBNAIL_ALIASES = {
-    '': {
-        'profile_pic': {'size': (150, 150), 'crop': 'smart'},
-        'avatar': {'size': (30, 30), 'crop': 'smart'},
-        'home': {'size': (50, 50), 'crop': 'smart'},
-    },
-}
-
 AWS_ACCESS_KEY_ID = "AKIAI3PEKEUGM7S6RIWQ"
 AWS_SECRET_ACCESS_KEY = "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"
 
@@ -251,9 +244,7 @@ DEFAULT_FROM_EMAIL = 'test@test.com'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
-#INTERNAL_IPS = ('127.0.0.1',)
-INTERNAL_IPS = ()
-
+INTERNAL_IPS = ('127.0.0.1',)
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
@@ -275,18 +266,6 @@ MESSAGE_TAGS = {
 PAYPAL_RECEIVER_EMAIL = "h1_1352217439_biz@gmail.com"
 PAYPAL_TEST = True
 
-# Pricing settings
-def _price_function(user_num):
-    if user_num <= 10:
-        return 5.00
-    elif user_num > 30 and user_num <= 50:
-        return 4.00
-    else:
-        return 3.00
-    
-
-PRICE_PER_USERS_FUNC = _price_function
-
 TRIAL_PERIOD_DAYS = 15
 
 PAYMILL_PUBLIC_TEST_KEY = '86700143132d486485024c4b2b6e5648'
@@ -301,3 +280,16 @@ THUMBNAIL_ALIASES = {
         'thumb': {'size': (40, 40), 'crop': 'smart'},
     },
 }
+
+ENVS = ('local', 'dev', 'testing', 'live')
+curr_module = sys.modules[__name__]
+
+for env in ENVS:
+    try:
+        env_settings = importlib.import_module('holiday.%s_settings' % env)
+        for var, value in vars(env_settings).iteritems():
+            setattr(curr_module, var, value)
+        break
+    except ImportError:
+        continue
+

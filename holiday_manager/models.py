@@ -228,6 +228,7 @@ class HolidayRequest(models.Model):
         inclusive. (from 2012-11-01 to 2012-11-03 = 3 days off).
         Also, we want not to consider closure periods / weekdays
         for the associated project
+        TODO: denormalize/cache this number into the request obj
         """
         request_date_range = date_range(self.start_date, self.end_date)
         closure_periods = self.project.closureperiod_set.all()

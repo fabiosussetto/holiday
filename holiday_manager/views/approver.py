@@ -65,10 +65,6 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
             self.start = today - relativedelta(days=10)
             self.end = today + relativedelta(months=1)
             
-            # debug FF performances
-            #self.start = datetime.date(2012, 11, 23)
-            #self.end = datetime.date(2012, 12, 1)
-            
             self.next = self.end + relativedelta(days=1)
             self.prev = today
                             
@@ -97,7 +93,10 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
         context.update({
             'week_days': self.week_days,
             'filter_form': self.filterform,
-            'user_requests': models.HolidayRequest.objects.date_range(self.start, self.end).filter(author=self.request.user),
+            'user_requests': models.HolidayRequest.objects.select_related(
+                    'author__approval_group').prefetch_related('project__closureperiod_set'
+                    ).date_range(
+                    self.start, self.end).filter(author=self.request.user),
             'other_groups': other_groups
         })
         
@@ -113,6 +112,7 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     
     def get_queryset(self):
         queryset = super(HolidayRequestWeek, self).get_queryset()
+        queryset = queryset.select_related('author__approval_group').prefetch_related('project__closureperiod_set')
         if self.request.user.approval_group:
             queryset = queryset.filter(author__approval_group=self.request.user.approval_group)
         return queryset.date_range(self.start, self.end).filter(~Q(author=self.request.user)).order_by('author')

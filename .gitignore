@@ -47,10 +47,7 @@ virtualenv/
 
 *.log
 
-local_settings.py
-dev_settings.py
-staging_settings.py
-live_settings.py
+/*_settings.py
 
 # Ignore django collected static files
 /static/
