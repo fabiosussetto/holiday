@@ -1,6 +1,5 @@
 from __future__ import with_statement
 import os
-import sys
 from fabric.api import task, run, cd, env, local, hosts, settings, puts
 from contextlib import contextmanager as _contextmanager
 from fabric.context_managers import prefix
@@ -33,14 +32,14 @@ def bootstrap_project():
     the project is initialised.
     """
     with settings(warn_only=True):
-        if run("test -d %s" % code_dir).failed:
-            run("git clone %s %s" % (REPO_URI, code_dir))
+        if run("test -d %s" % env.remote_workdir).failed:
+            run("git clone %s %s" % (REPO_URI, env.remote_workdir))
             
         if run("test -d %s" % env.virtualenv_dir).failed:
             run("virtualenv %s" % (env.virtualenv_dir))
 
 def git_pull():
-    with cd(code_dir):
+    with cd(env.remote_workdir):
         run("git pull origin %s" % ENV_SETTINGS['branch'])
         run("git checkout %s" % ENV_SETTINGS['branch'])
     
@@ -50,12 +49,12 @@ def pip_install():
     '''
     with virtualenv():
         run("echo 'Current pip bin: ' && which pip")
-        with cd(code_dir):
+        with cd(env.remote_workdir):
             run("pip install -r pip-requirements.txt")
         
 def collect_static():
     with virtualenv():
-        with cd(code_dir):
+        with cd(env.remote_workdir):
             run("python manage.py collectstatic --noinput")
 
 def crontab_update():
@@ -63,7 +62,7 @@ def crontab_update():
     make sure crontab is reset with our crontab.txt settings
     FYI see cron.log for its output
     '''
-    with cd(code_dir):
+    with cd(env.remote_workdir):
         with settings(warn_only=True):
             run("sudo crontab -r")
             run("sudo crontab crontab.txt")
@@ -75,33 +74,32 @@ def migrate():
     this keeps the db schema uptodate
     '''
     with virtualenv():
-        with cd(code_dir):
+        with cd(env.remote_workdir):
             run("python manage.py syncdb --noinput")
             run("python manage.py migrate --all --noinput")
 
 def delete_pyc():
-    with cd(code_dir):
+    with cd(env.remote_workdir):
         run("find . -iname '*.pyc' -delete")
         
         
 def select_settings():
-    with cd(code_dir):
-        settings_filename = ENV_SETTINGS['settings_template'].split('.template')[0]
+    with cd(env.remote_workdir):
+        settings_filename = env.settings_template.split('.template')[0]
         puts("Copying settings file template to %s" % settings_filename)
         run("find . -maxdepth 1 -type f -iname '*_settings.py' -delete")
-        run("cp env_settings/%s %s" % (ENV_SETTINGS['settings_template'], settings_filename))
+        run("cp env_settings/%s %s" % (env.settings_template, settings_filename))
         
 @task
 def deploy(env):
-    code_dir = ENV_SETTINGS['code_dir']
-    
     # Specify fabric evn settings, according to the Jenkins Job name
-    env.hosts = [ENV_SETTINGS['host']]
+    env.hosts = [ENV_SETTINGS[env]['host']]
     env.user = 'ubuntu'
-    env.remote_workdir = code_dir
+    env.remote_workdir = ENV_SETTINGS[env]['code_dir']
+    env.settings_template = ENV_SETTINGS[env]['settings_template']
     
     # Virtualenv variables
-    env.virtualenv_dir = os.path.join(code_dir, 'virtualenv')
+    env.virtualenv_dir = os.path.join(env.remote_workdir, 'virtualenv')
     
     bootstrap_project()
     git_pull()
