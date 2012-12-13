@@ -161,15 +161,14 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{{ STATIC_URL }}dialog2/jquery.dialog2.js"></script>
-    <script src="{{ STATIC_URL }}js/underscore-min.js"></script>
-    <script src="{{ STATIC_URL }}js/backbone-min.js"></script>
+    <script src="{{ STATIC_URL }}shared/js/underscore-min.js"></script>
+    <script src="{{ STATIC_URL }}shared/js/backbone-min.js"></script>
     <script>
         var app_urls = {
             request_details: '{% url app:request_details curr_project %}'
         };
     </script>
-    <script src="{{ STATIC_URL }}js/calendar.js"></script>
+    <script src="{{ STATIC_URL }}app/js/calendar.js"></script>
     <script>
         $.fn.scrollTo = function( target, options, callback ){
             if(typeof options == 'function' && arguments.length == 2){ callback = options; options = target; }

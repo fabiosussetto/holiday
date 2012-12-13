@@ -29,7 +29,7 @@
             You can use your Google/GMail account to login, just follow the authorization steps:
         </p>
         <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={% if next %}{{ next }}{% else %}{% url app:dashboard curr_project %}{% endif %}">
-            <img src="{{ STATIC_URL }}img/google-button-small.png"> 
+            <img src="{{ STATIC_URL }}app/img/google-button-small.png"> 
             Login with Google
         </a>
     </div>

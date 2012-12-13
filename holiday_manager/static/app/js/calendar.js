@@ -1,10 +1,3 @@
-var UserListView = Backbone.View.extend({
-    events: {
-    },
-    render: function() {
-    }
-});
-
 var BasePopupView = Backbone.View.extend({
     initialize: function(options) {
         this.parent = options.parent;
@@ -237,8 +230,9 @@ var UserRowsView = Backbone.View.extend({
                 });
                 return;
             }
+            target.toggleClass('collapsed');
+            target.find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-right');
             var group_id = target.data('target');
-            console.log(group_id);
             $('#users-group-' + group_id).toggle();
             $('#days-group-' + group_id).toggle();
         }
