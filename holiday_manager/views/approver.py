@@ -51,22 +51,17 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
     def get(self, request, *args, **kwargs):
         today = datetime.datetime.now().date()
         start = self.request.GET.get('start')
-        self.filterform = forms.RequestFilterForm(self.request.GET)
         
         if start:
-            start = datetime.datetime.fromtimestamp(int(start))
-            self.start = start
-            self.end = start + relativedelta(months=1)
-            
-            self.next = self.end + relativedelta(days=1)
-            self.prev = self.start - relativedelta(months=1)
+            self.start = datetime.datetime.fromtimestamp(int(start))
         else:
-            start = today
-            self.start = today - relativedelta(days=10)
-            self.end = today + relativedelta(months=1)
+            self.start = datetime.date(today.year, today.month, 1)
             
-            self.next = self.end + relativedelta(days=1)
-            self.prev = today
+        self.end = self.start + relativedelta(months=2) - relativedelta(days=1)
+        
+        self.next = self.end + relativedelta(days=1)
+        print self.next
+        self.prev = self.start - relativedelta(months=2)
                             
         self.week_days = list(date_range(self.start, self.end))
         return super(HolidayRequestWeek, self).get(request, *args, **kwargs)
@@ -92,7 +87,6 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
 
         context.update({
             'week_days': self.week_days,
-            'filter_form': self.filterform,
             'user_requests': models.HolidayRequest.objects.select_related(
                     'author__approval_group').prefetch_related('project__closureperiod_set'
                     ).date_range(
@@ -154,7 +148,8 @@ class RequestDetails(ProjectViewMixin, generic.UpdateView):
         context = super(RequestDetails, self).get_context_data(**kwargs)
         context.update({
             'approvals': self.object.holidayapproval_set.all(),
-            'next_approval': self.object.next_pending_approval()
+            'next_approval': self.object.next_pending_approval(),
+            'recent_requests': self.object.author.holidayrequest_set.order_by('-requested_on')[:5]
         })
         return context
         
@@ -193,29 +188,3 @@ class HolidayApprovalList(ProjectViewMixin, generic.ListView):
             approver=self.request.user,
             status__in=(models.HolidayApproval.STATUS.pending, models.HolidayApproval.STATUS.waiting),
         ).order_by('order')
-        
-        
-#class ApproveRequest(ProjectViewMixin, generic.UpdateView):
-#    model = models.HolidayApproval
-#    form_class = forms.ApproveRequestForm
-#    
-#    def get_success_url(self):
-#        return reverse('app:approval_list', kwargs={'project': self.curr_project.slug})
-#    
-#    def form_valid(self, form):
-#        self.object = form.save(commit=False)
-#        self.object.approve()
-#        return super(ApproveRequest, self).form_valid(form)
-#        
-#        
-#class RejectApprovalRequest(ProjectViewMixin, generic.UpdateView):
-#    model = models.HolidayApproval
-#    
-#    def get_success_url(self):
-#        return reverse('approval_list')
-#        
-#    def post(self, request, *args, **kwargs):
-#        self.object = self.get_object()
-#        self.object.reject()
-#        return redirect(self.get_success_url())
-#        

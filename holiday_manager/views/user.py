@@ -9,6 +9,7 @@ import datetime
 from holiday_manager.views.generic import JSONResponseMixin
 from django.utils import simplejson as json
 from django import http
+from django.shortcuts import get_object_or_404
         
 class Dashboard(ProjectViewMixin, generic.TemplateView):
     template_name = 'holiday_manager/dashboard.html'
@@ -69,8 +70,29 @@ class CheckRequestAvailability(ProjectViewMixin, generic.TemplateView):
             return self.render_to_response({}) 
         else:
             print 'FORM ERRORS'
-            return self.render_to_response({}) 
+            return self.render_to_response({})
         
+        
+class CancelRequest(ProjectViewMixin, JSONResponseMixin, generic.View):
+    
+    def post(self, request, **kwargs):
+        self.object = get_object_or_404(models.HolidayRequest, pk=kwargs['pk'])
+        self.object.author_cancel()
+        context = {'success': True, 'message': "Request cancelled"}
+        
+        self.add_project_context = False
+        return self.render_to_response(context)
+    
+
+# TODO: check user privileges!
+class DeleteRequest(ProjectViewMixin, JSONResponseMixin, generic.View):
+    
+    def post(self, request, **kwargs):
+        self.object = get_object_or_404(models.HolidayRequest, pk=kwargs['pk'])
+        self.object.delete()
+        context = {'success': True, 'message': "Request deleted"}
+        self.add_project_context = False
+        return self.render_to_response(context)
 
 
 class UserHolidayRequestList(ProjectViewMixin, generic.ListView):
@@ -95,14 +117,14 @@ class UserHolidayRequestList(ProjectViewMixin, generic.ListView):
         return queryset.filter(author=self.request.user)
         
         
-class CancelRequest(ProjectViewMixin, generic.UpdateView):
-    model = models.HolidayRequest
-    #form_class = forms.ApproveRequestForm
-    
-    def get_success_url(self):
-        return reverse('app:holiday_user_requests', kwargs={'project': self.curr_project.slug, 'kind': 'all'})
-        
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.author_cancel()
-        return redirect(self.get_success_url())
+#class CancelRequest(ProjectViewMixin, generic.UpdateView):
+#    model = models.HolidayRequest
+#    #form_class = forms.ApproveRequestForm
+#    
+#    def get_success_url(self):
+#        return reverse('app:holiday_user_requests', kwargs={'project': self.curr_project.slug, 'kind': 'all'})
+#        
+#    def post(self, request, *args, **kwargs):
+#        self.object = self.get_object()
+#        self.object.author_cancel()
+#        return redirect(self.get_success_url())

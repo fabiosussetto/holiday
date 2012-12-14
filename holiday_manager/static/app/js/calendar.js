@@ -42,6 +42,12 @@ var InfoPopupView = BasePopupView.extend({
                         pk: this.requested_data.pk
                     }
                 },
+                after_loaded: function(modal, data) {
+                    $('.nav-tabs a', modal.$element).click(function (e) {
+                        e.preventDefault();
+                        $(this).tab('show');
+                    })
+                }
             });
             modal.$element.on('click', '.submit', function(e) {
                 e.preventDefault();
@@ -60,6 +66,20 @@ var InfoPopupView = BasePopupView.extend({
                     }
                 });
             });
+            modal.$element.on('click', '.ajax-action', function(e) {
+                e.preventDefault();
+                var target = $(e.target);
+                $.post(target.attr('href'), function(resp) {
+                    console.log(resp);
+                    modal.hide();
+                    get_page(modal.$element.data('page-url'));
+                }).error(function(resp) {
+                    console.log(resp);
+                });
+            });
+            
+            // By default, modal and tabs don't play nice together
+            modal.$element.on('click', '.modal-body', function(e){ e.stopPropagation(); });
             modal.show();
             this.hide();
         }

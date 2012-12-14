@@ -760,19 +760,26 @@
       constructor: Modal
       
     , load: function (options) {
-        var options = $.extend(this.options, options || {});
+        var default_options = {
+            after_loaded: function() {}    
+        };
+        options = $.extend(default_options, this.options, options);
         var self = this;
         if (!options.ajax.success) {
             options.ajax.success = function(data) {
-                var fragments = self.parseBody(data);
-                self.$element.find('.modal-header').html(fragments.header);
-                self.$element.find('.modal-body').html(fragments.body);
-                self.$element.find('.modal-footer').html(fragments.footer);
+                self.injectContent(data);
+                self.options.after_loaded(self, data);
             }
         }
         if (options.ajax) {
             $.ajax(options.ajax);
         }      
+    },
+    injectContent: function(data) {
+        var fragments = this.parseBody(data);
+        this.$element.find('.modal-header').html(fragments.header);
+        this.$element.find('.modal-body').html(fragments.body);
+        this.$element.find('.modal-footer').html(fragments.footer);
     },
     parseBody: function(raw_html) {
         var html = $('<div />').html(raw_html);

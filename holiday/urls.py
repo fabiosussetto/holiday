@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.decorators.csrf import csrf_exempt
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -16,7 +17,8 @@ app_patterns = patterns('',
     url(r'^holiday/request-details/$', views.approver.RequestDetails.as_view(), name='request_details'),
     
     url(r'^holiday/your-requests/(?P<kind>all|approved|archived)$', views.user.UserHolidayRequestList.as_view(), name='holiday_user_requests'),
-    url(r'^holiday/cancel-request/(?P<pk>\d+)$', views.user.CancelRequest.as_view(), name='holiday_cancel'),
+    url(r'^holiday/(?P<pk>\d+)/cancel$', csrf_exempt(views.user.CancelRequest.as_view()), name='holiday_cancel'),
+    url(r'^holiday/(?P<pk>\d+)/delete$', csrf_exempt(views.user.DeleteRequest.as_view()), name='holiday_delete'),
     
     url(r'^holiday/week(?:/(?P<kind>%s))?$' % views.approver.HolidayRequestWeek.url_params(), views.approver.HolidayRequestWeek.as_view(), name='holiday_weekly'),
     url(r'^holiday/list(?:/(?P<kind>%s))?$' % views.approver.HolidayRequestList.url_params(), views.approver.HolidayRequestList.as_view(), name='holiday_list'),

@@ -176,8 +176,6 @@ class HolidayRequest(models.Model):
                     approver=self.author, request=self, order=0,
                     status=HolidayApproval.STATUS.pending, project=self.project
                 )
-            approval_requests.append(req)
-            #return self, []
         else:
             for index, approver in enumerate(group.ordered_approvers()):
                 status = HolidayApproval.STATUS.waiting if index else HolidayApproval.STATUS.pending
@@ -236,6 +234,15 @@ class HolidayRequest(models.Model):
         closure_dates = list(itertools.chain(*[date_range(period.start, period.end) for period in closure_periods]))
         total = sum(1 for day in request_date_range if day.weekday() not in self.project.weekly_closure_days and day not in closure_dates)
         return total
+    
+    @transaction.commit_on_success
+    def delete(self):
+        # TODO: effective_days span should be cached when the request is created
+        tot_days = self.effective_days_span
+        self.author.days_off_left = self.author.days_off_left + tot_days
+        self.author.save()
+        # TODO: perform GCAL sync
+        super(HolidayRequest, self).delete()
         
     #def clean(self):
     #    from django.core.exceptions import ValidationError

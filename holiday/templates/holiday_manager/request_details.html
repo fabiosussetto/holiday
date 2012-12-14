@@ -6,15 +6,22 @@
     <dl class="dl-horizontal">
         <dt>Requested by</dt>
         <dd>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</dd>
+        <dt>Requested on</dt>
+        <dd>{{ holiday_request.requested_on }}</dd>
         <dt>Duration</dt>
         <dd>{{ holiday_request.effective_days_span }} effective working days</dd>
         <dt>Status</dt>
         <dd><span class="label label-warning">{{ holiday_request.status }}</span></dd>
+        {% if holiday_request.notes %}
+            <dt>Notes</dt>
+            <dd>{{ holiday_request.notes }}</dd>
+        {% endif %}
     </dl>
     
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab-approvals" data-toggle="tab">Approval queue</a></li>
         <li><a href="#tab-history" data-toggle="tab">Recent requests</a></li>
+        <li><a href="#tab-edit" data-toggle="tab">Edit this request</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="tab-approvals">
@@ -34,7 +41,34 @@
             </table>
         </div>
         <div class="tab-pane" id="tab-history">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ut nisl urna, consectetur interdum ipsum. Aliquam ac nibh nec metus lobortis faucibus. Maecenas pellentesque risus in nisi scelerisque facilisis id sit amet lectus. Integer aliquam vestibulum porttitor. Maecenas sit amet ligula sed velit mollis vehicula. Nunc vitae orci enim, in elementum libero. Suspendisse aliquam, justo vel cursus volutpat, augue velit eleifend ipsum, at aliquet ante nulla id diam. Pellentesque ac eleifend lorem. Curabitur eget diam sed odio hendrerit sollicitudin.
+            <table class="table table-striped">
+                <tr>
+                    <th>Requested on</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Status</th>
+                </tr>
+                {% for req in recent_requests %}
+                    <tr>
+                        <td>{{ req.requested_on }}</td>
+                        <td>{{ req.start_date }}</td>
+                        <td>{{ req.end_date }}</td>
+                        <td>{{ req.status }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="tab-pane" id="tab-edit">
+            {% if request.user == holiday_request.author and holiday_request.is_cancellable %}
+                <p>
+                    <a href="{% url app:holiday_cancel pk=holiday_request.pk project=curr_project%}" class="btn btn-small btn-danger ajax-action">Cancel this request</a>
+                </p>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <p>
+                    <a href="{% url app:holiday_delete pk=holiday_request.pk project=curr_project%}" class="btn btn-small btn-danger ajax-action">Delete this request</a>
+                </p>
+            {% endif %}
         </div>
     </div>
     
