@@ -49,6 +49,9 @@ def in_date_range(requests, week_days):
                 if day == obj.start_date:
                     classes.append('first')
                     request_json = simplejson.dumps(obj.to_dict())
+                elif day == week_days[0]:
+                    classes.append('first trucated')
+                    request_json = simplejson.dumps(obj.to_dict())
                 elif day == obj.end_date:
                     classes.append('last')
         output.append('<td data-request=\'%s\' data-date="%s" class="%s"><span></span></td>' % (

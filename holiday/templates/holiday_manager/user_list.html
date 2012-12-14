@@ -36,7 +36,7 @@
     <div class="group-header cf">
         <h3 class="show-all">{{ team }} <span>({{ team.user_set.count }})</span></h3>
         <ul class="cf">
-            <li><a href="#" class="clear-selection">Edit group settings</a></li>
+            <li><a href="{% url app:group_edit project=curr_project pk=team.pk %}" class="ajax">Edit group settings</a></li>
             <li><a href="#" class="clear-selection">Clear selection</a></li>
         </ul>
     </div>

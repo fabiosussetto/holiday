@@ -132,7 +132,7 @@ var CalendarView  = Backbone.View.extend({
     events: {
         'click #current-user-row td': function(e) {
             var curr_td = $(e.currentTarget);
-            if (curr_td.hasClass('request')) {
+            if (curr_td.is('.request, .past')) {
                 return;
             }
             if (!this.selection_active && curr_td.hasClass("highlighted")) {
@@ -166,7 +166,7 @@ var CalendarView  = Backbone.View.extend({
                 return;
             }
             var curr_td = $(e.currentTarget);
-            if (curr_td.index() < this.selection.first.index()) {
+            if (curr_td.index() < this.selection.first.index() || curr_td.hasClass('request')) {
                 // negative selection, do nothing
                 return;
             }
@@ -214,9 +214,9 @@ var CalendarView  = Backbone.View.extend({
 
 var UserRowsView = Backbone.View.extend({
     events: {
-        'click .user-row': function(e) {
+        'click .user-row .check': function(e) {
             var el = $(e.target);
-            el.toggleClass('selected');
+            el.parent().toggleClass('selected');
         },
         'click .team-row': function(e) {
             e.preventDefault();
@@ -235,6 +235,17 @@ var UserRowsView = Backbone.View.extend({
             var group_id = target.data('target');
             $('#users-group-' + group_id).toggle();
             $('#days-group-' + group_id).toggle();
+        },
+        'click .user-details': function(e) {
+            var target = $(e.currentTarget);
+            e.preventDefault();
+            modal = new Modal($('#user-detail-modal'), {
+                backdrop: true,
+                ajax: {
+                    url: target.attr('href'),
+                }
+            });
+            modal.show();
         }
     }
 });

@@ -110,7 +110,7 @@
                 <div class="popover bottom" id="request-data"></div>
             </div>
         </div>
-        <div id="myModal" class="modal hide fade" role="dialog" data-page-url="{{ request.path }}">
+        <div id="myModal" class="modal hide fade request-details-modal" role="dialog" data-page-url="{{ request.path }}">
             <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="myModalLabel">Modal header</h3>
@@ -133,6 +133,18 @@
             <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ next }}">Next week &rarr;</a>
         </li>
     </ul>
+    
+    <div id="user-detail-modal" class="modal hide fade user-detail-view" role="dialog">
+        <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel"></h3>
+        </div>
+        <div class="modal-body">
+        <p>Loading…</p>
+        </div>
+        <div class="modal-footer">
+        </div>
+    </div>
     
     <script id="template-popover" type="text/html">
         <div class="arrow"></div>
@@ -226,10 +238,10 @@
         $('#filter-clear').click(function(e) {
             e.preventDefault();
             $('.user-row').show();
-            $('.select-user:checked').attr('checked', false);
+            $('.user-row.selected').removeClass('selected');
         });
         
-        $('.holiday_week').on('hover', 'tr', function() {
+        $('.holiday_week').on('hover', '.request-days tr', function() {
             $(this).toggleClass('hover');
             $('#user-side-' + $(this).data('user-id')).toggleClass('hover');
         });

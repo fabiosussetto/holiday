@@ -6,8 +6,11 @@
 <div id="users-group-{{ team.pk }}">
 {% for author, _ in members %}
     <div class="user-row" id="user-side-{{ author.pk }}" data-user-id="{{ author.pk }}">
-        <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
-        {{ author }} 
+        <a href="{% url app:user_detail project=curr_project pk=author.pk %}" class="user-details">
+            <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
+            {{ author }}
+        </a>
+        <span class="check"></span>
     </div>
 {% endfor %}
 </div>

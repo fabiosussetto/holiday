@@ -1,24 +1,42 @@
 <div id="modal-header">
-    <h3>Holiday request details</h3>
+    <h3>Holiday request <span>{{ holiday_request.start_date|date:"D j N" }} - {{ holiday_request.end_date|date:"D j N" }}</span></h3>
 </div>
 
 <div id="modal-body">
-    <p>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</p>
-    <p>{{ holiday_request.start_date }} - {{ holiday_request.end_date }} ({{ holiday_request.effective_days_span }} effective days)</p>
-    <p>Status: {{ holiday_request.status }}</p>
+    <dl class="dl-horizontal">
+        <dt>Requested by</dt>
+        <dd>{{ holiday_request.author }} ({{ holiday_request.author.approval_group }})</dd>
+        <dt>Duration</dt>
+        <dd>{{ holiday_request.effective_days_span }} effective working days</dd>
+        <dt>Status</dt>
+        <dd><span class="label label-warning">{{ holiday_request.status }}</span></dd>
+    </dl>
     
-    <table class="table table-striped">
-        <tr>
-            <th>Approver</th>
-            <th>Status</th>
-        </tr>
-        {% for approval in approvals %}
-            <tr>
-                <td>{{ approval.approver }}</td>
-                <td>{{ approval.status }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab-approvals" data-toggle="tab">Approval queue</a></li>
+        <li><a href="#tab-history" data-toggle="tab">Recent requests</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab-approvals">
+            <table class="table table-striped">
+                <tr>
+                    <th>Approver</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+                {% for approval in approvals %}
+                    <tr>
+                        <td>{{ approval.approver }}</td>
+                        <td>{{ approval.status }}</td>
+                        <td>{% if approval.changed_on %}{{ approval.changed_on|timesince }}{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="tab-pane" id="tab-history">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ut nisl urna, consectetur interdum ipsum. Aliquam ac nibh nec metus lobortis faucibus. Maecenas pellentesque risus in nisi scelerisque facilisis id sit amet lectus. Integer aliquam vestibulum porttitor. Maecenas sit amet ligula sed velit mollis vehicula. Nunc vitae orci enim, in elementum libero. Suspendisse aliquam, justo vel cursus volutpat, augue velit eleifend ipsum, at aliquet ante nulla id diam. Pellentesque ac eleifend lorem. Curabitur eget diam sed odio hendrerit sollicitudin.
+        </div>
+    </div>
     
     {% if next_approval.approver == request.user %}
     <form action="{% url app:approval_process pk=next_approval.pk project=curr_project %}" method="post" class="" id="submit-request">{% csrf_token %}
@@ -33,4 +51,5 @@
         <button type="button" data-status="approved" class="submit btn btn-success">Approve</button>
         <button type="button" data-status="rejected" class="submit btn btn-danger">Reject</button>
     {% endif %}
+    <button type="button" class="btn ">Close</button>
 </div>

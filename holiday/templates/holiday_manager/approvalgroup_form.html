@@ -9,8 +9,9 @@
     <!--</header>-->
 {% endblock %}
 
+
 {% block pagecontent %}
-    <div class="row">
+    <div class="row-fluid">
         <div class="span8">
             <div class="widget">
                 <div class="widget-header">
@@ -97,12 +98,12 @@
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}select2/select2.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}shared/select2/select2.css">
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{{ STATIC_URL }}select2/select2.js"></script>
-    <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+    <script src="{{ STATIC_URL }}shared/select2/select2.js"></script>
+    <script src="{{ STATIC_URL }}app/js/jquery.formset.js"></script>
     <script>
         $(".sortable-formset .select2").select2();
         $(".sortable-formset").sortable({

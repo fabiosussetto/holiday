@@ -96,9 +96,6 @@ class ProcessRequestForm(forms.ModelForm):
         
     def save(self, commit=True):
         obj = super(ProcessRequestForm, self).save(commit=False)
-        return obj
-        
-        
         new_status = self.cleaned_data['status']
         if new_status == models.HolidayApproval.STATUS.approved:
             obj.approve()

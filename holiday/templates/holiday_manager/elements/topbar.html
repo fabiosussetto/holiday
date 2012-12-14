@@ -17,15 +17,8 @@
             <li class="{% topnav_active 'dashboard' %}"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
             {% if user.is_staff or user.is_superuser %}
                 <li class="divider-vertical"></li>
-                <li class="dropdown {% topnav_active 'users' %}">
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon-group"></i> Your staff</a>
-                    <ul class="dropdown-menu">
-                      <li><a href="{% url app:user_list curr_project %}">User list</a></li>
-                      <li><a href="{% url app:invites:invite curr_project %}">Invite user</a></li>
-                      <li class="divider"></li>
-                      <li><a href="{% url app:group_list curr_project %}">Groups</a></li>
-                      <li><a href="{% url app:group_add curr_project %}">Create group</a></li>
-                    </ul>
+                <li class="{% topnav_active 'users' %}">
+                    <a href="{% url app:user_list curr_project %}"><i class="icon-group"></i> Your staff</a>
                 </li>
             {% endif %}
             {% if user.is_approver or user.is_superuser %}

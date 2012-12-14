@@ -1,8 +1,8 @@
-
 body {
     //background: url("../img/body-bg.png") repeat scroll 0 0 #E9E9E9 !important;
     background: #fff;
 }
+
 
 /* For modern browsers */
 .cf:before,
@@ -652,6 +652,15 @@ table form {
     margin-top: 20px;
 }
 
+.check {
+    background: url(../img/checkbox-sprite.png) no-repeat;
+    background-position: 0px 0px;
+    width: 15px;
+    height: 20px;
+    display: block;
+    cursor: pointer;
+}
+
 .user-rows {
     padding-bottom: 500em;
     margin-bottom: -500em;
@@ -670,6 +679,15 @@ table form {
         margin-right: 10px;
         border-bottom: 1px solid #eee;
         font-size: 12px;
+        position: relative;
+        .check {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            opacity: .3;
+        }
+        .approver {
+        }
         &:last-child {
             border-bottom: 0;
         }
@@ -677,12 +695,17 @@ table form {
             width: 35px;
             margin-right: 5px;
         }
-        &.selected {
-            background: url(../img/checkmark.png) right center no-repeat;
+        &.selected .check {
+            opacity: 1;
+            background-position: -76px 0px;
         }
         &.hover {
-            //background: #eee;
             font-weight: bold;
+        }
+        &:hover {
+            .check {
+                opacity: 1;
+            }
         }
     }
     .current-user {
@@ -695,8 +718,8 @@ table form {
         border-bottom: 1px solid #eee;
         font-weight: bold;
         cursor: pointer;
-        .collapsed {
-            
+        &.collapsed {
+            border-bottom: 0;   
         }
     }
     .shade {
@@ -869,6 +892,10 @@ table form {
             border-radius: 10px 0 0 10px;
             border-left: 0;
         }
+        &.trucated span {
+            border-radius: 0;
+            border-left: inherit;
+        }
     }
     .day.last {
         padding-right: 4px;
@@ -924,6 +951,7 @@ table form {
         display: block;
         width: 100%;
         height: 10px;
+        cursor: pointer;
         border-right: 1px solid #fff;
         background-color: #DD514C;
         background-image: linear-gradient(to bottom, #EE5F5B, #C43C35);
@@ -1030,7 +1058,7 @@ table form {
             margin: 0;
             margin-left: 20px;
             margin-top: 6px;
-            display: none;
+            //display: none;
             li {
                 list-style: none;
                 float: left;
@@ -1177,5 +1205,28 @@ table form {
         }
     }
     .last-requests {
+    }
+}
+
+.request-details-modal {
+    .modal-header h3 {
+        font-size: 20px;
+        span {
+            color: #999;
+            font-size: 18px;
+            margin-left: 5px;
+        }
+    }
+    dl {
+        margin-top: 0;
+    }
+    dt, dd {
+        margin-bottom: 8px;
+    }
+    dt {
+        width: 110px;
+    }
+    dd {
+        margin-left: 125px;
     }
 }
