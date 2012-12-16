@@ -60,7 +60,6 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
         self.end = self.start + relativedelta(months=2) - relativedelta(days=1)
         
         self.next = self.end + relativedelta(days=1)
-        print self.next
         self.prev = self.start - relativedelta(months=2)
                             
         self.week_days = list(date_range(self.start, self.end))
@@ -98,7 +97,7 @@ class HolidayRequestWeek(ProjectViewMixin, FilteredListView):
             context.update({
                 'start': int(time.mktime(self.start.timetuple())),
                 'end': int(time.mktime(self.end.timetuple())),
-                'next': int(time.mktime(self.end.timetuple())),
+                'next': int(time.mktime(self.next.timetuple())),
                 'prev': int(time.mktime(self.prev.timetuple())),
             })
         

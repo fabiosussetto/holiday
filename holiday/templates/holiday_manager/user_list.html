@@ -48,7 +48,7 @@
                     <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
                     <div class="wrap">
                         <a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">
-                            <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
+                            <img src="http://flickholdr.com/50/50/{{ object.pk }}">
                         </a>
                     </div>
                     <div class="percentage">

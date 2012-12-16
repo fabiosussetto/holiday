@@ -32,6 +32,13 @@
 
 {% block tabcontent %}
     <div class="btn-toolbar cal-toolbar well">
+        <form class="user-search">
+            <div class="input-append">
+                <input class="" id="appendedInputButtons" type="text">
+                <button class="btn" type="button">Search</button>
+            </div>
+        </form>
+
         <div class="btn-group">
             <button class="btn" id="filter-users">Filter</button>
             <button class="btn" id="filter-clear">Clear</button>
@@ -48,6 +55,13 @@
     <div class="cf calendar-wrap compact">
         <div class="user-rows">
             <div class="shade"></div>
+            <div id="cal-nav">
+                <p class="period">{{ week_days|first }} - {{ week_days|last }}</p>
+                <div class="nav">
+                    <a href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ prev }}" class="btn ajax"><i class="icon-chevron-left"></i></a>
+                    <a href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ next }}" class="btn ajax"><i class="icon-chevron-right"></i></a>
+                </div>
+            </div>  
             <div class="user-row current-user">
                 <img src="http://flickholdr.com/50/50/{{ forloop.counter }}">
                 {{ request.user }}
@@ -78,6 +92,9 @@
                             </th>
                         {% endfor %}
                     </tr>
+                    <tr class="separator">
+                        <td colspan="{{ week_days|length }}"></td>
+                    </tr>
                     <tr class="user-row" id="current-user-row">
                         {% in_date_range user_requests week_days %}
                     </tr>
@@ -98,6 +115,10 @@
                                 <tr class="user-row"></tr>
                             </tbody>
                         {% endfor %}
+                    {% empty %}    
+                        <tr class="no-requests">
+                            <td colspan="{{ week_days|length }}"></td>
+                        </tr>
                     {% endfor %}
                 </table>
                 <div class="popover bottom" id="submit" data-url="{% url app:check_request curr_project %}">
@@ -123,16 +144,15 @@
             <button class="btn btn-primary">Save changes</button>
             </div>
         </div>
+        <!--<div id="user-row-wrapper"></div>-->
+        {% if not object_list %}
+        <div id="no-results">
+            <h3>No holiday requests for this period.</h3>
+            <p>If you want to submit a new holiday request, click and drag on the lane beside your name.</p>
+        </div>
+        {% endif %}
     </div>
     
-    <ul class="pager">
-        <li class="previous">
-            <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ prev }}">&larr; Prev week</a>
-        </li>
-        <li class="next">
-            <a class="tab-link" href="{% url app:holiday_weekly project=curr_project kind=list_kind %}?start={{ next }}">Next week &rarr;</a>
-        </li>
-    </ul>
     
     <div id="user-detail-modal" class="modal hide fade user-detail-view" role="dialog">
         <div class="modal-header">
@@ -215,6 +235,11 @@
         
         $('.table-scroll').scrollTo('.today', {direction: 'horizontal'});
         
+        
+        $('#no-results').css({
+            left: $('.scroll-wrap').position().left + ($('.scroll-wrap').outerWidth() - $('#no-results').outerWidth()) / 2,
+            top: $('.scroll-wrap').position().top + $('.scroll-wrap').outerHeight() / 2 + 20
+        });
         
         $('#toggle-compact').click(function(e) {
             e.preventDefault();
