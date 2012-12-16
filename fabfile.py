@@ -17,8 +17,10 @@ ENV_SETTINGS = {
 }
 
 @task
-def set_hosts(target_env):
-    env.hosts = [ENV_SETTINGS[target_env]['host']]
+def dev():
+    env.target = 'dev'
+    env.taget_params = ENV_SETTINGS[env.target]
+    env.hosts = [env.taget_params['host']]
 
 
 @_contextmanager
@@ -97,14 +99,13 @@ def select_settings():
         run("cp %s/%s %s" % (env.main_app_dir, env.settings_template, settings_filename))
         
 @task
-def deploy(target_env):
+def deploy():
     # Specify fabric evn settings, according to the Jenkins Job name
-    env.hosts = [ENV_SETTINGS[target_env]['host']]
-    env.git_branch = ENV_SETTINGS[target_env]['branch']
+    env.git_branch = env.taget_params['branch']
     env.user = 'ubuntu'
-    env.remote_workdir = ENV_SETTINGS[target_env]['code_dir']
-    env.main_app_dir = os.path.join(env.remote_workdir, ENV_SETTINGS[target_env]['main_app_dir'])
-    env.settings_template = ENV_SETTINGS[target_env]['settings_template']
+    env.remote_workdir = env.taget_params['code_dir']
+    env.main_app_dir = os.path.join(env.remote_workdir, env.taget_params['main_app_dir'])
+    env.settings_template = env.taget_params['settings_template']
     
     # Virtualenv variables
     env.virtualenv_dir = os.path.join(env.remote_workdir, 'virtualenv')

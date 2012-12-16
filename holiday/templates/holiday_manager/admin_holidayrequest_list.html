@@ -1,19 +1,24 @@
 {% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
 
 {% block tabheader %}
-    <i class="icon-inbox"></i>
     <h3 class="">Holiday requests</h3>
-{% endblock %}
-
-{% block subtabnav %}
-    {% include 'holiday_manager/elements/holiday_requests_tabs.html' %}
+    <nav>
+        <ul>
+            <li>
+                <div class="btn-group">
+                    <a class="btn tab-link {% if active_view == 'holidayrequestweek' %}active{% endif %}" href="{% url app:holiday_weekly project=curr_project %}">
+                        <i class="icon-calendar"></i> Calendar view
+                    </a>
+                    <a class="btn tab-link {% if active_view == 'holidayrequestlist' %}active{% endif %}" href="{% url app:holiday_list project=curr_project %}">
+                        <i class="icon-list-alt"></i> List view
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}
 
 {% block widgetclass %}holiday-calendar{% endblock %}
-
-{% block tabheadernav %}
-    {% include 'holiday_manager/elements/holiday_requests_header.html' %}
-{% endblock %}
 
 {% block tabcontent %}
     
@@ -26,19 +31,21 @@
 <table class="table table-striped">
     <tr>
         <th>Requested by</th>
-        <th>Requested on</th>
         <th>From</th>
         <th>To</th>
         <th>Status</th>
+        <th>Requested on</th>
         <th></th>
     </tr>
     {% for object in object_list %}
         <tr>
-            <td>{{ object.author }}</td>
-            <td>{{ object.requested_on }}</td>
+            <td>
+                <img src="http://flickholdr.com/30/30/{{ object.pk }}"> {{ object.author }}
+            </td>
             <td>{{ object.start_date }}</td>
             <td>{{ object.end_date }}</td>
             <td>{{ object.status }}</td>
+            <td>{{ object.requested_on }}</td>
             <td><a href="{% url app:holiday_edit project=curr_project pk=object.pk %}" class="btn">Edit</a></td>
         </tr>
     {% endfor %}
