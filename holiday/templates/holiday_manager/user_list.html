@@ -20,7 +20,7 @@
                 </div>
             </li>
             <li>
-                <a href="#" class="btn btn-primary">Add a new member</a>
+                <a href="{% url app:invites:invite curr_project %}" class="btn btn-primary invite-user">Add a new member</a>
                 <a href="#" class="btn">Create new group...</a>
             </li>
         </ul>
@@ -69,7 +69,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">Detail</a></li>
-                                <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="ajax">Edit</a></li>
+                                <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" data-display="dialog" data-dialog-view="EditUserModalView" data-dialog-target="#edit-user-modal">Edit</a></li>
                                 {% if not object.is_active %}
                                 <li>
                                     <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
@@ -99,6 +99,28 @@
 </div>
 {% endfor %}
 
+<div id="invite-user-modal" class="modal hide fade" role="dialog" data-reload-url="{{ request.path }}">
+    <div class="modal-header">
+        <h3 id="myModalLabel"></h3>
+    </div>
+    <div class="modal-body">
+    <p>Loading…</p>
+    </div>
+    <!--<div class="modal-footer"></div>-->
+    <div class="modal-loader"></div>
+</div>
+
+<div id="edit-user-modal" class="modal hide fade" role="dialog" data-reload-url="{{ request.path }}">
+    <div class="modal-header">
+        <h3 id="myModalLabel"></h3>
+    </div>
+    <div class="modal-body">
+    <p>Loading…</p>
+    </div>
+    <!--<div class="modal-footer"></div>-->
+    <div class="modal-loader"></div>
+</div>
+
 
 <div id="myModal" class="modal hide fade user-detail-view" role="dialog">
     <div class="modal-header">
@@ -117,6 +139,9 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="{{ STATIC_URL }}shared/js/underscore-min.js"></script>
+    <script src="{{ STATIC_URL }}shared/js/backbone-min.js"></script>
+    <script src="{{ STATIC_URL }}app/js/invites.js"></script>
     <script>
         $('.show-all').click(function(e) {
             var $this = $(this);

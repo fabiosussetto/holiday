@@ -1,92 +1,72 @@
-{% extends 'holiday_manager/base_page.html' %}
-{% load webdesign %}
+{% extends 'holiday_manager/base_modal.html' %}
 
-{% block header %}
-    <!--<header class="page-head row">-->
-    <!--    <div class="span12">-->
-    <!--        <h4 class="title title-icon title-icon-small"><i class="icon-user"></i> Invite people <a class="btn ajax" href="{{ request.META.HTTP_REFERER }}">Back to list</a></h4>-->
-    <!--    </div>-->
-    <!--</header>-->
+{% block modal_title %}
+    Invite a new memeber
 {% endblock %}
 
-{% block pagecontent %}
-    <div class="row-fluid">
-        <div class="span8">
-            <div class="widget">
-                <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Invite people</h3>
+{% block modal_body %}
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab-invite" data-toggle="tab">Invite by email</a></li>
+        <li><a href="#tab-gmail" data-toggle="tab">Import your GMail contacts</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab-invite">
+            <form action="{% url app:invites:invite curr_project %}" method="post" class="form-inline invite-form">{% csrf_token %}
+                <div class="form-column-container">
+                    <div class="form-column">
+                        {% with field=form.email %}
+                            {% include 'bootstrap_form.html' %}
+                        {% endwith %}
+                        {% with field=form.first_name %}
+                            {% include 'bootstrap_form.html' %}
+                        {% endwith %}
+                        {% with field=form.last_name %}
+                            {% include 'bootstrap_form.html' %}
+                        {% endwith %}
+                    </div>
+                    <div class="form-column">
+                        {% with field=form.approval_group %}
+                            {% include 'bootstrap_form.html' %}
+                        {% endwith %}
+                        {% with field=form.days_off_left %}
+                            {% include 'bootstrap_form.html' %}
+                        {% endwith %}
+                    </div>    
                 </div>
-                <div class="widget-content">
-                    <p class="intro well well-small">
-                        Manage people in your staff. Invite them by email or import your GMail contacts. Assign people to groups
-                        with different holiday approval settings.
-                    </p>
-                    
-                    <h4 class="title titleLineBottom">Send an invite to use this app by email</h4>
-                    <form action="" method="post" class="form-inline">{% csrf_token %}
-                        {{ form.errors }}
-                        <div>
-                            {{ form.email }} {{ form.first_name }} {{ form.last_name }}
-                            <button type="submit" class="btn btn-primary">Send invite</button>
-                        </div>
-                    </form>
-                        
-                    <form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
-                        <h4 class="title titleLineBottom">Your gmail contacts</h4>
-                        <p class="lightColor">Select your GMail contacts to invite:</p>
-                        {% if oauthed %}
-                            <div class="scroller contact-picker">
-                                {% if contacts %}
-                                    <ul>
-                                    {% for contact in contacts %}
-                                        <li>
-                                            <input type="checkbox" name="email" value="{{ contact.email }}">
-                                            <img onerror="this.src='/static/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
-                                            {{ contact.full_name }} ({{ contact.email }})
-                                        </li>
-                                    {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p>You don't have any contacts to import.</p>
-                                {% endif %}
-                            </div>
-                        {% else %}
-                            <p>Please authorize this app to import your Gmail contacts:</p>
-                            <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
-                        {% endif %}
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Import selected contacts</button>
-                        </div>
-                
-                    </form>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary send-invite">Send invite</button>
                 </div>
-            </div>
+            </form>
         </div>
+        <div class="tab-pane" id="tab-gmail">
+            <form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
+                <p class="lightColor">Select your GMail contacts to invite:</p>
+                {% if oauthed %}
+                    <div class="scroller contact-picker">
+                        {% if contacts %}
+                            <ul>
+                            {% for contact in contacts %}
+                                <li>
+                                    <input type="checkbox" name="email" value="{{ contact.email }}">
+                                    <img onerror="this.src='{{ STATIC_URL }}app/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
+                                    {{ contact.full_name }} ({{ contact.email }})
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>You don't have any contacts to import.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>Please authorize this app to import your Gmail contacts:</p>
+                    <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
+                {% endif %}
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Import selected contacts</button>
+                </div>
         
-        <div class="span4">
-            <div class="widget">
-                <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Help</h3>
-                </div>
-                <div class="widget-content">
-                    {% lorem 2 p random %}
-                </div>
-            </div>
-            
-            <div class="widget">
-                <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Help</h3>
-                </div>
-                <div class="widget-content">
-                    <button class="btn btn-danger">Delete this user</button>
-                </div>
-            </div>
-            
+            </form>
         </div>
     </div>
-    
 {% endblock %}

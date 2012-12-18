@@ -1,4 +1,5 @@
 {% extends 'holiday_manager/base.html' %}
+{% load pagination_tags %}
 
 {% block content %}
     
@@ -15,6 +16,8 @@
         <a href="{% url app:holiday_user_requests project=curr_project kind='archived' %}">Archived</a>
     </li>
 </ul>
+
+{% autopaginate object_list 20 %}
 
 <table class="table table-striped">
     <tr>
@@ -40,5 +43,7 @@
         </tr>
     {% endfor %}
 </table>
+
+{% paginate %}
 
 {% endblock %}

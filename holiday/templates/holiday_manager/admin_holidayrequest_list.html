@@ -1,4 +1,5 @@
 {% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
+{% load pagination_tags %}
 
 {% block tabheader %}
     <h3 class="">Holiday requests</h3>
@@ -27,6 +28,8 @@
     {{ filterform.end_date }}
     <button type="submit" class="btn">Filter</button>
 </form>
+
+{% autopaginate object_list 20 %}
     
 <table class="table table-striped">
     <tr>
@@ -50,6 +53,8 @@
         </tr>
     {% endfor %}
 </table>
+
+{% paginate %}
 
 {% endblock %}
 

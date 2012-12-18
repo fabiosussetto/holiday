@@ -204,7 +204,8 @@ class User(models.Model):
     last_login = models.DateTimeField(_('last login'), default=timezone.now)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     
-    approval_group = models.ForeignKey(ApprovalGroup, blank=True, null=True, on_delete=models.SET_NULL)
+    approval_group = models.ForeignKey(ApprovalGroup, blank=True, null=True, on_delete=models.SET_NULL,
+                            help_text="Assign an user to an approval group")
     
     activation_key = models.CharField(max_length=40)
     

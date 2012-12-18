@@ -68,4 +68,10 @@
         });
     });
     
+    $('body').on('click', '[data-display="dialog"]', function(e) {
+        e.preventDefault();
+        var target = $(e.target);
+        var dialog_view = new window[target.data('dialog-view')]({el: $(target.data('dialog-target'))}).render(target.attr('href')).show();
+    });
+    
 });

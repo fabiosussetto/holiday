@@ -24,9 +24,13 @@ class EditUserForm(ProjectFormMixin, forms.ModelForm):
 
         
 class InviteUserForm(ProjectFormMixin, forms.ModelForm):
+    
+    email = forms.EmailField(help_text="An invite will be sent to this address", required=True)
+    days_off_left = forms.IntegerField(min_value=0, help_text="How many days this user will receive for the current year")
+    
     class Meta:
         model = models.User
-        fields = ('email', 'first_name', 'last_name')
+        fields = ('email', 'first_name', 'last_name', 'approval_group', 'days_off_left')
         widgets = {
             'email': forms.TextInput(attrs={'placeholder': 'Email'}),
             'first_name': forms.TextInput(attrs={'placeholder': 'First name (optional)'}),

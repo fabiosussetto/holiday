@@ -1,54 +1,44 @@
-{% extends 'holiday_manager/base_page.html' %}
-{% load webdesign %}
+{% extends 'holiday_manager/base_modal.html' %}
 
-{% block header %}
-    <!--<header class="page-head row">-->
-    <!--    <div class="span10">-->
-    <!--        <h4 class="title title-icon title-icon-small"><i class="icon-user"></i> Edit user</h4>-->
-    <!--    </div>-->
-    <!--</header>-->
+{% block modal_title %}
+    Edit user profile
 {% endblock %}
 
-{% block pagecontent %}
-    <div class="row">
-        <div class="span8">
-            <div class="widget">
-                <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Edit user profile</h3>
-                </div>
-                <div class="widget-content">
-                    <form action="" method="post" class="">{% csrf_token %}
-                        {{ form.as_p }}
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
-                </div>
+{% block modal_body %}
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab-personal" data-toggle="tab">Personal details</a></li>
+        <li><a href="#tab-access" data-toggle="tab">Login and roles</a></li>
+    </ul>
+    <form action="{% url app:user_edit pk=object.pk project=curr_project %}" method="post" class="form-horizontal">{% csrf_token %}
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab-personal">
+                {% with field=form.email %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
+                {% with field=form.first_name %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
+                {% with field=form.last_name %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
+                {% with field=form.approval_group %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
+                {% with field=form.days_off_left %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
+            </div>
+            <div class="tab-pane" id="tab-access">
+                {% with field=form.is_active %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
+                {% with field=form.is_staff %}
+                    {% include 'bootstrap_form.html' %}
+                {% endwith %}
             </div>
         </div>
-        
-        <div class="span4">
-            <div class="widget">
-                <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Help</h3>
-                </div>
-                <div class="widget-content">
-                    {% lorem %}
-                </div>
-            </div>
-            
-            <div class="widget">
-                <div class="widget-header">
-                    <i class="icon-user"></i>
-                    <h3 class="">Help</h3>
-                </div>
-                <div class="widget-content">
-                    <button class="btn btn-danger">Delete this user</button>
-                </div>
-            </div>
-            
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
-    </div>
+    </form>
 {% endblock %}

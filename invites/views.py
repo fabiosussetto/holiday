@@ -183,7 +183,8 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
         if form.is_valid():
             new_user = form.save(self.curr_project)
             messages.success(request, "Invite sent to %s." % new_user.email)
-            return redirect_to_referer(request)
+            #return redirect_to_referer(request)
+            return self.render_to_response(self.get_context_data(form=form))
         else:
             return self.form_invalid(form=form)
         
