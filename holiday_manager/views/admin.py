@@ -40,7 +40,7 @@ class UserList(ProjectViewMixin, generic.ListView):
         context = super(UserList, self).get_context_data(**kwargs)
         
         groups = []
-        context['object_list'] = sorted(list(context['object_list']), key=lambda x: x.approval_group.pk)
+        context['object_list'] = sorted(list(context['object_list']), key=lambda x: x.approval_group.pk if x.approval_group else None)
         
         for group, users in itertools.groupby(context['object_list'], lambda x: x.approval_group):
             if group:
