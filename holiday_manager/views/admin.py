@@ -15,7 +15,8 @@ from holiday_manager.google_calendar import GoogleCalendarApi, calendar_choices
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import login, get_backends
-from social_auth.db.django_models import UserSocialAuth 
+from social_auth.db.django_models import UserSocialAuth
+import itertools
 
 # Debug views
 class LoginAs(ProjectViewMixin, generic.View):
@@ -30,14 +31,36 @@ class LoginAs(ProjectViewMixin, generic.View):
 # User management
 
 class UserList(ProjectViewMixin, generic.ListView):
-    model = models.ApprovalGroup
+    #model = models.ApprovalGroup
+    model = User
     template_name = 'holiday_manager/user_list.html'
     main_section = 'users'
     
-    def get_queryset(self, **kwargs):
-        queryset = super(UserList, self).get_queryset(**kwargs)
-        return queryset.prefetch_related('user_set__approval_group')
+    def get_context_data(self, **kwargs):
+        context = super(UserList, self).get_context_data(**kwargs)
+        
+        groups = []
+        context['object_list'] = sorted(list(context['object_list']), key=lambda x: x.approval_group.pk)
+        
+        for group, users in itertools.groupby(context['object_list'], lambda x: x.approval_group):
+            if group:
+                groups.append((group, list(users)))
+            
+        context['object_list'] = groups
+        context.update({
+            'filterform': self.filterform
+        })
+        return context
     
+    def get_queryset(self):
+        queryset = super(UserList, self).get_queryset()
+        #queryset = queryset.prefetch_related('user_set__approval_group')
+        queryset = queryset.select_related('approval_group')
+        self.filterform = forms.UsersFilterForm(self.request.GET)
+        if self.filterform.is_valid():
+            queryset = self.filterform.filter(queryset)
+
+        return queryset
     
 class EditUser(ProjectViewMixin, generic.UpdateView):
     model = User

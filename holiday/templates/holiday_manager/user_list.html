@@ -3,8 +3,8 @@
 
 {% block tabheader %}
     <h3 class="">Your Staff</h3>
-    <form class="search form-inline">
-        <input type="text" class="">
+    <form class="search form-inline" action="" method="get">
+        {{ filterform.name }}
         <button type="submit" class="btn">Search</button>
     </form>
     <nav>
@@ -31,7 +31,7 @@
 
 {% block tabcontent %}
 
-{% for team in object_list %}
+{% for team, users in object_list %}
 <div class="user-group cf" id="group-{{ team.pk }}">
     <div class="group-header cf">
         <h3 class="show-all">{{ team }} <span>({{ team.user_set.count }})</span></h3>
@@ -41,7 +41,7 @@
         </ul>
     </div>
     <ul class="user-list cf collapsed">
-        {% for object in team.user_set.all %}
+        {% for object in users %}
             <li class="row cf">
                 <div class="check"><input type="checkbox" /></div>
                 <div class="pic">

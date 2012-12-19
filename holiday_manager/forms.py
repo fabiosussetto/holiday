@@ -6,7 +6,7 @@ from django.forms.models import BaseInlineFormSet
 import collections
 
 from datafilters.filterform import FilterForm
-from datafilters.specs import DatePickFilterSpec
+from datafilters.specs import DatePickFilterSpec, ContainsFilterSpec
 
 class ProjectFormMixin(object):
     
@@ -131,3 +131,7 @@ class ClosurePeriodForm(ProjectFormMixin, forms.ModelForm):
 class RequestFilterForm(FilterForm):
     from_date = DatePickFilterSpec('start_date', label='From')
     end_date = DatePickFilterSpec('end_date', label='To')
+    
+    
+class UsersFilterForm(FilterForm):
+    name = ContainsFilterSpec('last_name')

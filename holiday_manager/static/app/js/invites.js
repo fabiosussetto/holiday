@@ -8,6 +8,7 @@ var ModalView = Backbone.View.extend({
             var form = target.closest('form');
             self.loader.show();
             $.post(form.attr('action'), form.serialize(), function(resp) {
+                self.loader.hide();
                 self.modal.injectContent(resp);
                 self.reload_parent = true;
             }).error(function() {
