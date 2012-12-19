@@ -1,0 +1,59 @@
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert {{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+
+<form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
+    <p class="lightColor">Select your GMail contacts to invite:</p>
+    {% if oauthed %}
+        <div class="scroller contact-picker">
+            {% if contacts %}
+                <table class="table">
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>Approval group</th>
+                        <th>Days off left</th>
+                    </tr>
+                {% for contact in contacts %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="index" value="{{ forloop.counter0 }}">
+                            <input type="hidden" name="email" value="{{ contact.email }}">
+                            <input type="hidden" name="first_name" value="{{ contact.first_name }}">
+                            <input type="hidden" name="last_name" value="{{ contact.last_name }}">
+                        </td>
+                        <td>
+                            <img onerror="this.src='{{ STATIC_URL }}app/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
+                        </td>
+                        <td>
+                            {{ contact.full_name }}
+                        </td>
+                        <td>
+                            {{ import_form.approval_group }}
+                        </td>
+                        <td>
+                            {{ import_form.days_off_left }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <p>You don't have any contacts to import.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>Please authorize this app to import your Gmail contacts:</p>
+        <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={% url app:user_list curr_project %}#tab-gmail">Login with Google</a>
+    {% endif %}
+    
+    {% if oauthed %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary import-contacts">Import selected contacts</button>
+        </div>
+    {% endif %}
+</form>

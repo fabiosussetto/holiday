@@ -254,6 +254,7 @@ GOOGLE_OAUTH_EXTRA_SCOPE = ['https://www.google.com/m8/feeds', 'https://www.goog
 GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'access_type': 'offline'}
 SOCIAL_AUTH_EXTRA_DATA = True
 SOCIAL_AUTH_SESSION_EXPIRATION = False
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', 'first_name', 'last_name']
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {

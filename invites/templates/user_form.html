@@ -1,16 +1,15 @@
 {% extends 'holiday_manager/base_modal.html' %}
 
-{% block modal_title %}
-    Invite a new memeber
-{% endblock %}
+{% block modal_title %}Invite a new member{% endblock %}
 
 {% block modal_body %}
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab-invite" data-toggle="tab">Invite by email</a></li>
-        <li><a href="#tab-gmail" data-toggle="tab">Import your GMail contacts</a></li>
+        <li><a href="#tab-gmail" data-toggle="tab" data-ajax="{% url app:invites:import_contacts curr_project %}">Import your GMail contacts</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="tab-invite">
+            {{ form.non_field_errors }}
             <form action="{% url app:invites:invite curr_project %}" method="post" class="form-inline invite-form">{% csrf_token %}
                 <div class="form-column-container">
                     <div class="form-column">
@@ -39,34 +38,7 @@
             </form>
         </div>
         <div class="tab-pane" id="tab-gmail">
-            <form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
-                <p class="lightColor">Select your GMail contacts to invite:</p>
-                {% if oauthed %}
-                    <div class="scroller contact-picker">
-                        {% if contacts %}
-                            <ul>
-                            {% for contact in contacts %}
-                                <li>
-                                    <input type="checkbox" name="email" value="{{ contact.email }}">
-                                    <img onerror="this.src='{{ STATIC_URL }}app/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
-                                    {{ contact.full_name }} ({{ contact.email }})
-                                </li>
-                            {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>You don't have any contacts to import.</p>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <p>Please authorize this app to import your Gmail contacts:</p>
-                    <a rel="nofollow" class="btn btn-primary btn-big" href="{% url socialauth_begin 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
-                {% endif %}
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Import selected contacts</button>
-                </div>
-        
-            </form>
+            loading contacts...
         </div>
     </div>
 {% endblock %}

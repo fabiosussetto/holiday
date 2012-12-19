@@ -23,10 +23,17 @@ class EditUserForm(ProjectFormMixin, forms.ModelForm):
                   'is_staff', 'is_active',)        
 
         
+class ImportUserForm(ProjectFormMixin, forms.ModelForm):
+    
+    class Meta:
+        model = models.User
+        fields = ('approval_group', 'days_off_left')
+    
+        
 class InviteUserForm(ProjectFormMixin, forms.ModelForm):
     
-    email = forms.EmailField(help_text="An invite will be sent to this address", required=True)
-    days_off_left = forms.IntegerField(min_value=0, help_text="How many days this user will receive for the current year")
+    #email = forms.EmailField(help_text="An invite will be sent to this address", required=True)
+    #days_off_left = forms.IntegerField(min_value=0, help_text="How many days this user will receive for the current year")
     
     class Meta:
         model = models.User
@@ -37,7 +44,19 @@ class InviteUserForm(ProjectFormMixin, forms.ModelForm):
             'last_name': forms.TextInput(attrs={'placeholder': 'Last name (optional)'})
         }
         
+    def clean(self):
+        cleaned_data = super(InviteUserForm, self).clean()
+        email = cleaned_data.get('email')
+        try:
+            models.User.objects.get(email=email, project=self.project)
+        except models.User.DoesNotExist:
+            pass
+        else:
+            raise forms.ValidationError("There's already an user with this email address for this project.")
+        return cleaned_data
+        
     def save(self, project, commit=True):
+        self.project = project
         new_user = super(InviteUserForm, self).save(commit=False)
         new_user = User.registration.invite(project, user=new_user, commit=False)
         if commit:

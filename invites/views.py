@@ -79,15 +79,6 @@ def logout(request, **kwargs):
 def no_user_association(request):
     return render(request, 'no_user_association.html')
 
-#def confirm_invitation(request, key=None, project=None):
-#    user = User.registration.activate_user(key)
-#    if not user:
-#        return redirect('/wrong_key')
-#    
-#    user = authenticate(email=user.email, skip_password=True)    
-#    auth_login(request, user)
-#    return render(request, 'user_welcome.html')
-
 def password_reset(request, **kwargs):
     curr_project = Project.objects.get(slug=kwargs['project'])
     password_reset_form = forms.PasswordResetForm
@@ -166,17 +157,6 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
             subform.set_project(self.curr_project)
         return formset
     
-    def get_context_data(self, **kwargs):
-        context = super(InviteUser, self).get_context_data(**kwargs)
-        try:
-            contacts = filter_project_contacts(
-                            google_contacts(self.request.user), self.curr_project)
-            data = {'oauthed': True, 'contacts': contacts}
-        except (UserSocialAuth.DoesNotExist,):
-            data = {'oauthed': False, 'contacts': []}
-        context.update(data)
-        return context
-    
     @transaction.commit_on_success
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
@@ -184,7 +164,7 @@ class InviteUser(ProjectViewMixin, generic.CreateView):
             new_user = form.save(self.curr_project)
             messages.success(request, "Invite sent to %s." % new_user.email)
             #return redirect_to_referer(request)
-            return self.render_to_response(self.get_context_data(form=form))
+            return self.render_to_response(self.get_context_data(form=self.get_form_class()()))
         else:
             return self.form_invalid(form=form)
         
@@ -206,16 +186,43 @@ class ConfirmInvitation(ProjectViewMixin, generic.UpdateView):
         return redirect(reverse('app:dashboard', kwargs={'project': self.curr_project.slug}))
 
             
-class ImportContacts(ProjectViewMixin, generic.View):
+class ImportContacts(ProjectViewMixin, generic.TemplateView):
+
+    template_name = 'import_contacts.html'
+    
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            contacts = filter_project_contacts(
+                            google_contacts(self.request.user), self.curr_project)
+            data = {'oauthed': True, 'contacts': contacts, 'import_form': forms.ImportUserForm()}
+        except (UserSocialAuth.DoesNotExist,):
+            data = {'oauthed': False, 'contacts': []}
+        context.update(data)
+        return context
     
     @transaction.commit_on_success
     def post(self, request, *args, **kwargs):
+        indexes = [int(index) for index in self.request.POST.getlist('index')]
         emails = self.request.POST.getlist('email')
-        for email in emails:
-            User.registration.invite(self.curr_project, email=email)
+        first_names = self.request.POST.getlist('first_name')
+        last_names = self.request.POST.getlist('last_name')
+        approval_groups = self.request.POST.getlist('approval_group')
+        days_off_left = self.request.POST.getlist('days_off_left')
+        zipped = [item for index, item in enumerate(zip(emails, first_names, last_names, approval_groups, days_off_left)) if index in indexes]
+        contact_data = [
+            {'email': item[0], 'first_name': item[1], 'last_name': item[2], 'approval_group_id': item[3], 'days_off_left': item[4]}
+            for item in zipped
+        ]
+        for item in contact_data:
+            User.registration.invite(self.curr_project, **item)
             
+        #return redirect_to_referer(self.request)
         messages.success(request, "Invitation sent to the selected contacts.")
-        return redirect_to_referer(self.request)    
+        return self.render_to_response(self.get_context_data())
             
             
 class ResendInvitation(ProjectViewMixin, generic.CreateView):

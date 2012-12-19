@@ -32,7 +32,7 @@
 {% block tabcontent %}
 
 {% for team in object_list %}
-<div class="user-group cf">
+<div class="user-group cf" id="group-{{ team.pk }}">
     <div class="group-header cf">
         <h3 class="show-all">{{ team }} <span>({{ team.user_set.count }})</span></h3>
         <ul class="cf">
@@ -94,7 +94,7 @@
         {% endfor %}
     </ul>
     <div class="group-footer">
-        <a class="show-all collapsed btn" data-text-less="Show less" data-text-more="Show all">Show all</a>
+        <a class="show-all collapsed btn" data-text-less="Show less" data-text-more="Show all" data-group-id="{{ team.pk }}">Show all</a>
     </div>
 </div>
 {% endfor %}
@@ -139,6 +139,12 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+        var app_urls = {
+            root: '{% url app:user_list curr_project %}/',
+            invite: '{% url app:invites:invite curr_project %}'
+        };
+    </script>
     <script src="{{ STATIC_URL }}shared/js/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}shared/js/backbone-min.js"></script>
     <script src="{{ STATIC_URL }}app/js/invites.js"></script>
@@ -149,6 +155,15 @@
             $this.toggleClass('collapsed');
             $this.parent().siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
             $this.text($this.hasClass('collapsed') ? $this.data('text-more') : $this.data('text-less'));
+            var expanded = localStorage['expanded_groups'] ? JSON.parse(localStorage['expanded_groups']) : [];
+            var group_id = $this.data('group-id');
+            if ($this.hasClass('collapsed')) {
+                expanded = _.without(expanded, group_id);
+            } else {
+                expanded.push(group_id);
+            }
+            localStorage['expanded_groups'] = JSON.stringify(expanded);
+            console.log(JSON.parse(localStorage['expanded_groups']));
         });
          $('.user-group h3').click(function(e) {
             $(this).siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
@@ -169,6 +184,12 @@
                 }
             });
             modal.show();
+        });
+        
+        var expanded = localStorage['expanded_groups'] ? JSON.parse(localStorage['expanded_groups']) : [];
+        _.each(expanded, function(val) {
+            $('#group-' + val).find('.user-list').removeClass('collapsed').addClass('expanded');
+            $('#group-' + val).find('.show-all').removeClass('collapsed');
         });
         
     </script>

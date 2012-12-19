@@ -32,7 +32,7 @@ from holiday_manager.pymill import PayMillApi
 
 class UserManager(DjangoUserManager):
 
-    def create_user(self, email=None, password=None, project=None):
+    def create_user(self, email=None, password=None, project=None, **kwargs):
         """
         Creates and saves a User with the given username, email and password.
         """
@@ -40,7 +40,7 @@ class UserManager(DjangoUserManager):
         email = UserManager.normalize_email(email)
         user = self.model(email=email,
                           is_staff=False, is_active=True, is_superuser=False,
-                          last_login=now, date_joined=now)
+                          last_login=now, date_joined=now, **kwargs)
 
         user.set_password(password)
         if project:

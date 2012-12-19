@@ -38,8 +38,17 @@ def google_contacts(user):
             for link in entry['link']:
                 if link['type'] == 'image/*':
                     contact_pic = '%s?access_token=%s' % (link['href'], access_token)
+                    
+            first_name = last_name = None
+            try:
+                first_name = entry['gd$name']['gd$givenName']['$t']
+                last_name = entry['gd$name']['gd$familyName']['$t']
+            except KeyError:
+                pass
             contacts.append({
                 'full_name': entry['title']['$t'],
+                'first_name': first_name,
+                'last_name': last_name,
                 'pic': contact_pic,
                 'email': entry['gd$email'][0]['address']
             })
