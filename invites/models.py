@@ -11,7 +11,6 @@ from django.db import transaction
 from django.contrib.auth.hashers import (
     check_password, make_password, is_password_usable)
 
-from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -250,9 +249,6 @@ class User(models.Model):
     def natural_key(self):
         return (self.email,)
 
-    #def get_absolute_url(self):
-    #    return "/users/%s/" % urllib.quote(smart_str(self.username))
-
     def is_anonymous(self):
         """
         Always returns False. This is a way of comparing User objects to
@@ -301,7 +297,9 @@ class User(models.Model):
         """
         Sends an email to this User.
         """
-        send_mail(subject, message, from_email, [self.email])
+        #send_mail(subject, message, from_email, [self.email])
+        from invites import tasks
+        tasks.send_email_async.delay(subject, message, from_email, [self.email])
         
     def generate_activation_key(self):
         salt = hashlib.sha1(str(random.random())).hexdigest()[:5]

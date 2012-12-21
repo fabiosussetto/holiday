@@ -28,9 +28,14 @@
                             <input type="hidden" name="email" value="{{ contact.email }}">
                             <input type="hidden" name="first_name" value="{{ contact.first_name }}">
                             <input type="hidden" name="last_name" value="{{ contact.last_name }}">
+                            <input type="hidden" name="google_pic_url" value="{% if contact.pic %}{{ contact.pic }}{% endif %}">
                         </td>
                         <td>
-                            <img onerror="this.src='{{ STATIC_URL }}app/img/missing_pic.gif'" style="width:30px" src="{{ contact.pic }}">
+                            {% if contact.pic %}
+                                <img style="width:30px" src="{{ contact.pic }}">
+                            {% else %}
+                                <img style="width:30px" src="{{ STATIC_URL }}app/img/missing_pic.gif">
+                            {% endif %}
                         </td>
                         <td>
                             {{ contact.full_name }}
@@ -56,6 +61,7 @@
     {% if oauthed %}
         <div class="form-actions">
             <button type="submit" class="btn btn-primary import-contacts">Import selected contacts</button>
+            <button class="btn" data-action="close">Close</button>
         </div>
     {% endif %}
 </form>

@@ -98,10 +98,19 @@ SECRET_KEY = '3(!lv%mxga^*wj@+7qs#2!-9r+#meyk-ddb8e#hgw1@0v&amp;4s2i'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
+#TEMPLATE_LOADERS = (
+#    ('django.template.loaders.cached.Loader', (
+#        'django.template.loaders.filesystem.Loader',
+#        'django.template.loaders.app_directories.Loader',
+#    )),
+#)
+
+
 MIDDLEWARE_CLASSES = (
+    #'johnny.middleware.LocalStoreClearMiddleware',
+    #'johnny.middleware.QueryCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -113,6 +122,16 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+# some johnny settings
+CACHES = {
+    'default' : dict(
+        BACKEND = 'johnny.backends.redis.RedisCache',
+        LOCATION = '127.0.0.1:6379',
+        JOHNNY_CACHE = True,
+    )
+}
+JOHNNY_MIDDLEWARE_KEY_PREFIX = 'holiday'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
@@ -158,7 +177,8 @@ INSTALLED_APPS = (
     'invites',
     'holiday_manager',
     'datafilters',
-    'django.contrib.webdesign'
+    'django.contrib.webdesign',
+    'djcelery'
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -278,9 +298,13 @@ DATE_INPUT_FORMATS = ('%d/%m/%Y',)
 
 THUMBNAIL_ALIASES = {
     'invites.User.google_pic': {
-        'thumb': {'size': (40, 40), 'crop': 'smart'},
+        'thumb': {'size': (60, 60), 'crop': 'smart'},
     },
 }
+
+import djcelery
+djcelery.setup_loader()
+
 
 ENVS = ('local', 'dev', 'testing', 'live')
 curr_module = sys.modules[__name__]

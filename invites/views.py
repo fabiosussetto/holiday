@@ -15,14 +15,12 @@ from holiday_manager.views.base import ProjectViewMixin
 from django.db import transaction
 from holiday_manager.utils import redirect_to_referer, filter_project_contacts
 from social_auth.db.django_models import UserSocialAuth
-from invites.google_api import google_contacts, AuthTokenException
+from invites.google_api import google_contacts
 from django.forms.models import modelformset_factory
 from django.contrib import messages
-from django.views.decorators.debug import sensitive_post_parameters
-from django.views.decorators.cache import never_cache
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import base36_to_int
-from django.contrib import messages
+from invites import tasks
 
 @sensitive_post_parameters()
 @csrf_protect
@@ -212,13 +210,16 @@ class ImportContacts(ProjectViewMixin, generic.TemplateView):
         last_names = self.request.POST.getlist('last_name')
         approval_groups = self.request.POST.getlist('approval_group')
         days_off_left = self.request.POST.getlist('days_off_left')
-        zipped = [item for index, item in enumerate(zip(emails, first_names, last_names, approval_groups, days_off_left)) if index in indexes]
+        pics = self.request.POST.getlist('google_pic_url')
+        zipped = [item for index, item in enumerate(zip(emails, first_names, last_names, approval_groups, days_off_left, pics)) if index in indexes]
         contact_data = [
-            {'email': item[0], 'first_name': item[1], 'last_name': item[2], 'approval_group_id': item[3], 'days_off_left': item[4]}
+            {'email': item[0], 'first_name': item[1], 'last_name': item[2],
+            'approval_group_id': item[3], 'days_off_left': item[4], 'google_pic_url': item[5] or None}
             for item in zipped
         ]
         for item in contact_data:
-            User.registration.invite(self.curr_project, **item)
+            user = User.registration.invite(self.curr_project, **item)
+            tasks.fetch_google_pic.delay(user.pk)
             
         #return redirect_to_referer(self.request)
         messages.success(request, "Invitation sent to the selected contacts.")

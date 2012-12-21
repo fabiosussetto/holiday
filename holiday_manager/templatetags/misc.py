@@ -3,6 +3,7 @@ from django.template import Library, Node, TemplateSyntaxError
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
+from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
 register = Library()
 
@@ -13,10 +14,10 @@ def jsonify(obj):
 @register.simple_tag
 def profile_pic(user):
     output = ''
-    if user.google_pic_url:
-        output = '<img src="%s" class="user-pic">' % user.google_pic
+    if user.google_pic:
+        output = '<img src="%s" class="user-pic">' % thumbnail_url(user.google_pic, 'thumb')
     else:
-        output = '<img src="%s" class="user-pic missing">' % staticfiles_storage.url('img/missing_pic.gif')
+        output = '<img src="%s" class="user-pic missing">' % staticfiles_storage.url('app/img/missing_pic.gif')
     return output
     
 @register.simple_tag(takes_context=True)

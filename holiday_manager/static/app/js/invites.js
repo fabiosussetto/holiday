@@ -1,37 +1,7 @@
-var ModalView = Backbone.View.extend({
+var BaseModalView = Backbone.View.extend({
     reload_parent: false,
-    events: {
-        'click .send-invite': function (e) {
-            var self = this;
-            e.preventDefault();
-            var target = $(e.target);
-            var form = target.closest('form');
-            self.loader.show();
-            $.post(form.attr('action'), form.serialize(), function(resp) {
-                self.loader.hide();
-                self.modal.injectContent(resp);
-                self.reload_parent = true;
-            }).error(function() {
-                self.loader.hide();
-                alert("Unexpected error, please retry.");
-            });    
-        },
-        'click .import-contacts': function (e) {
-            var self = this;
-            e.preventDefault();
-            var target = $(e.target);
-            var form = target.closest('form');
-            self.loader.show();
-            $.post(form.attr('action'), form.serialize(), function(resp) {
-                //self.modal.injectContent(resp);
-                self.loader.hide();
-                self.$('#tab-gmail').html(resp);
-                self.reload_parent = true;
-            }).error(function() {
-                self.loader.hide();
-                alert("Unexpected error, please retry.");
-            });    
-        },
+    specific_events: {},
+    base_events: {
         'click .nav-tabs a': function (e) {
             e.preventDefault();
             var target = $(e.target);
@@ -46,18 +16,14 @@ var ModalView = Backbone.View.extend({
                 get_page(this.$el.data('reload-url'));
             }
         },
-        'shown [href="#tab-gmail"]': function(e) {
-            console.log('tab shown');
-            var target = $(e.target);
-            router.navigate(target.attr('href'));
-            if (target.data('ajax-loaded')) {
-                return;
-            }
-            $.get(target.data('ajax'), function(resp) {
-                $(target.attr('href')).html(resp);
-                target.data('ajax-loaded', true);
-            });
+        'click [data-action="close"]': function(e) {
+            e.preventDefault();
+            this.close();
         }
+    },
+    events: function() {
+        var events = _.extend(this.base_events, this.specific_events);
+        return events;
     },
     initialize: function() {
         this.loader = this.$('.modal-loader');  
@@ -92,7 +58,73 @@ var ModalView = Backbone.View.extend({
     },
     close: function() {
         this.modal.hide();
+        this.undelegateEvents();
         return this;
+    }
+});
+
+var UserDetailModalView = BaseModalView.extend({
+    specific_events: {
+        'click [data-action="edit"]': function (e) {
+            var self = this;
+            e.preventDefault();
+            var target = $(e.target);
+            this.close();
+            var modal = new AddMemberModalView({el: $('#invite-user-modal')}).render(target.attr('href')).show();
+        },
+    }
+});
+
+
+var AddMemberModalView = BaseModalView.extend({
+    specific_events: {
+        'click .send-invite': function (e) {
+            var self = this;
+            e.preventDefault();
+            var target = $(e.target);
+            var form = target.closest('form');
+            self.loader.show();
+            $.post(form.attr('action'), form.serialize(), function(resp) {
+                self.loader.hide();
+                self.modal.injectContent(resp);
+                self.reload_parent = true;
+            }).error(function() {
+                self.loader.hide();
+                alert("Unexpected error, please retry.");
+            });    
+        },
+        'click .import-contacts': function (e) {
+            var self = this;
+            e.preventDefault();
+            var target = $(e.target);
+            var form = target.closest('form');
+            self.loader.show();
+            $.post(form.attr('action'), form.serialize(), function(resp) {
+                //self.modal.injectContent(resp);
+                self.loader.hide();
+                self.$('#tab-gmail').html(resp);
+                self.reload_parent = true;
+            }).error(function() {
+                self.loader.hide();
+                alert("Unexpected error, please retry.");
+            });    
+        },
+        'click a[href="#tab-gmail"]': function(e) {
+            var target = $(e.target);
+            var self = this;
+            self.load_contacts(target);
+            router.navigate(target.attr('href'));
+        }
+    },
+    load_contacts: function(target) {
+        var self = this;
+        if (target.data('ajax-loaded')) {
+            return;
+        }
+        $.get(target.data('ajax'), function(resp) {
+            $(target.attr('href')).html(resp);
+            target.data('ajax-loaded', true);
+        });
     }
 });
 
@@ -181,9 +213,8 @@ var EditUserModalView = Backbone.View.extend({
     }
 });
 
-var GroupModalView = Backbone.View.extend({
-    reload_parent: false,
-    events: {
+var GroupModalView = BaseModalView.extend({
+    specific_events: {
         'click .form-actions [type="submit"]': function (e) {
             var self = this;
             e.preventDefault();
@@ -229,25 +260,6 @@ var GroupModalView = Backbone.View.extend({
             }
         }
     },
-    initialize: function() {
-        this.loader = this.$('.modal-loader');  
-    },
-    render: function(url, callback) {
-        var self = this;
-        this.modal = new Modal(self.$el, {
-            backdrop: true,
-            ajax: {
-                url: url
-            },
-            after_loaded: function(modal, data) {
-                self.after_loaded();
-                if (callback) {
-                    _.bind(callback, self)();
-                }
-            }
-        });
-        return this;
-    },
     after_loaded: function () {
         this.position();
         this.$(".sortable-formset .select2").select2();
@@ -261,19 +273,6 @@ var GroupModalView = Backbone.View.extend({
                 return row;
             }
         });
-    },
-    position: function() {
-        this.$el.css({
-            top: ($(window).height() - this.$el.outerHeight()) / 2 + 200
-        });  
-    },
-    show: function () {
-        this.modal.show();
-        return this;
-    },
-    close: function() {
-        this.modal.hide();
-        return this;
     }
 });
 
@@ -283,11 +282,12 @@ var Router = Backbone.Router.extend({
         "tab-gmail": "gmail_contacts",
     },
     invite: function() {
-        var modal = new ModalView({el: $('#invite-user-modal')}).render(app_urls.invite).show();        
+        var modal = new AddMemberModalView({el: $('#invite-user-modal')}).render(app_urls.invite).show();        
     },
     gmail_contacts: function() {
-        var modal = new ModalView({el: $('#invite-user-modal')}).render(app_urls.invite, function() {
-            this.$('[href="#tab-gmail"]').tab('show');
+        var modal = new AddMemberModalView({el: $('#invite-user-modal')}).render(app_urls.invite, function() {
+            this.load_contacts(this.$('[href="#tab-gmail"]'));
+            //this.$('[href="#tab-gmail"]').tab('show');
         }).show();
     }
 });
@@ -299,7 +299,7 @@ Backbone.history.start({pushState: false, root: app_urls.root});
 $('.invite-user').click(function(e) {
     e.preventDefault();
     var target = $(e.target);
-    var modal = new ModalView({el: $('#invite-user-modal')}).render(target.attr('href')).show();
+    var modal = new AddMemberModalView({el: $('#invite-user-modal')}).render(target.attr('href')).show();
     router.navigate('invite');
 });
 
@@ -308,4 +308,10 @@ $('.create-group').click(function(e) {
     var target = $(e.target);
     var modal = new GroupModalView({el: $('#create-group-modal')}).render(target.attr('href')).show();
     router.navigate('creategroup');
+});
+
+$('.user-details').click(function(e) {
+    e.preventDefault();
+    var target = $(e.currentTarget);
+    var modal = new UserDetailModalView({el: $('#user-detail-modal')}).render(target.attr('href')).show();
 });

@@ -1158,30 +1158,32 @@ table form {
         //background: #eee;
         //padding: 6px;
         display: none;
-        margin: 10px auto 0 auto;
-        width: 35%;
-        border-top: 1px dotted #eee;
+        //margin: 10px auto 0 auto;
+        //width: 35%;
+        //border-top: 1px dotted #eee;
         //border-radius: 0 0 4px 4px;
         //box-shadow: 0px 2px 4px rgba(0, 0, 0, .1) inset;
         //.btn {
         //    position: relative;
         //    top: -10px;
         //}
+        padding-left: 27px;
         a {
-            position: relative;
-            top: -12px;
-        
-            //font-weight: bold;
+            //position: relative;
+            //top: -12px;
+            font-size: 11px;
+            //text-align: right;
+            //font-weight: bold;    
             //background: #eee;
             //border: 1px solid #eee;
             background: #fff;
-            width: 120px;
+            //width: 120px;
             border-radius: 4px;
-            text-align: center;
+            //text-align: center;
             //box-shadow: 0px 2px 4px rgba(0, 0, 0, .1) inset;
             line-height: 12px;
-            display: block;
-            margin: 0 auto;
+            //display: block;
+            //margin: 0 auto;
             //height: 20px;
             //line-height: 10px;
             padding: 3px 5px;
@@ -1194,6 +1196,16 @@ table form {
         .user-list {
             height: 100px;
             overflow: hidden;
+            & > li:hover {
+                border-radius: 3px;
+                box-shadow: none;
+                .actions {
+                    display: none;
+                }
+                .check {
+                    display: none;
+                }
+            }
         }
         .group-footer {
             display: block;
@@ -1204,8 +1216,6 @@ table form {
         & > li:hover {
             border-radius: 3px;
             box-shadow: 0px 1px 4px rgba(0, 0, 0, .3);
-            //background: #fff;
-            //background: #eee;
             .actions {
                 display: block;
             }
@@ -1213,24 +1223,13 @@ table form {
                 display: block;
             }
         }
-        &.expanded {
-            & > li.selected {
-                border-radius: 3px;
-                box-shadow: 0px 1px 3px rgba(0, 0, 0, .3);
-                background: #fff;
-                background: #eee;
-                .check {
-                    display: block;
-                }
-            }
-        }
         margin: 0;
         & > li {
             .cf;
             float: left;
-            width: 200px;
+            width: 210px;
             list-style: none;
-            margin: 5px 20px;
+            margin: 5px 10px;
             padding: 10px;
             position: relative;
         }
@@ -1270,6 +1269,12 @@ table form {
             p {
                 margin-bottom: 3px;
             }
+            .name {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 140px;
+            }
         }
         .progress {
             height: 4px;
@@ -1308,10 +1313,10 @@ table form {
             margin-bottom: 8px;
         }
         dt {
-            width: 80px;
+            width: 100px;
         }
         dd {
-            margin-left: 95px;
+            margin-left: 115px;
         }
     }
     .last-requests {

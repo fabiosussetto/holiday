@@ -22,9 +22,9 @@
     {% endif %}
     <div class="tab-content">
         <div class="tab-pane active" id="tab-main">
-            <p class="intro well well-small">
-                You can arrange your staff memebers into groups. For each group, you can specify different holidays approval rules.
-            </p>
+            <!--<p class="intro well well-small">-->
+            <!--    You can arrange your staff memebers into groups. For each group, you can specify different holidays approval rules.-->
+            <!--</p>-->
             <form action="{{ request.path }}" method="post" id="ruleform" class="form-horizontal narrow ajax">{% csrf_token %}
                 {% for field in form %}
                     {% include 'bootstrap_form.html' %}
@@ -83,7 +83,7 @@
 
 {% block modal_footer %}
     <div class="form-actions">
-        <a class="btn cancel">Close</a>
+        <button class="btn" data-action="close">Close</button>
         <button type="submit" class="btn btn-primary save">Save changes</button>
     </div>
 {% endblock %}

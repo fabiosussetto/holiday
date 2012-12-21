@@ -1,3 +1,5 @@
+{% load misc %}
+
 <div id="modal-header">
     <h3>{{ object }} <span class="thin">({{ object.approval_group }})</span></h3>
 </div>
@@ -5,37 +7,54 @@
 <div id="modal-body">
     <div class="cf">
         <div class="pic">
-            <img src="http://flickholdr.com/70/70/3">
+            <!--<img src="http://flickholdr.com/70/70/{{ object.pk }}">-->
+            {% profile_pic object %}
         </div>
         <div class="info">
             <dl class="dl-horizontal">
-                <dt>Days off left</dt>
+                <dt>Days off left:</dt>
                 <dd>{{ object.days_off_left }}</dd>
-                <dt>Email</dt>
-                <dd>{{ object.email }}</dd>
-                <dt>Last login</dt>
+                <dt>Account status:</dt>
+                <dd>
+                    {% if object.is_waiting_invite %}
+                        <span class="label label-warning">waiting for confirmation</span>
+                        <a href="#" class="btn btn-small">Resend invite</a>
+                    {% elif object.is_active %}
+                        <span class="label label-success">active</span>
+                    {% else %}
+                        <span class="label">inactive</span>
+                    {% endif %}
+                </dd>
+                <dt>Contacts:</dt>
+                <dd><i class="icon-envelope"></i> <a href="mailto:{{ object.email }}">{{ object.email }}</a></dd>
+                <dd><i class="icon-phone"></i> +44 7528144059</dd>
+                <dt>Last login:</dt>
                 <dd>{{ object.last_login }}</dd>
-                <dt>Joined on</dt>
+                <dt>Joined on:</dt>
                 <dd>{{ object.date_joined }}</dd>
             </dl>
         </div>
     </div>
-    <table class="last-requests table table-striped">
-        <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>Status</th>
-        </tr>
-        {% for request in last_requests %}
+    {% if last_requests %}
+        <h5>Most recent requests:</h5>
+        <table class="last-requests table table-striped">
             <tr>
-                <td>{{ request.start_date }}</td>
-                <td>{{ request.end_date }}</td>
-                <td>{{ request.status }}</td>
+                <th>From</th>
+                <th>To</th>
+                <th>Status</th>
             </tr>
-        {% endfor %}
-    </table>
+            {% for request in last_requests %}
+                <tr>
+                    <td>{{ request.start_date }}</td>
+                    <td>{{ request.end_date }}</td>
+                    <td>{{ request.status }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 </div>
 
 <div id="modal-footer">
-    <button type="button" class="btn cancel">Close</button>
+    <a href="{% url app:user_edit project=curr_project pk=object.pk %}" class="btn" data-action="edit"><i class="icon-pencil"></i> Edit ...</a>
+    <button class="btn" data-action="close">Close</button>
 </div>

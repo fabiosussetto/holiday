@@ -171,7 +171,8 @@ class HolidayRequest(models.Model):
         return {
             'author': {
                 'name': str(self.author),
-                'pic': self.author.google_pic['thumb'].url if self.author.google_pic else None
+                #'pic': self.author.google_pic['thumb'].url if self.author.google_pic else None
+                'pic': None
             },
             'pk': self.pk,
             'status': self.status,

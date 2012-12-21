@@ -1,5 +1,5 @@
 {% extends ajax_partials|yesno:"holiday_manager/tabbed_page_ajax.html,holiday_manager/tabbed_page.html" %}
-{% load pagination_tags %}
+{% load pagination_tags misc %}
 
 {% block tabheader %}
     <h3 class="">Your Staff</h3>
@@ -20,7 +20,7 @@
                 </div>
             </li>
             <li>
-                <a href="{% url app:invites:invite curr_project %}" class="btn btn-primary invite-user">Add a new member</a>
+                <a href="{% url app:invites:invite curr_project %}" class="btn btn-primary invite-user"><i class="icon-plus"></i> Invite new people</a>
                 <a href="{% url app:group_add curr_project %}" class="btn create-group">Create new group</a>
             </li>
         </ul>
@@ -48,7 +48,8 @@
                     <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
                     <div class="wrap">
                         <a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">
-                            <img src="http://flickholdr.com/50/50/{{ object.pk }}">
+                            {% profile_pic object %}
+                            <!--<img src="http://flickholdr.com/50/50/{{ object.pk }}">-->
                             {% if object.is_waiting_invite %}
                                 <i class="waiting icon-time"></i>
                             {% endif %}
@@ -75,13 +76,6 @@
                             <ul class="dropdown-menu">
                                 <li><a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">Detail</a></li>
                                 <li><a href="{% url app:user_edit project=curr_project pk=object.pk %}" data-display="dialog" data-dialog-view="EditUserModalView" data-dialog-target="#edit-user-modal">Edit</a></li>
-                                {% if not object.is_active %}
-                                <li>
-                                    <form action="{% url app:invites:resend_invitation project=curr_project pk=object.pk %}" method="post">{% csrf_token %}
-                                        <button type="submit" class="btn btn-mini">Resend invite</button>
-                                    </form>
-                                </li>
-                                {% endif %}
                                 <li>
                                     <a class="" href="{% url app:login_as pk=object.pk project=curr_project %}">Login as</a>
                                 </li>
@@ -99,7 +93,7 @@
         {% endfor %}
     </ul>
     <div class="group-footer">
-        <a class="show-all collapsed" data-text-less="Show less" data-text-more="Show all" data-group-id="{{ team.pk }}">...</a>
+        <a class="show-all collapsed" data-text-less="Show less" data-text-more="Show all" data-group-id="{{ team.pk }}">and other 24 members ...</a>
     </div>
 </div>
 {% endfor %}
@@ -143,7 +137,7 @@
 </div>
 
 
-<div id="myModal" class="modal hide fade user-detail-view" role="dialog">
+<div id="user-detail-modal" class="modal hide fade user-detail-view" role="dialog">
     <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
     <h3 id="myModalLabel">Modal header</h3>
@@ -215,18 +209,6 @@
         //$('.user-group').hover(function(e) {
         //    $(this).find('.group-footer').slideToggle('fast');
         //});
-        
-        $('.user-details').click(function(e) {
-            e.preventDefault();
-            modal = new Modal($('#myModal'), {
-                backdrop: true,
-                ajax: {
-                    url: $(this).attr('href'),
-                }
-            });
-            modal.show();
-        });
-        
         
         
         var expanded = localStorage['expanded_groups'] ? JSON.parse(localStorage['expanded_groups']) : [];

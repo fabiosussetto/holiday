@@ -29,6 +29,10 @@ class ImportUserForm(ProjectFormMixin, forms.ModelForm):
         model = models.User
         fields = ('approval_group', 'days_off_left')
     
+    def __init__(self, *args, **kwargs):
+        super(ImportUserForm, self).__init__(*args, **kwargs)
+        self.fields['approval_group'].empty_label = None
+        self.fields['approval_group'].queryset = self.fields['approval_group'].queryset.order_by('-is_default')
         
 class InviteUserForm(ProjectFormMixin, forms.ModelForm):
     
