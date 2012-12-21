@@ -43,7 +43,7 @@ app_patterns = patterns('',
     url(r'^group$', views.admin.ListApprovalGroup.as_view(), name='group_list'),
     url(r'^group/add$', views.admin.CreateApprovalGroup.as_view(), name='group_add'),
     url(r'^group/edit/(?P<pk>\d+)$', views.admin.UpdateApprovalGroup.as_view(), name='group_edit'),
-    url(r'^group/delete/(?P<pk>\d+)$', views.admin.DeleteApprovalGroup.as_view(), name='group_delete'),
+    url(r'^group/delete/(?P<pk>\d+)$', csrf_exempt(views.admin.DeleteApprovalGroup.as_view()), name='group_delete'),
     
     url(r'^upgrade$', views.admin.UpgradePlan.as_view(), name='upgrade_plan'),
     

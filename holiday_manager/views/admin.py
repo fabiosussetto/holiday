@@ -17,6 +17,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import login, get_backends
 from social_auth.db.django_models import UserSocialAuth
 import itertools
+from django.http import HttpResponse
 
 # Debug views
 class LoginAs(ProjectViewMixin, generic.View):
@@ -41,14 +42,20 @@ class UserList(ProjectViewMixin, generic.ListView):
         
         groups = []
         context['object_list'] = sorted(list(context['object_list']), key=lambda x: x.approval_group.pk if x.approval_group else None)
+        all_groups = models.ApprovalGroup.objects.filter(project=self.curr_project)
+        populated_groups = []
         
         for group, users in itertools.groupby(context['object_list'], lambda x: x.approval_group):
             if group:
-                groups.append((group, list(users)))
+                populated_groups.append(group)
+                groups.append((group, sorted(users, key=lambda x: x.last_name)))
+                
+        empty_groups = [group for group in all_groups if group not in populated_groups]
             
         context['object_list'] = groups
         context.update({
-            'filterform': self.filterform
+            'filterform': self.filterform,
+            'empty_groups': empty_groups
         })
         return context
     
@@ -119,6 +126,7 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
         empty_form = formset.empty_form
         empty_form.set_project(self.curr_project)
         context.update({
+            'create': True,
             'formset': formset,
             'empty_form': empty_form # Small hack: each time this is called in the template, the form is recreated, so we can't set the project!
         })
@@ -133,7 +141,7 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
         kwargs = {
             'formset': forms.ApprovalRulesFormset,
             'form': forms.ApprovalRuleForm,
-            'extra': 3
+            'extra': 2
         }
         return kwargs
         
@@ -166,6 +174,13 @@ class CreateApprovalGroup(ProjectViewMixin, generic.CreateView):
     
     
 class UpdateApprovalGroup(CreateApprovalGroup):
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateApprovalGroup, self).get_context_data(**kwargs)
+        context.update({
+            'create': False,
+        })
+        return context
     
     def formset_kwargs(self):
         kwargs = super(UpdateApprovalGroup, self).formset_kwargs();
@@ -193,10 +208,13 @@ class DeleteApprovalGroup(ProjectViewMixin, generic.DeleteView):
     def get_success_url(self):
         return reverse('group_list')
         
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.object.delete()
-        return redirect(self.get_success_url())
+        self.object.remove()
+        messages.warning(request, 'The group "%s" has been deleted. All its member are now inside the default group.' % self.object)
+        # TODO: no need to render here
+        return HttpResponse('Deleted')
+        #return redirect(self.get_success_url())
         
         
 # Project settings

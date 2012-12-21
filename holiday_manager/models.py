@@ -24,12 +24,13 @@ DAY_CHOICES = (
 
 class ProjectManager(models.Manager):
 
+    @transaction.commit_on_success
     def create(self, instance):
         instance.trial_start = datetime.datetime.now()
-        #instance.price_per_user = settings.PRICE_PER_USERS_FUNC(instance.plan_users)
         instance.save()
+        instance.create_default_group()
         return instance
-
+        
 class Project(models.Model):
 
     PLANS = Choices(
@@ -76,6 +77,19 @@ class Project(models.Model):
         
     #def calculate_price(self):
     #    return self.price_per_user * self.plan_users
+    
+    def get_default_group(self):
+        return self.approvalgroup_set.get(is_default=True)
+    
+    def create_default_group(self):
+        try:
+            self.get_default_group()
+        except ApprovalGroup.DoesNotExist:
+            default_group = ApprovalGroup.objects.create(name="Default group", is_default=True, project=self)
+            default_group.save()
+            return default_group
+        else:
+            raise Exception("Project %s has already a default group" % self)
         
     def is_in_trial(self):
         return self.plan == Project.PLANS.free and datetime.datetime.now().date() >= self.trial_start
@@ -332,6 +346,7 @@ class ApprovalGroup(models.Model):
     )
     project = models.ForeignKey('Project')
     approvers = models.ManyToManyField('invites.User', through='ApprovalRule')
+    is_default = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.name
@@ -341,6 +356,16 @@ class ApprovalGroup(models.Model):
         for rule in self.approvalrule_set.order_by('order'):
             approvers.append(rule.approver)
         return approvers
+        
+    @transaction.commit_on_success
+    def remove(self):
+        if self.is_default:
+            raise Exception("Cannot remove the default group")
+        default_group = self.project.get_default_group()
+        for user in self.user_set.all():
+            user.approval_group = default_group
+            user.save()
+        self.delete()
 
             
 class ApprovalRule(models.Model):

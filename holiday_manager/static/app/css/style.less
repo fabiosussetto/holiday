@@ -211,15 +211,6 @@ table form {
         padding: 12px 5px 12px 50px;
         position: relative;
         margin: 3px 0;
-        cursor: ns-resize;
-        .handle {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 12px;
-            background: #eee url(../img/drag-handle.png) center center no-repeat;
-        }
         .position {
             position: absolute;
             left: 20px;
@@ -1163,46 +1154,66 @@ table form {
             }
         }
     }
-    a.show-all {
-        width: 200px;
-        padding: 3px 0;
-        margin: 0 auto;
-        font-size: 11px;
-        display: block;
-        line-height: 14px;
-    }
     .group-footer {
-        background: #eee;
-        padding: 6px;
+        //background: #eee;
+        //padding: 6px;
         display: none;
-        margin: 10px 0;
-        border-radius: 0 0 4px 4px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, .1) inset;
+        margin: 10px auto 0 auto;
+        width: 35%;
+        border-top: 1px dotted #eee;
+        //border-radius: 0 0 4px 4px;
+        //box-shadow: 0px 2px 4px rgba(0, 0, 0, .1) inset;
+        //.btn {
+        //    position: relative;
+        //    top: -10px;
+        //}
+        a {
+            position: relative;
+            top: -12px;
+        
+            //font-weight: bold;
+            //background: #eee;
+            //border: 1px solid #eee;
+            background: #fff;
+            width: 120px;
+            border-radius: 4px;
+            text-align: center;
+            //box-shadow: 0px 2px 4px rgba(0, 0, 0, .1) inset;
+            line-height: 12px;
+            display: block;
+            margin: 0 auto;
+            //height: 20px;
+            //line-height: 10px;
+            padding: 3px 5px;
+            color: #999;
+            //color: #fff;
+            //text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+        }
     }
-    &:hover {
-        .group-header ul {
+    &.collapsed {
+        .user-list {
+            height: 100px;
+            overflow: hidden;
+        }
+        .group-footer {
             display: block;
         }
     }
     .user-list {
         .cf;
-        &.collapsed {
-            height: 100px;
-            overflow: hidden;
+        & > li:hover {
+            border-radius: 3px;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, .3);
+            //background: #fff;
+            //background: #eee;
+            .actions {
+                display: block;
+            }
+            .check {
+                display: block;
+            }
         }
         &.expanded {
-            & > li:hover {
-                border-radius: 3px;
-                box-shadow: 0px 1px 3px rgba(0, 0, 0, .3);
-                background: #fff;
-                background: #eee;
-                .actions {
-                    display: block;
-                }
-                .check {
-                    display: block;
-                }
-            }
             & > li.selected {
                 border-radius: 3px;
                 box-shadow: 0px 1px 3px rgba(0, 0, 0, .3);
@@ -1238,6 +1249,16 @@ table form {
                 background-size: 60px 60px;
                 width: 60px;
                 height: 60px;
+                position: relative;
+            }
+            .waiting {
+                position: absolute;
+                color: #fff;
+                font-size: 40px;
+                top: 20px;
+                left: 6px;
+                opacity: .8;
+                text-shadow: 1px 1px 1px #000;
             }
             img {
                 width: 60px;
@@ -1348,12 +1369,29 @@ table form {
      -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
     &:first-child {
+        //border-right: 1px solid #eee;
     }
     &:last-child {
-        padding-left: 50px;
-        margin-left: -50px;
-        border-left: 1px solid #eee;
+        padding-left: 40px;
+        margin-left: -20px;
     }
+}
+
+.modal-header h3 {
+    font-size: 18px;
+}
+
+.contact-loader {
+    padding: 150px 0 30px 0;
+    text-align: center;
+    background: url(../img/gmail.png) center 10px no-repeat;
+    color: #999;
+    font-size: 15px;
+    p {
+    }
+}
+
+.modal-body {
 }
 
 #invite-user-modal {
@@ -1385,4 +1423,67 @@ table form {
 #edit-user-modal {
     width: 750px;
     margin-left: -375px;
+}
+
+.gmail-contacts {
+    .contact-picker {
+        table {
+            th {
+                border-bottom: 0;
+                border-top: 0;
+            }
+            td {
+                padding: 3px 0;
+                border-top: 0;
+                border-bottom: 1px solid #eee;
+            }
+            input[type="text"], select {
+                position: relative;
+                top: 4px;
+            }
+            .center {
+                text-align: center;
+            }
+        }
+    }
+}
+
+#create-group-modal {
+    width: 750px;
+    margin-left: -375px;
+    h4 {
+        margin-bottom: 0;
+        padding-bottom: 10px;
+    }
+    .add-form {
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .form-horizontal {
+    
+    }
+    #rule-formset {
+        padding-left: 60px;
+    }
+    .intro {
+        margin-bottom: 20px;
+    }
+    .tab-content {
+        padding: 0 10px;
+    }
+}
+
+.modal-footer {
+    .form-actions {
+        margin: 0;
+        border-top: 0;
+        padding: 0;
+    }
+}
+
+.empty-group {
+    font-size: 15px;
+    color: #ccc;
+    padding: 30px;
+    text-align: center;
 }

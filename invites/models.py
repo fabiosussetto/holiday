@@ -28,6 +28,7 @@ from holiday_manager.cal import COMMON_TIMEZONE_CHOICES
     
 SHA1_RE = re.compile('^[a-f0-9]{40}$')
 from holiday_manager.pymill import PayMillApi
+from django.utils.timezone import now
 
 
 class UserManager(DjangoUserManager):
@@ -130,6 +131,7 @@ class RegistrationManager(models.Manager):
                 return False
             if not user.activation_key_expired():
                 user.is_active = True
+                user.invite_accepted_on = now()
                 user.activation_key = self.ACTIVATED
                 if commit:
                     user.save()
@@ -209,6 +211,10 @@ class User(models.Model):
     
     activation_key = models.CharField(max_length=40)
     
+    invite_sent_on = models.DateTimeField(null=True)
+    
+    invite_accepted_on = models.DateTimeField(null=True)
+    
     google_pic_url = models.CharField(max_length=200, null=True, blank=True)
     
     google_pic = ThumbnailerImageField(upload_to='profiles', blank=True, null=True)
@@ -260,6 +266,9 @@ class User(models.Model):
         authenticated in templates.
         """
         return True
+        
+    def is_waiting_invite(self):
+        return self.invite_accepted_on is None and not self.is_active
 
     def get_full_name(self):
         """
@@ -379,6 +388,8 @@ class User(models.Model):
                                    ctx_dict)
         
         self.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
+        self.invite_sent_on = now()
+        self.save()
         
     def get_credit_cards(self):
         if not self.paymill_client_id:

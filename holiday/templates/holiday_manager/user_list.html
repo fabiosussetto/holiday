@@ -11,9 +11,9 @@
         <ul>
             <li>
                 <div class="btn-group">
-                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                        With selected... <span class="caret"></span>
-                    </a>
+                    <!--<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">-->
+                    <!--    With selected... <span class="caret"></span>-->
+                    <!--</a>-->
                     <ul class="dropdown-menu">
                         <li><a href="#">Assign to team...</a></li>
                     </ul>
@@ -21,7 +21,7 @@
             </li>
             <li>
                 <a href="{% url app:invites:invite curr_project %}" class="btn btn-primary invite-user">Add a new member</a>
-                <a href="#" class="btn">Create new group...</a>
+                <a href="{% url app:group_add curr_project %}" class="btn create-group">Create new group</a>
             </li>
         </ul>
     </nav>
@@ -32,23 +32,26 @@
 {% block tabcontent %}
 
 {% for team, users in object_list %}
-<div class="user-group cf" id="group-{{ team.pk }}">
+<div class="user-group cf collapsed" id="group-{{ team.pk }}">
     <div class="group-header cf">
-        <h3 class="show-all">{{ team }} <span>({{ team.user_set.count }})</span></h3>
+        <h3 class="show-all"><img src="{{ STATIC_URL }}app/img/toggle-plus.png"> {{ team }} <span>({{ team.user_set.count }})</span></h3>
         <ul class="cf">
-            <li><a href="{% url app:group_edit project=curr_project pk=team.pk %}" class="ajax">Edit group settings</a></li>
-            <li><a href="#" class="clear-selection">Clear selection</a></li>
+            <li><a href="{% url app:group_edit project=curr_project pk=team.pk %}" data-display="dialog" data-dialog-view="GroupModalView" data-dialog-target="#create-group-modal"><i class="icon-wrench"></i> Edit group settings</a></li>
+            <!--<li><a href="#" class="clear-selection">Clear selection</a></li>-->
         </ul>
     </div>
-    <ul class="user-list cf collapsed">
+    <ul class="user-list cf">
         {% for object in users %}
             <li class="row cf">
-                <div class="check"><input type="checkbox" /></div>
+                <!--<div class="check"><input type="checkbox" /></div>-->
                 <div class="pic">
                     <!--<img src="{{ STATIC_URL }}img/missing_pic.gif">-->
                     <div class="wrap">
                         <a href="{% url app:user_detail project=curr_project pk=object.pk %}" class="user-details">
                             <img src="http://flickholdr.com/50/50/{{ object.pk }}">
+                            {% if object.is_waiting_invite %}
+                                <i class="waiting icon-time"></i>
+                            {% endif %}
                         </a>
                     </div>
                     <div class="percentage">
@@ -58,7 +61,9 @@
                     </div>
                 </div>
                 <div class="info">
-                    <p class="name">{{ object }}</p>
+                    <p class="name">
+                        {{ object }}
+                    </p>
                     <p class="team">{{ object.approval_group.name }}</p>
                     <div class="actions">
                         <div class="btn-group">
@@ -94,10 +99,26 @@
         {% endfor %}
     </ul>
     <div class="group-footer">
-        <a class="show-all collapsed btn" data-text-less="Show less" data-text-more="Show all" data-group-id="{{ team.pk }}">Show all</a>
+        <a class="show-all collapsed" data-text-less="Show less" data-text-more="Show all" data-group-id="{{ team.pk }}">...</a>
     </div>
 </div>
 {% endfor %}
+
+
+{% for team in empty_groups %}
+    <div class="user-group cf" id="group-{{ team.pk }}">
+        <div class="group-header cf">
+            <h3 class="show-all">{{ team }} <span>({{ team.user_set.count }})</span></h3>
+            <ul class="cf">
+                <li><a href="{% url app:group_edit project=curr_project pk=team.pk %}" data-display="dialog" data-dialog-view="GroupModalView" data-dialog-target="#create-group-modal"><i class="icon-wrench"></i> Edit group settings</a></li>
+            </ul>
+        </div>
+        <div class="empty-group">
+            There are no people in this group yet...
+        </div>
+    </div>
+{% endfor %}
+
 
 <div id="invite-user-modal" class="modal hide fade" role="dialog" data-reload-url="{{ request.path }}">
     <div class="modal-header">
@@ -131,14 +152,33 @@
     <p>One fine body…</p>
     </div>
     <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary">Save changes</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button class="btn btn-primary">Save changes</button>
     </div>
+</div>
+
+<div id="create-group-modal" class="modal hide fade" role="dialog" data-reload-url="{{ request.path }}">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel"></h3>
+    </div>
+    <div class="modal-body">
+        <p>Loading…</p>
+    </div>
+    <div class="modal-footer">
+    </div>
+    <div class="modal-loader"></div>
 </div>
 
 {% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}shared/select2/select2.css">
+{% endblock %}
+
 {% block extra_js %}
+    <script src="{{ STATIC_URL }}shared/select2/select2.js"></script>
+    <script src="{{ STATIC_URL }}app/js/jquery.formset.js"></script>
     <script>
         var app_urls = {
             root: '{% url app:user_list curr_project %}/',
@@ -166,14 +206,15 @@
             console.log(JSON.parse(localStorage['expanded_groups']));
         });
          $('.user-group h3').click(function(e) {
-            $(this).siblings('.user-list').toggleClass('collapsed').toggleClass('expanded');
+            $(this).closest('.user-group').toggleClass('collapsed');
         });
         $('.check :checkbox').click(function(e) {
             $(this).closest('li').toggleClass('selected');
         });
-        $('.user-group').hover(function(e) {
-            $(this).find('.group-footer').slideToggle('fast');
-        });
+        
+        //$('.user-group').hover(function(e) {
+        //    $(this).find('.group-footer').slideToggle('fast');
+        //});
         
         $('.user-details').click(function(e) {
             e.preventDefault();
@@ -185,6 +226,8 @@
             });
             modal.show();
         });
+        
+        
         
         var expanded = localStorage['expanded_groups'] ? JSON.parse(localStorage['expanded_groups']) : [];
         _.each(expanded, function(val) {

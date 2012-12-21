@@ -49,10 +49,13 @@ var ModalView = Backbone.View.extend({
         'shown [href="#tab-gmail"]': function(e) {
             console.log('tab shown');
             var target = $(e.target);
-            target.tab('show');
             router.navigate(target.attr('href'));
+            if (target.data('ajax-loaded')) {
+                return;
+            }
             $.get(target.data('ajax'), function(resp) {
                 $(target.attr('href')).html(resp);
+                target.data('ajax-loaded', true);
             });
         }
     },
@@ -178,6 +181,102 @@ var EditUserModalView = Backbone.View.extend({
     }
 });
 
+var GroupModalView = Backbone.View.extend({
+    reload_parent: false,
+    events: {
+        'click .form-actions [type="submit"]': function (e) {
+            var self = this;
+            e.preventDefault();
+            var target = $(e.target);
+            var form = this.$('.modal-body form');
+            self.loader.show();
+            $.post(form.attr('action'), form.serialize(), function(resp) {
+                self.loader.hide();
+                //self.close();
+                //get_page(this.$el.data('reload-url'));
+                self.modal.injectContent(resp);
+                self.reload_parent = true;
+            }).error(function() {
+                self.loader.hide();
+                alert("Unexpected error, please retry.");
+            });    
+        },
+        'click .delete-group': function(e) {
+            e.preventDefault();
+            var target = $(e.target);
+            var self = this;
+            self.loader.show();
+            $.post(target.attr('href'), function() {
+                self.close();
+                get_page(self.$el.data('reload-url'));
+            }).error(function() {
+                alert("Unexpected error");
+                self.loader.hide();
+            });
+        },
+        'click .modal-body': function (e) {
+            e.stopPropagation();
+        },
+        'click .nav-tabs a': function (e) {
+            e.preventDefault();
+            var target = $(e.target);
+            target.tab('show');
+        },
+        'hidden': function(e) {
+            router.navigate(router.root);
+            if (this.reload_parent) {
+                get_page(this.$el.data('reload-url'));
+            }
+        }
+    },
+    initialize: function() {
+        this.loader = this.$('.modal-loader');  
+    },
+    render: function(url, callback) {
+        var self = this;
+        this.modal = new Modal(self.$el, {
+            backdrop: true,
+            ajax: {
+                url: url
+            },
+            after_loaded: function(modal, data) {
+                self.after_loaded();
+                if (callback) {
+                    _.bind(callback, self)();
+                }
+            }
+        });
+        return this;
+    },
+    after_loaded: function () {
+        this.position();
+        this.$(".sortable-formset .select2").select2();
+        this.$('.sortable-formset > li').formset({
+            prefix: app_vars.formset_prefix,
+            formTemplate: $('#empty-form-template'),
+            fieldsetContainer: '.sortable-formset',
+            beforeRender: function(row, form_count) {
+                $(".select2", row).select2();
+                $(".position", row).text(form_count + 1);
+                return row;
+            }
+        });
+    },
+    position: function() {
+        this.$el.css({
+            top: ($(window).height() - this.$el.outerHeight()) / 2 + 200
+        });  
+    },
+    show: function () {
+        this.modal.show();
+        return this;
+    },
+    close: function() {
+        this.modal.hide();
+        return this;
+    }
+});
+
 var Router = Backbone.Router.extend({
     routes: {
         "invite": "invite",
@@ -202,4 +301,11 @@ $('.invite-user').click(function(e) {
     var target = $(e.target);
     var modal = new ModalView({el: $('#invite-user-modal')}).render(target.attr('href')).show();
     router.navigate('invite');
+});
+
+$('.create-group').click(function(e) {
+    e.preventDefault();
+    var target = $(e.target);
+    var modal = new GroupModalView({el: $('#create-group-modal')}).render(target.attr('href')).show();
+    router.navigate('creategroup');
 });

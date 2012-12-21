@@ -4,8 +4,8 @@
 
 {% block modal_body %}
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab-invite" data-toggle="tab">Invite by email</a></li>
-        <li><a href="#tab-gmail" data-toggle="tab" data-ajax="{% url app:invites:import_contacts curr_project %}">Import your GMail contacts</a></li>
+        <li class="active"><a href="#tab-invite">Invite by email</a></li>
+        <li><a href="#tab-gmail" data-ajax="{% url app:invites:import_contacts curr_project %}">Import your GMail contacts</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="tab-invite">
@@ -38,7 +38,9 @@
             </form>
         </div>
         <div class="tab-pane" id="tab-gmail">
-            loading contacts...
+            <div class="contact-loader">
+                <img src="{{ STATIC_URL }}app/img/loader-small.gif"> Loading your GMail contacts...
+            </div>
         </div>
     </div>
 {% endblock %}

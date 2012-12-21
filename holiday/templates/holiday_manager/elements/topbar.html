@@ -15,12 +15,10 @@
           {% if user.is_authenticated %}
           <ul class="nav" id="topnav">
             <li class="{% topnav_active 'dashboard' %}"><a href="{% url app:dashboard curr_project %}"><i class="icon-home"></i> Home</a></li>
-            {% if user.is_staff or user.is_superuser %}
-                <li class="divider-vertical"></li>
-                <li class="{% topnav_active 'users' %}">
-                    <a href="{% url app:user_list curr_project %}"><i class="icon-group"></i> Your staff</a>
-                </li>
-            {% endif %}
+            <li class="divider-vertical"></li>
+            <li class="{% topnav_active 'users' %}">
+                <a href="{% url app:user_list curr_project %}"><i class="icon-group"></i> People</a>
+            </li>
             <li class="divider-vertical"></li>
             <li class="{% topnav_active 'requests' %}">
                 <a href="{% url app:holiday_weekly curr_project %}"><i class="icon-inbox"></i> Holidays calendar</a>

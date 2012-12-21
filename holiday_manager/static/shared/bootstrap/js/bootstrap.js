@@ -784,9 +784,9 @@
     parseBody: function(raw_html) {
         var html = $('<div />').html(raw_html);
         var data = {
-            header: html.find('#modal-header'),
-            body: html.find('#modal-body'),
-            footer: html.find('#modal-footer')
+            header: html.find('#modal-header').html(),
+            body: html.find('#modal-body').html(),
+            footer: html.find('#modal-footer').html()
         }
         return data;
     },

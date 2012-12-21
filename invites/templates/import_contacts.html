@@ -6,8 +6,10 @@
     {% endfor %}
 {% endif %}
 
-<form action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
-    <p class="lightColor">Select your GMail contacts to invite:</p>
+<form class="gmail-contacts" action="{% url app:invites:import_contacts curr_project %}" method="post">{% csrf_token %}
+    <p class="lightColor cf">
+        Select your GMail contacts to invite:
+    </p>
     {% if oauthed %}
         <div class="scroller contact-picker">
             {% if contacts %}
@@ -16,8 +18,8 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th>Approval group</th>
-                        <th>Days off left</th>
+                        <th class="center">Approval group</th>
+                        <th class="center">Days off left</th>
                     </tr>
                 {% for contact in contacts %}
                     <tr>
@@ -33,10 +35,10 @@
                         <td>
                             {{ contact.full_name }}
                         </td>
-                        <td>
+                        <td class="center">
                             {{ import_form.approval_group }}
                         </td>
-                        <td>
+                        <td class="center">
                             {{ import_form.days_off_left }}
                         </td>
                     </tr>
